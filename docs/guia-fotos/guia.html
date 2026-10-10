@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Guia de fotos para calibração</title>
+<style>
+  @page { size: A4; margin: 14mm 13mm 14mm 13mm; }
+  :root { --tinta: #1d232b; --suave: #5b6673; --linha: #d5dbe2; --fundo: #f3f5f8; --acento: #1f5fa8; --alerta: #a3471b; --ok: #2e7d4f; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--tinta); font-size: 10.5pt; line-height: 1.4; margin: 0; }
+  h1 { font-size: 21pt; margin: 0 0 2mm; letter-spacing: -0.3px; }
+  h2 { font-size: 13.5pt; margin: 0 0 3mm; color: var(--acento); border-bottom: 1.5px solid var(--acento); padding-bottom: 1.5mm; }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm; }
+  p { margin: 0 0 2mm; }
+  .sub { color: var(--suave); font-size: 11pt; margin-bottom: 6mm; }
+  .regras { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-bottom: 5mm; }
+  .regra { background: var(--fundo); border-radius: 2mm; padding: 3mm 3.5mm; }
+  .regra b { display: block; margin-bottom: 1mm; }
+  table { border-collapse: collapse; width: 100%; }
+  .base td { padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--linha); }
+  .base td:first-child { color: var(--suave); width: 42%; }
+  .base td:last-child { font-weight: 600; }
+  .lista td, .lista th { padding: 1.3mm 2mm; border-bottom: 1px solid var(--linha); text-align: left; vertical-align: top; }
+  .lista th { font-size: 9pt; color: var(--suave); font-weight: 600; }
+  .caixa { display: inline-block; width: 3.6mm; height: 3.6mm; border: 1.3px solid var(--tinta); border-radius: 0.6mm; vertical-align: -0.6mm; }
+  .sessao { break-before: page; }
+  .sessao-intro { color: var(--suave); margin-bottom: 4mm; }
+  .card { border: 1.3px solid var(--linha); border-radius: 2.5mm; padding: 3.5mm 4mm 3mm; margin-bottom: 4mm; break-inside: avoid; }
+  .card-topo { display: flex; align-items: baseline; gap: 3mm; margin-bottom: 2.5mm; }
+  .codigo { background: var(--acento); color: #fff; font-weight: 700; border-radius: 1.5mm; padding: 0.6mm 2.2mm; font-size: 11pt; }
+  .titulo { font-weight: 700; font-size: 12pt; flex: 1; }
+  .feito { color: var(--suave); font-size: 9pt; white-space: nowrap; }
+  .ajustes { display: flex; flex-wrap: wrap; gap: 1.8mm; margin-bottom: 2.5mm; }
+  .chip { background: var(--fundo); border-radius: 1.5mm; padding: 1mm 2.4mm; font-size: 10pt; }
+  .chip small { display: block; color: var(--suave); font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; }
+  .chip b { font-size: 11pt; }
+  .chip.extra { background: #e7eef8; }
+  .linhas { display: grid; grid-template-columns: 24mm 1fr; gap: 1.2mm 3mm; }
+  .linhas dt { color: var(--suave); font-weight: 600; font-size: 9.5pt; }
+  .linhas dd { margin: 0; }
+  .exp-ok { color: var(--ok); font-weight: 600; }
+  .exp-atencao { color: var(--alerta); font-weight: 600; }
+  .depois { margin-top: 2mm; font-size: 9.5pt; background: #fbf3e9; border-radius: 1.5mm; padding: 1.3mm 2.5mm; }
+  .entrega td { padding: 1.8mm 2.5mm; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  .entrega td:first-child { font-family: Consolas, monospace; font-weight: 600; white-space: nowrap; width: 34mm; }
+  .aviso { border-left: 3px solid var(--alerta); background: #fbf0ea; padding: 2.5mm 3.5mm; margin: 4mm 0; border-radius: 0 1.5mm 1.5mm 0; }
+</style>
+</head>
+<body>
+
+<h1>Guia de fotos para calibração</h1>
+<div class="sub">EvolucaoFotografia · Canon EOS RP · 14 fotos (16 disparos) em 3 sessões</div>
+
+<div class="regras">
+  <div class="regra"><b>Siga à risca</b>Modo, lente e os números de cada foto (abertura, tempo, ISO, EV), além dos ajustes destacados em azul. É por eles que cada foto é reconhecida.</div>
+  <div class="regra"><b>É livre</b>O assunto. Vista da janela, rua, plantas, objetos de casa. Não precisa ser bonita.</div>
+  <div class="regra"><b>Exposição ruim</b>Na maioria das fotos não estraga o teste. Cada cartão diz quando ela importa. Não mude os números obrigatórios para corrigir a luz.</div>
+  <div class="regra"><b>Não deu para fazer?</b>Use o ajuste mais próximo e avise o que mudou. A foto continua valendo e o gabarito é ajustado.</div>
+</div>
+
+<h2>Antes de começar: configuração base</h2>
+<p>Vale para todas as fotos, salvo quando o cartão disser outra coisa.</p>
+<table class="base">
+  <tr><td>Qualidade da imagem</td><td>RAW + JPEG L (grande, fina)</td></tr>
+  <tr><td>Recorte/proporção</td><td>3:2 (tamanho cheio)</td></tr>
+  <tr><td>Estilo de imagem</td><td>Padrão</td></tr>
+  <tr><td>Balanço de branco</td><td>AWB (automático)</td></tr>
+  <tr><td>Red. ruído ISO alta</td><td>Padrão</td></tr>
+  <tr><td>Operação AF</td><td>One-Shot</td></tr>
+  <tr><td>Método AF</td><td>AF de 1 ponto</td></tr>
+  <tr><td>Medição</td><td>Avaliativa</td></tr>
+  <tr><td>Modo drive</td><td>Foto única</td></tr>
+  <tr><td>Flash</td><td>Desligado</td></tr>
+  <tr><td>Data e hora da câmera</td><td>Conferir se estão certas</td></tr>
+</table>
+<p style="margin-top:2mm;color:var(--suave)">Correção de lente, otimizador de iluminação e outros ajustes: deixe como você usa normalmente.</p>
+
+<h2 style="break-before:page">Lista de conferência</h2>
+<p>Marque cada foto ao terminar. A ordem segue as sessões; dentro de cada sessão, a ordem não importa (exceto F08 antes da F09).</p>
+<table class="lista">
+  <tr><th></th><th>Foto</th><th>Sessão</th><th>Lente · modo</th></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F01</b> Referência de nitidez</td><td>1 · dia, janela</td><td>50 · Av</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F02</b> AF em outro ponto</td><td>1 · dia, janela</td><td>50 · M</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F04</b> Tremido proposital</td><td>1 · dia, janela</td><td>50 · Tv</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F05</b> Controle do tremido</td><td>1 · dia, janela</td><td>50 · Tv</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F10</b> Programa, −1 EV e estilo</td><td>1 · dia, janela</td><td>50 · P</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F11</b> Proporção 16:9</td><td>1 · dia, janela</td><td>50 · Av</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F12</b> Recorte 1,6x</td><td>1 · dia, janela</td><td>50 · Av</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F13</b> Automático, só JPEG M</td><td>1 · dia, janela</td><td>50 · A+</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F03</b> Rajada com rastreamento (3 fotos)</td><td>2 · dia, rua ou janela</td><td>50 · Tv</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F06</b> Tele 300 mm com risco</td><td>2 · dia, rua ou janela</td><td>75-300 · Tv</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F07</b> Tele 300 mm controle</td><td>2 · dia, rua ou janela</td><td>75-300 · Tv</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F14</b> GPS <i>(opcional)</i></td><td>2 · dia, rua ou janela</td><td>qualquer · Av</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F08</b> ISO 12800, redução de ruído Alta</td><td>3 · noite, pouca luz</td><td>50 · M</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>F09</b> ISO 12800, redução de ruído Desativada</td><td>3 · noite, pouca luz</td><td>50 · M</td></tr>
+</table>
+
+<!-- =========================== SESSÃO 1 =========================== -->
+<section class="sessao">
+<h2>Sessão 1 · De dia, perto da janela</h2>
+<p class="sessao-intro">Lente RF 50 mm em todas. Escolha um lugar claro com uma estante, objetos com texto ou textura e uma parede lisa por perto. F01 e F02 usam o mesmo enquadramento, e F04 e F05 também.</p>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F01</span><span class="titulo">Referência de nitidez</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/5.6</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip"><small>Compensação</small><b>0</b></span>
+    <span class="chip extra"><small>Modo drive</small><b>Temporizador 2 s</b></span>
+    <span class="chip extra"><small>Ponto de AF</small><b>Canto superior direito</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto</dt><dd>Estante de livros ou objeto com texto e textura, a 1–3 m. Deixe uma parede lisa aparecendo em parte do quadro.</dd>
+    <dt>Luz</dt><dd>De dia, perto da janela.</dd>
+    <dt>Como</dt><dd>Tripé ou câmera apoiada (mesa, pilha de livros). Mova o ponto de AF para o canto superior direito, em cima de um detalhe. Dispare e não toque na câmera até a foto sair.</dd>
+    <dt>Exposição</dt><dd><span class="exp-atencao">Importa:</span> precisa ficar bem exposta. Se ficar escura, procure um lugar mais claro. Não mude f/5.6 nem ISO 100: em Av a câmera escolhe o tempo, e com a câmera apoiada um tempo longo não faz mal.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> não mexa no enquadramento, a F02 usa o mesmo.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F02</span><span class="titulo">AF em outro ponto</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>M</b></span>
+    <span class="chip"><small>Abertura</small><b>f/1.8</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip"><small>Tempo</small><b>livre (fotômetro no 0)</b></span>
+    <span class="chip extra"><small>Ponto de AF</small><b>Canto inferior esquerdo</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>O mesmo lugar e enquadramento da F01.</dd>
+    <dt>Como</dt><dd>Mude o dial para M, ajuste f/1.8 e ISO 100 e mova o ponto de AF para o canto inferior esquerdo, sobre um detalhe. Pode manter o temporizador.</dd>
+    <dt>Exposição</dt><dd><span class="exp-atencao">Importa:</span> gire o dial do tempo até a marca do fotômetro (a escala no visor) ficar no 0.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte o modo drive para foto única.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F04</span><span class="titulo">Tremido proposital</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Tv</b></span>
+    <span class="chip"><small>Tempo</small><b>1/8</b></span>
+    <span class="chip"><small>ISO</small><b>Auto</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto</dt><dd>Objeto parado com detalhe (texto, textura).</dd>
+    <dt>Luz</dt><dd><b>Dentro de casa ou na sombra.</b> Ao sol, com 1/8 a foto fica toda branca.</dd>
+    <dt>Como</dt><dd>À mão livre, sem apoiar a câmera nem o braço, segurando do jeito normal. Uma foto.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span> Se ficar toda branca, vá para um lugar mais escuro.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> não mude de lugar, a F05 usa o mesmo objeto.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F05</span><span class="titulo">Controle do tremido</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Tv</b></span>
+    <span class="chip"><small>Tempo</small><b>1/200</b></span>
+    <span class="chip"><small>ISO</small><b>Auto</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>O mesmo objeto e lugar da F04.</dd>
+    <dt>Como</dt><dd>À mão livre, igual à F04. Só o tempo muda.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span> A câmera sobe o ISO sozinha.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F10</span><span class="titulo">Programa, −1 EV e estilo</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>P</b></span>
+    <span class="chip"><small>ISO</small><b>200</b></span>
+    <span class="chip"><small>Compensação</small><b>−1</b></span>
+    <span class="chip extra"><small>Medição</small><b>Pontual</b></span>
+    <span class="chip extra"><small>Estilo de imagem</small><b>Paisagem</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>Qualquer cena.</dd>
+    <dt>Como</dt><dd>Ajuste medição, estilo e compensação pelo botão Q ou pelo menu. Uma foto.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span> Ela sai mais escura de propósito, por causa do −1 EV.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte a medição para Avaliativa, o estilo para Padrão e a compensação para 0.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F11</span><span class="titulo">Proporção 16:9</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/8</b></span>
+    <span class="chip"><small>ISO</small><b>400</b></span>
+    <span class="chip extra"><small>Recorte/proporção</small><b>16:9</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>Qualquer cena.</dd>
+    <dt>Como</dt><dd>No menu, em Recorte/proporção, escolha 16:9. O visor mostra faixas nas bordas: é normal.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span></dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F12</span><span class="titulo">Recorte 1,6x</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/4</b></span>
+    <span class="chip"><small>ISO</small><b>400</b></span>
+    <span class="chip extra"><small>Recorte/proporção</small><b>1,6x (recorte)</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>Qualquer cena.</dd>
+    <dt>Como</dt><dd>No menu, em Recorte/proporção, escolha 1,6x. A imagem no visor fica mais "aproximada": é normal.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span></dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte Recorte/proporção para 3:2 (tamanho cheio).</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F13</span><span class="titulo">Automático, só JPEG M</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>A+ (Cena Inteligente)</b></span>
+    <span class="chip extra"><small>Qualidade</small><b>Só JPEG M, sem RAW</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>Qualquer cena.</dd>
+    <dt>Como</dt><dd>Mude a qualidade para JPEG M sem RAW (se o menu não deixar no A+, mude antes de girar o dial). Depois gire o dial para A+ e dispare. Esta foto não tem CR3.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span></dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte a qualidade para RAW + JPEG L. <b>Não esqueça</b>, senão as próximas fotos saem sem RAW.</div>
+</div>
+</section>
+
+<!-- =========================== SESSÃO 2 =========================== -->
+<section class="sessao">
+<h2>Sessão 2 · De dia, na rua ou da janela</h2>
+<p class="sessao-intro">Precisa de luz do dia: os tempos curtos (1/500 e 1/1000) pedem bastante luz. F06 e F07 usam o mesmo assunto.</p>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F03</span><span class="titulo">Rajada com rastreamento (3 fotos)</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Tv</b></span>
+    <span class="chip"><small>Tempo</small><b>1/500</b></span>
+    <span class="chip"><small>ISO</small><b>Auto</b></span>
+    <span class="chip extra"><small>Operação AF</small><b>Servo</b></span>
+    <span class="chip extra"><small>Método AF</small><b>Rosto + Rastreamento</b></span>
+    <span class="chip extra"><small>Modo drive</small><b>Contínuo</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto</dt><dd>Algo em movimento: pessoa andando, carro passando, bicho.</dd>
+    <dt>Luz</dt><dd>De dia.</dd>
+    <dt>Como</dt><dd>Acompanhe o assunto com a câmera e segure o botão até sair pelo menos 3 fotos seguidas. Se sair mais, mande todas.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span></dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte para One-Shot, AF de 1 ponto e foto única.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F06</span><span class="titulo">Tele 300 mm com risco de tremido</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 75-300 em 300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Tv</b></span>
+    <span class="chip"><small>Tempo</small><b>1/100</b></span>
+    <span class="chip"><small>ISO</small><b>Auto</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto</dt><dd>Algo distante com detalhe: placa, telhado, antena, árvore.</dd>
+    <dt>Luz</dt><dd>De dia, ao ar livre ou da janela.</dd>
+    <dt>Como</dt><dd>Zoom todo até 300 mm. À mão livre, segurando do jeito normal. Ponto de AF sobre o assunto.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span></dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> mantenha o assunto, a F07 usa o mesmo.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F07</span><span class="titulo">Tele 300 mm controle</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 75-300 em 300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Tv</b></span>
+    <span class="chip"><small>Tempo</small><b>1/1000</b></span>
+    <span class="chip"><small>ISO</small><b>Auto</b></span>
+    <span class="chip extra"><small>Ponto de AF</small><b>Centro</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>O mesmo assunto da F06.</dd>
+    <dt>Como</dt><dd>À mão livre, com o ponto de AF no centro.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span> A câmera sobe o ISO sozinha.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F14</span><span class="titulo">GPS <i>(opcional)</i></span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>Qualquer</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/11</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip extra"><small>Localização</small><b>Ativa no Camera Connect</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Quando</dt><dd>Só se você usa a localização do celular/tablet pelo Camera Connect (Bluetooth). Se não usa, pule.</dd>
+    <dt>Como</dt><dd>Com o app ligado e a localização ativa, ao ar livre, qualquer cena.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">Tanto faz.</span></dd>
+  </dl>
+</div>
+</section>
+
+<!-- =========================== SESSÃO 3 =========================== -->
+<section class="sessao">
+<h2>Sessão 3 · À noite, cômodo com pouca luz</h2>
+<p class="sessao-intro">Lente RF 50 mm. Um abajur aceso, ou a luz de outro cômodo, basta. Deixe uma parede ou porta lisa no quadro e apoie a câmera. Faça F08 e logo em seguida F09, sem mudar nada além da redução de ruído.</p>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F08</span><span class="titulo">ISO 12800, redução de ruído Alta</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>M</b></span>
+    <span class="chip"><small>Abertura</small><b>f/1.8</b></span>
+    <span class="chip"><small>ISO</small><b>12800</b></span>
+    <span class="chip"><small>Tempo</small><b>livre (fotômetro no 0)</b></span>
+    <span class="chip extra"><small>Red. ruído ISO alta</small><b>Alta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto</dt><dd>Cômodo com uma parede ou porta lisa ocupando boa parte do quadro.</dd>
+    <dt>Luz</dt><dd>Pouca luz: abajur, ou luz vinda de outro cômodo.</dd>
+    <dt>Como</dt><dd>Câmera apoiada. Ajuste a redução de ruído ISO alta para Alta no menu.</dd>
+    <dt>Exposição</dt><dd><span class="exp-atencao">Importa:</span> precisa ficar com exposição normal. Gire o dial do tempo até o fotômetro marcar 0 (deve ficar entre 1/250 e 1/4000). <b>Anote o tempo usado.</b></dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> não mexa na câmera nem no tempo e vá direto para a F09.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">F09</span><span class="titulo">ISO 12800, redução de ruído Desativada</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Lente</small><b>RF 50 mm</b></span>
+    <span class="chip"><small>Modo</small><b>M</b></span>
+    <span class="chip"><small>Abertura</small><b>f/1.8</b></span>
+    <span class="chip"><small>ISO</small><b>12800</b></span>
+    <span class="chip"><small>Tempo</small><b>o mesmo da F08</b></span>
+    <span class="chip extra"><small>Red. ruído ISO alta</small><b>Desativada</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Assunto e luz</dt><dd>Exatamente o mesmo lugar, luz e enquadramento da F08.</dd>
+    <dt>Como</dt><dd>Mude só a redução de ruído ISO alta para Desativada e dispare.</dd>
+    <dt>Exposição</dt><dd><span class="exp-atencao">Importa:</span> use exatamente o tempo da F08. Assim a única diferença entre as duas é a redução de ruído.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte a redução de ruído ISO alta para Padrão.</div>
+</div>
+
+</section>
+<section class="sessao">
+<h2>Ao terminar</h2>
+<p>Confira se a câmera voltou para a sua configuração normal: qualidade RAW + JPEG L, proporção 3:2, estilo Padrão, redução de ruído Padrão, medição Avaliativa, One-Shot, AF de 1 ponto, foto única e compensação 0.</p>
+
+<h2 style="margin-top:6mm">Como entregar os arquivos</h2>
+<p>Coloque tudo nestas pastas dentro de <b>Documentos\ClaudeCode\EvolucaoFotografia\amostras\</b>, <b>sem renomear, editar, girar ou recortar</b>.</p>
+<table class="entrega">
+  <tr><td>cartao\</td><td>Do <b>cartão, pelo leitor</b>: o CR3 <b>e também</b> o JPG de todas as fotos.</td></tr>
+  <tr><td>tablet\</td><td>Do <b>Camera Connect</b>: o JPG de todas as fotos, transferido do jeito que você sempre faz, sem mudar a configuração do app.</td></tr>
+  <tr><td>tablet-original\</td><td>Só F01, F06 e F10, transferidas de novo com a opção de <b>não redimensionar</b> do Camera Connect. Se o app já estiver assim, deixe vazia.</td></tr>
+  <tr><td>tablet-raw\</td><td><i>Opcional:</i> o CR3 da F01 transferido pelo Camera Connect.</td></tr>
+</table>
+<div class="aviso"><b>Do tablet para o computador:</b> use cabo USB (o tablet aparece no Explorador de Arquivos) ou Quick Share. <b>Não use</b> WhatsApp, Google Fotos nem anexo no chat do Claude: eles recomprimem a foto ou apagam metadados, e a amostra perde o valor.</div>
+<p>Depois de copiar, avise no chat ("copiei"). A conferência reconhece cada foto e mostra o que foi lido e o que se perdeu no caminho até o tablet.</p>
+</section>
+
+</body>
+</html>

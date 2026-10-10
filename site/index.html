@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Evolução Fotografia</title>
+  <meta name="description" content="Análise da qualidade de captura das suas fotos, direto no navegador.">
+  <meta name="theme-color" content="#1c1c1e">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#app">Pular para o conteúdo</a>
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" width="28" height="28">
+      <span>Evolução Fotografia</span>
+      <small id="app-version" class="muted"></small>
+    </div>
+    <nav class="tabs" aria-label="Seções">
+      <a href="#/enviar" data-nav="enviar">Enviar</a>
+      <a href="#/fotos" data-nav="fotos">Fotos</a>
+      <a href="#/sobre" data-nav="sobre">Sobre</a>
+    </nav>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <noscript>Este app precisa de JavaScript ativado.</noscript>
+</body>
+</html>

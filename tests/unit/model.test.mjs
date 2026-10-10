@@ -1,0 +1,76 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  SCHEMA_VERSION, EXPECTED_FIELDS, emptyCapture, missingFields, mergeCaptures, newPhotoRecord,
+  newVariant, refreshRecord,
+} from '../../site/js/core/model.js';
+import { migrate } from '../../site/js/core/migrations.js';
+
+const file = (name, size = 10) => ({ name, size, type: '', lastModified: 0 });
+
+test('captura vazia: todos os campos esperados aparecem como ausentes', () => {
+  assert.deepEqual(missingFields(emptyCapture()), EXPECTED_FIELDS);
+});
+
+test('mergeCaptures: o primeiro valor não vazio vence, campo a campo', () => {
+  const rich = emptyCapture();
+  rich.focus.af_mode = 'One-shot AF';
+  rich.exposure.iso = 400;
+  const poor = emptyCapture();
+  poor.exposure.iso = 800;
+  poor.lens.model = 'RF50mm F1.8 STM';
+  const merged = mergeCaptures([rich, poor]);
+  assert.equal(merged.exposure.iso, 400);
+  assert.equal(merged.focus.af_mode, 'One-shot AF');
+  assert.equal(merged.lens.model, 'RF50mm F1.8 STM');
+});
+
+test('mergeCaptures: ponto de AF e GPS são copiados inteiros, nunca misturados', () => {
+  const a = emptyCapture();
+  a.focus.af_point = { areas: [{ x: 1, y: 2, w: 3, h: 4 }], af_image_width: 10, af_image_height: 10, in_focus: [], selected: [] };
+  const b = emptyCapture();
+  b.gps = { lat: 1, lon: 2 };
+  const m = mergeCaptures([emptyCapture(), a, b]);
+  assert.deepEqual(m.focus.af_point, a.focus.af_point);
+  assert.deepEqual(m.gps, { lat: 1, lon: 2 });
+});
+
+test('refreshRecord: o CR3 tem prioridade sobre o JPEG transferido', () => {
+  const r = newPhotoRecord({ id: 'x', matchKey: 'k', now: 't0' });
+  assert.equal(r.schema_version, SCHEMA_VERSION);
+  const jpeg = newVariant({ kind: 'jpeg', source: 'web', file: file('IMG_1.JPG'), key: 'jpeg-web' });
+  jpeg.metadata_status = 'complete';
+  jpeg.capture.exposure.iso = 100;
+  jpeg.missing = ['focus.af_mode'];
+  const cr3 = newVariant({ kind: 'cr3', source: 'web', file: file('IMG_1.CR3'), key: 'cr3-web' });
+  cr3.capture.exposure.iso = 400;
+  cr3.capture.focus.af_mode = 'AI Servo AF';
+  r.variants.push(jpeg, cr3);
+  refreshRecord(r, 't1');
+  assert.equal(r.capture.exposure.iso, 400);
+  assert.equal(r.capture.focus.af_mode, 'AI Servo AF');
+  assert.equal(r.updated_at, 't1');
+  assert.ok(!r.missing.includes('focus.af_mode'));
+});
+
+test('migrate: aplica as etapas em ordem até a versão atual', () => {
+  const steps = {
+    0: (d) => ({ ...d, a: 1 }),
+    1: (d) => ({ ...d, b: d.a + 1 }),
+  };
+  const out = migrate({ x: true }, steps, 2);
+  assert.deepEqual(out, { x: true, a: 1, b: 2, schema_version: 2 });
+});
+
+test('migrate: documento já atual não muda', () => {
+  const doc = { schema_version: SCHEMA_VERSION, id: 'a' };
+  assert.deepEqual(migrate(doc), doc);
+});
+
+test('migrate: recusa dados de uma versão mais nova do app', () => {
+  assert.throws(() => migrate({ schema_version: SCHEMA_VERSION + 1 }), /mais novos/);
+});
+
+test('migrate: falha clara quando falta uma etapa', () => {
+  assert.throws(() => migrate({ schema_version: 0 }, {}, 1), /Falta a migração da versão 0/);
+});

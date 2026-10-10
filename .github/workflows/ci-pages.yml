@@ -1,0 +1,85 @@
+name: Testes e publicação
+
+# A cada push: roda toda a suíte de testes. Só publica no GitHub Pages (main)
+# se tudo passar. Requer Settings → Pages → Source: "GitHub Actions".
+# As bibliotecas de site/vendor/ (exifr, ExifTool-WASM) não ficam no git:
+# são copiadas do npm aqui, nas duas etapas.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar Chromium para os testes ponta a ponta
+        run: npx playwright install --with-deps chromium
+
+      - name: Rodar a suíte (vendor → fixtures → unitários → ponta a ponta)
+        run: npm test
+
+      - name: Guardar relatório do Playwright (se falhar)
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-playwright
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  publicar:
+    needs: testes
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.publicacao.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Copiar bibliotecas para site/vendor
+        run: npm ci && npm run vendor
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - id: publicacao
+        uses: actions/deploy-pages@v5

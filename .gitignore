@@ -1,0 +1,49 @@
+# --- Fotos e dados pessoais: nunca no repositório -------------------------
+# Arquivos RAW da Canon
+*.cr3
+*.CR3
+# JPEG só é permitido dentro de tests/fixtures/ (imagens sintéticas)
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+!tests/fixtures/**/*.jpg
+!tests/fixtures/**/*.jpeg
+# Amostras reais para calibração (ficam só neste computador)
+/amostras/
+# Pacotes de sessão do importador e backups exportados pelo site
+*.efsessao
+*.efbackup
+backups/
+
+# --- Credenciais e segredos ----------------------------------------------
+.env
+.env.*
+client_secret*.json
+credentials*.json
+service-account*.json
+token*.json
+*.pem
+*.key
+
+# --- Gerados ---------------------------------------------------------------
+node_modules/
+site/vendor/
+tests/fixtures/generated/
+test-results/
+playwright-report/
+blob-report/
+.cache/
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+importador/saida/
+
+# --- Sistema ---------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
