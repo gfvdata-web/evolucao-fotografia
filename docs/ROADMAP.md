@@ -56,7 +56,7 @@ Cada entrega pode ser testada no tablet.
   da cena calculada pela exposição** (EV), primeiro pedaço do motor da v0.5. Avaliada =
   nitidez + problema. Esquema 4.
 
-### 🔨 v0.4 — Google Drive, sincronização, PWA e backup (pronta no ramo `v0.4`; falta o Client ID)
+### ✅ v0.4 — Google Drive, sincronização, PWA e backup
 - Login Google (Google Identity Services, modelo de token) com escopo `drive.file`.
   Token de 1 h sem renovação automática garantida: renovação silenciosa no próximo toque,
   botão "Reconectar" se falhar, fila pausa e retoma. Ver decisão 0005.
@@ -73,8 +73,10 @@ Cada entrega pode ser testada no tablet.
 - Guia passo a passo da configuração do Google Cloud no GUIA-DE-USO.
 - Feito e testado com um Drive simulado (decisão 0010): conexão e renovação no toque,
   sincronização entre dois aparelhos, histórico, lixeira, GPS removido (JPEG e CR3), limite
-  de espaço, backup `.efbackup`, PWA com uso sem internet. Falta: Client ID do Google Cloud
-  do Guilherme e o primeiro uso com o Drive de verdade.
+  de espaço (do app e da conta Google), backup `.efbackup`, PWA com uso sem internet.
+  Client ID criado pelo Guilherme (app "em teste", ele como usuário de teste) e conferido com o
+  Google nas origens `gfvdata-web.github.io` e `localhost:8765`. A rever no uso real: decisões
+  0006 (envio com o app aberto) e 0010.
 
 ### ⏳ v0.5 — Cenas e diagnóstico com orientação
 Pedido do Guilherme (2026-10-12): mandar uma foto, ou uma sessão, e o site dizer se está boa

@@ -66,7 +66,9 @@ export function sessionView(root, { id }) {
   let bag = new UrlBag();
   let alive = true;
   let session = null;
-  const sel = { on: false, ids: new Set() };
+  // target = chosen destination; kept here because the bar is rebuilt on every change
+  // (analysis, Drive sync), which would otherwise reset the choice to "Nova sessão".
+  const sel = { on: false, ids: new Set(), target: '__new' };
   const titleEl = h('h2', {});
   const body = h('div');
 
@@ -101,6 +103,9 @@ export function sessionView(root, { id }) {
       h('option', { value: '__new' }, 'Nova sessão'),
       sessions.filter((s) => s.id !== id).map((s) => h('option', { value: s.id }, `${s.name}${s.date ? ` (${formatDate(s.date)})` : ''}`)),
       h('option', { value: '__none' }, 'Sem sessão'));
+    target.value = sel.target;
+    if (target.value !== sel.target) sel.target = target.value = '__new'; // that session no longer exists
+    target.addEventListener('change', () => { sel.target = target.value; });
     const moveBar = sel.on ? h('div', { class: 'card select-bar', 'data-testid': 'select-bar' },
       h('strong', {}, `${sel.ids.size} selecionada(s)`),
       h('button', { type: 'button', class: 'btn btn-small', onclick: () => { photos.forEach((p) => sel.ids.add(p.id)); render(); } }, 'Todas'),
@@ -109,18 +114,20 @@ export function sessionView(root, { id }) {
         type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'move-apply', disabled: !sel.ids.size,
         onclick: async () => {
           const ids = [...sel.ids];
-          if (target.value === '__new') {
+          const dest = sel.target;
+          sel.target = '__new';
+          if (dest === '__new') {
             const s = await createSession({ date: session.date, photoIds: ids });
             location.hash = `#/sessao/${s.id}`;
             return;
           }
-          await assignPhotos(ids, target.value === '__none' ? null : target.value);
+          await assignPhotos(ids, dest === '__none' ? null : dest);
           sel.on = false;
           sel.ids.clear();
           render();
         },
       }, 'Mover'),
-      h('button', { type: 'button', class: 'btn btn-small', onclick: () => { sel.on = false; sel.ids.clear(); render(); } }, 'Cancelar')) : null;
+      h('button', { type: 'button', class: 'btn btn-small', onclick: () => { sel.on = false; sel.ids.clear(); sel.target = '__new'; render(); } }, 'Cancelar')) : null;
 
     mount(body,
       h('section', { class: 'card', 'data-testid': 'session-summary' },

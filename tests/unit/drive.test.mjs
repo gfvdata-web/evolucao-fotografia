@@ -122,6 +122,9 @@ test('cliente: pastas, busca por appProperties, envio pequeno, mover, copiar e l
   assert.deepEqual(drive.files.get(file.id).parents, [sub.id]);
   const copy = await api.copy(file.id, 'copia.json', root.id, { ef_kind: 'historico' });
   assert.equal(drive.text(drive.files.get(copy.id)), '{"b":2}');
+  const q = await api.quota();
+  assert.equal(q.limit, 15 * 1024 ** 3);
+  assert.ok(q.usage > 0);
   await api.update(file.id, { trashed: true });
   assert.equal((await api.list(propsQuery({ ef_kind: 'indice' }))).length, 0);
   assert.match(propsQuery({ k: "it's" }), /value='it\\'s'/);

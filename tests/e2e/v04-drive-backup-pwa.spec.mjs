@@ -33,11 +33,11 @@ window.google = { accounts: { oauth2: {
 /** A new "device" wired to the fake sign-in and the fake Drive. */
 async function device(browser, drive, testInfo, { configured = true } = {}) {
   const ctx = await browser.newContext(testInfo.project.use);
-  if (configured) {
-    await ctx.route('**/js/config.js', (r) => r.fulfill({
-      contentType: 'text/javascript', body: "export const GOOGLE_CLIENT_ID = 'teste.apps.googleusercontent.com';",
-    }));
-  }
+  // The real Client ID is never used in tests: a test one, or none at all.
+  const clientId = configured ? 'teste.apps.googleusercontent.com' : '';
+  await ctx.route('**/js/config.js', (r) => r.fulfill({
+    contentType: 'text/javascript', body: `export const GOOGLE_CLIENT_ID = '${clientId}';`,
+  }));
   await ctx.route('https://accounts.google.com/gsi/client', (r) => r.fulfill({ contentType: 'text/javascript', body: FAKE_GIS }));
   await ctx.route('https://www.googleapis.com/**', async (r) => {
     const req = r.request();
@@ -101,6 +101,7 @@ test('sincronização: pastas, sessao.json, originais sem GPS, CR3 só quando pe
   await rateFirst(page, 5, 'none');
   await connect(page);
   await expect(page.getByTestId('sync-badge')).toHaveText('Sincronizado');
+  await expect(page.getByTestId('account-space')).toContainText('Espaço livre na sua conta Google');
 
   const [root] = drive.byProps({ ef_kind: 'root' });
   expect(root.name).toBe('EvolucaoFotografia');

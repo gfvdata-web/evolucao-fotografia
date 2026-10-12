@@ -76,11 +76,14 @@ export function driveView(root) {
         ? h('progress', { class: 'sync-progress', max: String(s.progress.total || 1), value: String(s.progress.done) }) : null,
       s.last_sync_at ? h('p', { class: 'small muted' }, `Última sincronização: ${new Date(s.last_sync_at).toLocaleString('pt-BR')}`) : null,
       s.held_originals ? h('p', { class: 'warn-text', 'data-testid': 'held-originals' },
-        `${s.held_originals} original(is) aguardando: enviá-los passaria do limite de espaço definido abaixo.`) : null,
+        `${s.held_originals} original(is) aguardando: enviá-los passaria do limite de espaço definido abaixo ou do espaço livre da sua conta Google.`) : null,
       u ? h('div', { 'data-testid': 'drive-usage' },
         h('p', { class: u.status === 'ok' ? '' : 'warn-text' }, `Espaço usado pelo app no Drive: ${formatBytes(u.used)} de ${formatBytes(u.limit)} `,
           `(${Math.round(u.ratio * 100)}%)`, u.status === 'attention' ? ' — perto do limite.' : u.status === 'alert' ? ' — limite atingido.' : ''),
-        h('progress', { class: 'sync-progress', max: '1', value: String(Math.min(1, u.ratio)) })) : null,
+        h('progress', { class: 'sync-progress', max: '1', value: String(Math.min(1, u.ratio)) }),
+        u.account?.limit ? h('p', { class: u.account.limit - u.account.usage < 1024 ** 3 ? 'warn-text small' : 'small muted', 'data-testid': 'account-space' },
+          `Espaço livre na sua conta Google: ${formatBytes(Math.max(0, u.account.limit - u.account.usage))} de ${formatBytes(u.account.limit)} `,
+          '(o espaço é dividido com o Gmail e o Google Fotos).') : null) : null,
       h('p', { class: 'small muted' }, 'A sincronização roda com o app aberto, inclusive enquanto você avalia, e mantém a tela acesa durante o envio. ',
         'Mudanças feitas sem conexão ficam pendentes e vão na próxima vez.'));
   };

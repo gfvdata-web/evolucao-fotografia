@@ -235,6 +235,15 @@ app, aparece "Reconectar"). É só tocar e confirmar.
 Cole o ID do cliente na conversa com o Claude. Ele coloca o ID no site e publica. A
 **chave secreta do cliente**, se aparecer, fica onde está: não copie nem mande.
 
+Feito em 12/10/2026: o ID está em `site/js/config.js`. Só é preciso refazer estas etapas se o
+projeto for apagado ou se o site mudar de endereço.
+
+**Por que duas origens:** o Google só aceita pedidos de login vindos dos endereços listados.
+`https://gfvdata-web.github.io` é o site que o tablet abre (a origem é só o domínio, sem o
+caminho `/evolucao-fotografia/`). `http://localhost:8765` é o site rodando no computador, para
+testes; esse endereço só existe dentro do próprio computador, então não abre acesso para
+ninguém. Qualquer outro endereço recebe "erro 400: redirect_uri_mismatch".
+
 O Google pode levar de 5 minutos a algumas horas para ativar um cliente novo. Se ao conectar
 aparecer "erro 401: invalid_client" ou "origin_mismatch", espere um pouco e tente de novo.
 

@@ -176,5 +176,12 @@ export function createDriveClient({ fetchImpl = (...a) => fetch(...a), getToken 
 
   const downloadJson = async (id) => JSON.parse(await (await download(id)).text());
 
-  return { list, createFolder, update, copy, uploadSmall, uploadLarge, download, downloadJson };
+  /** Space of the whole Google account (Drive + Gmail + Photos); limit is absent when unlimited. */
+  async function quota() {
+    const r = await call(`${API}/about?fields=storageQuota(limit,usage)`);
+    const q = r.storageQuota || {};
+    return { limit: q.limit ? Number(q.limit) : null, usage: Number(q.usage || 0) };
+  }
+
+  return { list, createFolder, update, copy, uploadSmall, uploadLarge, download, downloadJson, quota };
 }

@@ -301,9 +301,16 @@ async function writeSessionDoc(key, session, folder, settings, tombstones) {
 async function updateUsage(settings) {
   const files = await drive.list('trashed = false', 'id,size');
   const used = files.reduce((s, f) => s + Number(f.size || 0), 0);
-  set({ usage: spaceStatus(used, settings.drive_limit_gb) });
+  const account = await drive.quota().catch((e) => { if (e instanceof AuthError) throw e; return null; });
+  set({ usage: { ...spaceStatus(used, settings.drive_limit_gb), account } });
   return used;
 }
+
+/** Bytes still free in the Google account (Infinity when unlimited or unknown). */
+const accountFree = () => {
+  const a = syncStatus.usage?.account;
+  return a?.limit ? a.limit - a.usage : Infinity;
+};
 
 async function push(folders, settings, tombstones) {
   const [photos, sessions, sync] = await Promise.all([repo.listPhotos(), sessionsRepo.listSessions(), syncRepo.allSync()]);
@@ -326,11 +333,12 @@ async function push(folders, settings, tombstones) {
   for (const t of trash) if (t.folder_session) groups.add(t.folder_session); // deleted photo: rewrite its sessao.json
   for (const k of [...groups]) if (k !== NO_SESSION && !sessionsById.has(k)) groups.delete(k); // deleted: trashed below
 
-  let used = syncStatus.usage?.used ?? await updateUsage(settings);
+  let used = await updateUsage(settings);
   const limit = settings.drive_limit_gb * 1024 ** 3;
   const total = [...work.values()].reduce((n, w) => n + w.upload.length, 0);
   let done = 0;
   let held = 0;
+  let spent = 0; // bytes sent in this run (the account's free space is read once per run)
   set({ progress: total ? { done, total, current: null, sent: 0, size: 0 } : null });
 
   // Groups whose photos have files to send first, so a photo's folder exists before it is moved there.
@@ -360,7 +368,10 @@ async function push(folders, settings, tombstones) {
       });
       for (const asset of w.upload) {
         set({ progress: { done, total, current: asset.name, sent: 0, size: asset.size || 0 } });
-        if (asset.original && used + (asset.size || 0) > limit) { held += 1; done += 1; continue; }
+        // Originals wait when they would pass the app's limit or the account's free space.
+        if (asset.original && (used + (asset.size || 0) > limit || (asset.size || 0) > accountFree() - spent)) {
+          held += 1; done += 1; continue;
+        }
         const record = await repo.getPhoto(p.id);
         const content = record && await assetContent(record, asset, settings);
         if (!content) {
@@ -376,7 +387,9 @@ async function push(folders, settings, tombstones) {
         const state = (await syncRepo.getSync(`photo/${p.id}`)) || { assets: {} };
         const file = await sendAsset(record, asset, content, key, folder.subfolders[asset.folder], state.assets?.[asset.key]?.id,
           (sent) => set({ progress: { done, total, current: asset.name, sent, size: content.size } }));
-        used += Number(file.size || content.size) - Number(state.assets?.[asset.key]?.size || 0);
+        const delta = Number(file.size || content.size) - Number(state.assets?.[asset.key]?.size || 0);
+        used += delta;
+        spent += delta;
         await withLock(lockKeyOf(p), async () => {
           const st = (await syncRepo.getSync(`photo/${p.id}`)) || { assets: {} };
           st.assets = { ...(st.assets || {}), [asset.key]: { id: file.id, sig: asset.sig, size: Number(file.size || content.size) } };
@@ -471,7 +484,11 @@ async function runOnce() {
     const tombstones = await syncRepo.getTombstones();
     await pull(folders, tombstones);
     await push(folders, await syncRepo.getSettings(), tombstones);
-    set({ state: 'idle', last_sync_at: now(), progress: null });
+    // Count what is left before saying "idle": changes made during the run are
+    // pending, and when another run is queued the state stays "running".
+    const pending = await computePending();
+    set({ state: again ? 'running' : 'idle', last_sync_at: now(), progress: null, pending });
+    return;
   } catch (e) {
     if (e instanceof AuthError) { tokenRejected(); set({ state: 'paused', reason: 'auth', progress: null }); }
     else if (e instanceof QuotaError) set({ state: 'paused', reason: 'error', error: 'O Google Drive está sem espaço.', progress: null });
@@ -481,10 +498,11 @@ async function runOnce() {
 }
 
 let timer = null;
-/** Debounced sync after local changes. */
+/** Debounced sync after local changes; the pending count is updated right away. */
 export function scheduleSync(delayMs = 2000) {
+  refreshPending();
   clearTimeout(timer);
-  timer = setTimeout(() => { refreshPending(); if (tokenValid()) syncNow(); }, delayMs);
+  timer = setTimeout(() => { if (tokenValid()) syncNow(); }, delayMs);
 }
 
 let started = false;

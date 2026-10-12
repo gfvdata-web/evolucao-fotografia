@@ -228,3 +228,21 @@ test('experimento, mover fotos entre sessões e excluir sessão', async ({ page 
   await expect(page.getByTestId('session-card')).toHaveCount(0);
   await expect(suggestion(page, '11/10/2026')).toContainText('2 fotos');
 });
+
+test('mover fotos: o destino escolhido não se perde quando a tela se atualiza sozinha', async ({ page }) => {
+  await uploadAndSettle(page, fx('IMG_0010.JPG', 'IMG_0012.JPG'));
+  await page.goto('#/sessoes');
+  await suggestion(page, '11/10/2026').getByTestId('suggestion-create').click();
+  await expect(page.getByTestId('photo-card')).toHaveCount(2);
+  await page.getByTestId('select-photos').click();
+  await page.getByTestId('photo-card').filter({ hasText: 'IMG_0012' }).click();
+  await page.getByTestId('move-target').selectOption('__none');
+  // Something else changes meanwhile (analysis finishing, Drive sync): the screen redraws.
+  await page.evaluate(async () => (await import('./js/pipeline/photo-events.js')).notifyChanged('outra-foto'));
+  await expect(page.getByTestId('move-target')).toHaveValue('__none');
+  await page.getByTestId('move-apply').click();
+  await expect(page.getByTestId('photo-card')).toHaveCount(1);
+  await page.goto('#/sessoes');
+  await expect(page.getByTestId('session-card')).toHaveCount(1); // no extra session created
+  await expect(suggestion(page, '11/10/2026')).toContainText('1 foto');
+});

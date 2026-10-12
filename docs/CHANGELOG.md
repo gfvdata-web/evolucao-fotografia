@@ -2,9 +2,10 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
-## [Não publicado] — v0.4 em desenvolvimento (ramo `v0.4`)
+## [0.4.0] — 2026-10-12
 
-Google Drive, sincronização, app instalável e backup.
+Google Drive, sincronização, app instalável e backup. Client ID do projeto "Evolucao
+Fotografia" (app em teste no Google Cloud), conferido nas duas origens autorizadas.
 
 ### Adicionado
 - Aba **Drive**: conectar ao Google Drive (escopo `drive.file`), estado da sincronização,
@@ -19,7 +20,15 @@ Google Drive, sincronização, app instalável e backup.
 - Localização (GPS) removida de JPEG, CR3, metadados e registros antes de ir para o Drive.
 - Backup `.efbackup` (exportar e importar, juntando com o que já está no app).
 - App instalável (PWA) com uso sem internet e armazenamento protegido.
-- Guia do Google Cloud para criar o Client ID.
+- Guia do Google Cloud para criar o Client ID, tela por tela, com os nomes em inglês.
+- Espaço livre da conta Google na aba Drive; os originais esperam quando ele acaba.
+
+### Corrigido
+- Entre duas sincronizações seguidas, a tela mostrava "Tudo sincronizado." por um instante
+  antes de a segunda começar.
+- Sessão → "Selecionar fotos": a escolha em "Mover para" voltava sozinha para "Nova sessão"
+  quando a tela se atualizava (análise terminando, sincronização), e a foto ia para uma sessão
+  nova.
 
 ### Modelo de dados
 - Banco local versão 3 (store `sync`); configurações em `meta`. Registros sem mudança.
