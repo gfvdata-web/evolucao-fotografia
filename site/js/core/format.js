@@ -52,3 +52,9 @@ export function formatPixels(w, h) {
 }
 
 export const formatGps = (g) => (g ? `${g.lat.toFixed(4).replace('.', ',')}; ${g.lon.toFixed(4).replace('.', ',')}` : null);
+
+/** 1234.5 → "1.234,5" (d decimals); null/undefined → "—" */
+export function formatDecimal(v, d = 0) {
+  if (typeof v !== 'number' || !Number.isFinite(v)) return '—';
+  return v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+}

@@ -42,10 +42,11 @@ site/                       ← publicado no Pages (sem build; módulos ES)
   index.html, css/, icons/
   js/app.js                 roteador por hash (#/enviar, #/fotos, #/foto/<id>, #/sobre)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
+                            e campos de visão, perfis de câmera, indicadores, métricas de pixels, qualidade JPEG
   js/metadata/              exifr (rápido) + ExifTool-WASM em Web Worker (completo) → normalize.js
-  js/media/                 worker de pixels (prévia; na v0.2 recortes e métricas)
+  js/media/                 worker de pixels (prévia, recortes a 100% e métricas)
   js/storage/               IndexedDB (idb.js) e repositório de fotos
-  js/pipeline/              ingestão de arquivos e fila de envio
+  js/pipeline/              ingestão de arquivos, fila de envio e análise de pixels (analyze.js)
   js/ui/                    dom.js (sempre textContent, nunca innerHTML) e telas
   vendor/                   GERADO por `npm run vendor` (não versionado)
 tests/unit/                 node:test (puro + ExifTool real sobre fixtures)
@@ -82,6 +83,7 @@ npm test               # vendor → fixtures → unitários → ponta a ponta (t
 npm run test:unit      # só unitários
 npm run test:e2e       # só Playwright
 node tests/amostras/conferir.mjs   # relatório das amostras reais em amostras/ (local)
+node tests/amostras/metricas.mjs   # métricas do site sobre as amostras + recortes (local, após o conferir)
 ```
 
 ## Rotina de cada mudança
@@ -104,12 +106,13 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 ## Estado atual
 
-**v0.1.0**: envio pela página + ficha básica; dados só no navegador. Próximo: v0.2 (recortes
-a 100% e indicadores). Ver `docs/ROADMAP.md`.
+**v0.2.0**: recortes a 100%, indicadores objetivos e comparação entre versões; dados só no
+navegador. Próximo: v0.3 (avaliação e sessões). Ver `docs/ROADMAP.md`.
 
-Amostras reais da EOS RP: o protocolo está em `docs/AMOSTRAS-CALIBRACAO.md`. Quando chegarem em
-`amostras/`, rodar `node tests/amostras/conferir.mjs`, comparar com o normalizador e calibrar
-(eixo Y do AF já confirmado no código do ExifTool: positivo para cima em corpos EOS).
+Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
+está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o
+`conferir.mjs` e depois o `metricas.mjs`, e comparar com o normalizador e os indicadores.
+Pendentes do Guilherme: T09, T08 em 300 mm e, se ele fotografa através de vidro, T06.
 
 O monitoramento do site no `painel-status` é feito pelo Guilherme naquele repositório — não
 mexer lá a partir daqui.

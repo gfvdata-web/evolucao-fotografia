@@ -44,7 +44,11 @@ async function ler(caminho) {
   const bruto = r.data[0];
   const plano = {};
   const grupos = new Set();
-  for (const [chave, v] of Object.entries(bruto)) {
+  // EXIF padrão antes dos outros grupos, como no site: no CR3 o grupo Canon traz
+  // tempo e abertura "exatos" (1/76 s, f/5.657) e o ExifIFD os nominais (1/80, f/5.6).
+  const prioridade = (k) => (/^(ExifIFD|IFD0):/.test(k) ? 0 : 1);
+  const entradas = Object.entries(bruto).sort(([a], [b]) => prioridade(a) - prioridade(b));
+  for (const [chave, v] of entradas) {
     const [grupo, tag] = chave.includes(':') ? chave.split(':') : ['', chave];
     if (grupo) grupos.add(grupo);
     if (!(tag in plano)) plano[tag] = v;

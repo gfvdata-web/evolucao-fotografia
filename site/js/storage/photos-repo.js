@@ -29,6 +29,8 @@ export async function listPhotos() {
 export const blobKey = {
   original: (photoId, variantKey) => `${photoId}/original/${variantKey}`,
   preview: (photoId) => `${photoId}/preview`,
+  /** 100% crop (PNG) of one variant; which = 'af' | 'uniform' */
+  crop: (photoId, variantKey, which) => `${photoId}/crop/${variantKey}/${which}`,
 };
 
 export async function savePhoto(record, { blobs = [], rawMetadata = [] } = {}) {

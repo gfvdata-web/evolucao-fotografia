@@ -6,26 +6,14 @@
 import { isCr3Header } from '../metadata/cr3.js';
 import { readQuickMetadata, QUICK_ENGINE } from '../metadata/quick.js';
 import { readFullMetadata } from '../metadata/exiftool-client.js';
-import { fromExifTool, exifToolVersion } from '../metadata/normalize.js';
+import { fromExifTool, exifToolVersion, countTags } from '../metadata/normalize.js';
 import { makePreview } from '../media/media-client.js';
 import { photoIdentity, provisionalId } from '../core/ids.js';
 import { newPhotoRecord, newVariant, refreshRecord, missingFields } from '../core/model.js';
 import * as repo from '../storage/photos-repo.js';
-
-/** Fired with detail {id} whenever a stored photo changes. */
-export const photoEvents = new EventTarget();
-const changed = (id) => photoEvents.dispatchEvent(new CustomEvent('changed', { detail: { id } }));
-
-// Serializes read-modify-write cycles per shot. The lock key is the match key
-// (falls back to the id), so the JPEG and the CR3 of the same shot share it even
-// when their ids differ.
-const locks = new Map();
-function withLock(key, fn) {
-  const prev = locks.get(key) || Promise.resolve();
-  const next = prev.then(fn, fn);
-  locks.set(key, next.catch(() => {}));
-  return next;
-}
+import { buildIndicators } from '../core/indicators.js';
+import { notifyChanged, withLock } from './photo-events.js';
+import { scheduleAnalysis } from './analyze.js';
 
 /** 'jpeg' | 'cr3' | null, by content (the extension and MIME type are unreliable on Android). */
 export async function detectKind(file) {
@@ -49,7 +37,13 @@ function applyFull(variant, json) {
   variant.missing = missingFields(variant.capture);
   variant.metadata_status = 'complete';
   variant.engines = [...new Set([...variant.engines, exifToolVersion(json)])];
+  variant.tag_count = countTags(json);
   variant.error = null;
+}
+
+function refreshAll(record) {
+  refreshRecord(record, now());
+  record.indicators = buildIndicators(record);
 }
 
 async function completeInBackground(lockKey, photoId, variantKey, file) {
@@ -62,10 +56,11 @@ async function completeInBackground(lockKey, photoId, variantKey, file) {
     if (!variant) return;
     if (json) applyFull(variant, json);
     else { variant.metadata_status = 'failed'; variant.error = `leitura completa falhou: ${error}`; }
-    refreshRecord(record, now());
+    refreshAll(record);
     await repo.savePhoto(record, json ? { rawMetadata: [{ key: `${photoId}/${variantKey}`, json }] } : {});
   });
-  changed(photoId);
+  notifyChanged(photoId);
+  await scheduleAnalysis(photoId);
 }
 
 /**
@@ -135,7 +130,7 @@ export async function ingestFile(file, onStep = () => {}, source = 'web') {
       record.preview = { width: pixels.previewWidth, height: pixels.previewHeight, from_variant: variantKey };
       blobs.push({ key: repo.blobKey.preview(record.id), blob: pixels.previewBlob });
     }
-    refreshRecord(record, now());
+    refreshAll(record);
     await repo.savePhoto(record, {
       blobs,
       rawMetadata: fullJson ? [{ key: `${record.id}/${variantKey}`, json: fullJson }] : [],
@@ -144,8 +139,10 @@ export async function ingestFile(file, onStep = () => {}, source = 'web') {
   });
 
   if (result.status === 'stored') {
-    changed(result.photoId);
-    if (result.needsFull) result.background = completeInBackground(lockKey, result.photoId, result.variantKey, file);
+    notifyChanged(result.photoId);
+    result.background = result.needsFull
+      ? completeInBackground(lockKey, result.photoId, result.variantKey, file)
+      : scheduleAnalysis(result.photoId);
   }
   return result;
 }

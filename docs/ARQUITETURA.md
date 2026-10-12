@@ -6,7 +6,7 @@
 Tablet / PC (navegador)
  ├─ UI: HTML + CSS + JavaScript puro (módulos ES, sem build)
  ├─ Worker de metadados: ExifTool-WASM (MakerNotes, CR3)        ← exifr no thread principal (rápido)
- ├─ Worker de mídia: decodifica, gera prévia (v0.2: recortes e métricas)
+ ├─ Worker de mídia: decodifica, gera prévia, recortes a 100% e métricas de pixels
  ├─ IndexedDB: fotos, arquivos originais, prévias, metadados completos
  └─ (v0.4) Cliente Drive + token GIS ⇄ Google Drive /EvolucaoFotografia
 PC Windows (v0.5): importador Python → pacote .efsessao → mesmo botão de envio
@@ -30,6 +30,32 @@ GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo pas
 6. **Grava** no IndexedDB numa transação: registro + original + prévia + JSON do ExifTool.
 7. Leituras em segundo plano atualizam o registro sob uma trava por `match_key`, para o JPEG e o
    CR3 do mesmo disparo não sobrescreverem um ao outro.
+8. Terminada a leitura completa, a foto entra na fila de análise (abaixo).
+
+## Análise de pixels (v0.2)
+
+`pipeline/analyze.js`, uma foto por vez (decodificar 26 MP pesa na memória do tablet):
+
+1. Refaz a captura de cada versão a partir do JSON do ExifTool guardado (`raw_metadata`),
+   para que correções no normalizador cheguem às fotos antigas.
+2. **Versão principal** (`core/indicators.js` → `primaryVariant`): a de mais pixels; no empate,
+   o JPEG da câmera (o JPEG dentro do CR3 é uma prévia mais comprimida: qualidade ~80 contra ~97
+   nas amostras da EOS RP).
+3. **Região do foco**: toque do usuário na prévia → ponto de AF da câmera → centro. 512 px na
+   resolução cheia da versão principal. **Área uniforme**: toque, ou busca automática do bloco
+   mais liso em tons médios (brilho 30–200; perto do branco a curva do JPEG achata o ruído).
+4. **Mesma parte da cena em cada versão**: a região é convertida pelo campo de visão de cada
+   arquivo (`core/camera-profiles.js` → `sensorField`; `core/af-geometry.js` → `mapRegion`).
+   M e S mostram a mesma cena do L; 16:9, 4:3, 1:1 e recorte 1,6x são a parte central do
+   sensor; o JPEG dentro do CR3 é sempre o sensor inteiro. Tamanho desconhecido (cópia
+   reduzida): mesma posição relativa.
+5. **Worker de mídia** (`media/media-worker.js`), por versão: lê o cabeçalho do JPEG (tabelas
+   de quantização → qualidade estimada e subamostragem de cor, `core/jpeg-quality.js`), recorta
+   a 100% sem reamostrar, mede (`core/image-metrics.js`) e grava o recorte em PNG.
+6. **Indicadores** (`core/indicators.js`, puro): resolução, metadados, risco de tremido,
+   nitidez (variância do Laplaciano), ruído (estimador de Immerkær), compressão e comparação
+   entre versões. Valores descrevem, não aconselham. `METRICS_VERSION` vai em cada análise;
+   ao mudar um cálculo, a versão sobe e as fotos são recalculadas.
 
 ## Leitura de metadados
 
@@ -40,7 +66,10 @@ GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo pas
   enumerados ficam no texto em inglês do ExifTool; a tradução é só na tela.
 - Ponto de AF Canon (AFInfo2): áreas relativas ao centro em coordenadas de AF, **Y positivo para
   cima** em corpos EOS (confirmado no código-fonte do ExifTool). `core/af-geometry.js` converte
-  para a imagem exibida, considerando a orientação.
+  para a imagem exibida, considerando a orientação. As listas têm `NumAFPoints` posições (143
+  na EOS RP), mas só as `ValidAFPoints` primeiras valem; o resto é zero.
+- Modo de disparo: nos modos automáticos (A+, cenas) o EXIF diz `Program AE`, igual ao P. O
+  normalizador usa `Canon:CanonExposureMode = Easy` + `Canon:EasyMode` para separar.
 
 ## CR3 no navegador
 
@@ -54,7 +83,7 @@ renderização neutra do RAW, que fica com o importador Python.
 | Store | Chave | Conteúdo |
 |---|---|---|
 | `photos` | `id` | registro da foto (ver MODELO-DE-DADOS); índices `match_key`, `added_at` |
-| `blobs` | `<id>/original/<variante>`, `<id>/preview` | arquivo original e prévia |
+| `blobs` | `<id>/original/<variante>`, `<id>/preview`, `<id>/crop/<variante>/<af\|uniform>` | arquivo original, prévia e recortes a 100% (PNG) |
 | `raw_metadata` | `<id>/<variante>` | JSON completo do ExifTool |
 | `meta` | texto | reservado (configurações, v0.3+) |
 

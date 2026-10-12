@@ -117,11 +117,17 @@ function intList(v) {
  * Canon AF areas (AFInfo2). Positions are relative to the image centre in AF
  * coordinates, Y positive upwards (EOS). Converting to pixel coordinates is
  * done later, when the decoded image size and orientation are known.
+ *
+ * The lists always have NumAFPoints entries (143 on the EOS RP), but only the
+ * first ValidAFPoints are real: with 1-point AF the rest are zeros, which would
+ * otherwise become 142 empty areas at the centre.
  */
 function canonAfPoint(L) {
-  const xs = intList(L.raw('AFAreaXPositions', 'Canon')?.val);
-  const ys = intList(L.raw('AFAreaYPositions', 'Canon')?.val);
+  let xs = intList(L.raw('AFAreaXPositions', 'Canon')?.val);
+  let ys = intList(L.raw('AFAreaYPositions', 'Canon')?.val);
   if (!xs.length || xs.length !== ys.length) return null;
+  const valid = L.num('ValidAFPoints', 'Canon');
+  if (valid > 0 && valid < xs.length) { xs = xs.slice(0, valid); ys = ys.slice(0, valid); }
   const ws = intList((L.raw('AFAreaWidths', 'Canon') || L.raw('AFAreaWidth', 'Canon'))?.val);
   const hs = intList((L.raw('AFAreaHeights', 'Canon') || L.raw('AFAreaHeight', 'Canon'))?.val);
   const areas = xs.map((x, i) => ({
@@ -130,16 +136,25 @@ function canonAfPoint(L) {
   const imageWidth = L.num('AFImageWidth', 'Canon');
   const imageHeight = L.num('AFImageHeight', 'Canon');
   if (!imageWidth || !imageHeight) return null;
-  const inFocusRaw = L.raw('AFPointsInFocus', 'Canon')?.val;
-  const selectedRaw = L.raw('AFPointsSelected', 'Canon')?.val;
+  const inRange = (i) => i < areas.length;
   return {
     af_image_width: imageWidth,
     af_image_height: imageHeight,
     y_axis: 'up',
     areas,
-    in_focus: intList(inFocusRaw),
-    selected: intList(selectedRaw),
+    in_focus: intList(L.raw('AFPointsInFocus', 'Canon')?.val).filter(inRange),
+    selected: intList(L.raw('AFPointsSelected', 'Canon')?.val).filter(inRange),
   };
+}
+
+/**
+ * Shooting mode. In the automatic modes (A+, SCN...) the EXIF ExposureProgram
+ * says "Program AE", the same as P; Canon marks them CanonExposureMode = "Easy"
+ * and names the mode in EasyMode (e.g. "Scene Intelligent Auto").
+ */
+function exposureProgram(L) {
+  if (L.text('CanonExposureMode', 'Canon') === 'Easy') return L.text('EasyMode', 'Canon') ?? 'Easy';
+  return L.text('ExposureProgram', 'ExifIFD') ?? L.text('CanonExposureMode', 'Canon');
 }
 
 export function fromExifTool(json) {
@@ -158,7 +173,7 @@ export function fromExifTool(json) {
   c.camera.firmware = L.text('FirmwareVersion', 'Canon') ?? L.text('Software', 'IFD0');
   c.lens.model = L.text('LensModel', 'ExifIFD') ?? L.text('LensModel', 'Canon');
   c.lens.focal_length_mm = L.num('FocalLength', 'ExifIFD');
-  c.exposure.program = L.text('ExposureProgram', 'ExifIFD') ?? L.text('CanonExposureMode', 'Canon');
+  c.exposure.program = exposureProgram(L);
   c.exposure.shutter_s = L.num('ExposureTime', 'ExifIFD');
   c.exposure.aperture = L.num('FNumber', 'ExifIFD');
   c.exposure.iso = L.num('ISO', 'ExifIFD');
@@ -189,4 +204,9 @@ export function fromExifTool(json) {
 export function exifToolVersion(json) {
   const v = json?.['ExifTool:ExifToolVersion'];
   return v ? `exiftool@${v.val}` : 'exiftool';
+}
+
+/** Metadata fields ExifTool found in the file itself (not file-system, tool or derived info). */
+export function countTags(json) {
+  return Object.keys(json || {}).filter((k) => k.includes(':') && !/^(System|File|ExifTool|Composite):/.test(k)).length;
 }

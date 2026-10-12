@@ -9,7 +9,7 @@
 | [ROADMAP.md](ROADMAP.md) | V1 por entrega (v0.1 a v1.0), V2 e ideias |
 | [GUIA-DE-USO.md](GUIA-DE-USO.md) | Para o Guilherme: uso no tablet, Google Cloud (v0.4), importador no PC (v0.5) |
 | [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md) | Protocolo das fotos reais de calibração (séries F e T) e como entregá-las |
-| [CALIBRACAO-RESULTADOS.md](CALIBRACAO-RESULTADOS.md) | Resultados da 1ª rodada com fotos reais: valores da EOS RP para o normalizador |
+| [CALIBRACAO-RESULTADOS.md](CALIBRACAO-RESULTADOS.md) | Resultados da 1ª rodada com fotos reais: valores da EOS RP para o normalizador e métricas da v0.2 nas amostras |
 | [guia-fotos/Guia-fotos-calibracao.pdf](guia-fotos/Guia-fotos-calibracao.pdf) | O mesmo protocolo em versão para imprimir ou levar no celular (fonte: `guia.html`) |
 | [CHANGELOG.md](CHANGELOG.md) | O que mudou em cada versão |
 | [decisoes/0001-site-estatico-sem-build.md](decisoes/0001-site-estatico-sem-build.md) | JS puro sem build, publicação por Actions |
@@ -19,3 +19,4 @@
 | [decisoes/0005-login-google-token.md](decisoes/0005-login-google-token.md) | Token de 1 h do Google sem servidor e como contornar |
 | [decisoes/0006-envio-com-app-aberto.md](decisoes/0006-envio-com-app-aberto.md) | Envio ao Drive com o app aberto (rever no uso real) |
 | [decisoes/0007-testes.md](decisoes/0007-testes.md) | node:test, Playwright, fixtures sintéticas, amostras locais |
+| [decisoes/0008-versao-principal-e-campo-de-visao.md](decisoes/0008-versao-principal-e-campo-de-visao.md) | Qual versão mede nitidez e ruído; mesma parte da cena em versões com campos diferentes (16:9, recorte, CR3) |

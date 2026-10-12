@@ -5,7 +5,7 @@
 // Each variant keeps the metadata read from that exact file, so later versions
 // can compare stages (camera → transfer → app) and find where quality was lost.
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Fields the analysis needs. Order = display order of the "missing" list. */
 export const EXPECTED_FIELDS = [
@@ -96,6 +96,10 @@ export function newPhotoRecord({ id, matchKey, now }) {
     capture: emptyCapture(),
     missing: [...EXPECTED_FIELDS],
     preview: null,
+    // Areas chosen by tapping the preview (normalized centre) — null = automatic.
+    crop_choice: { af: null, uniform: null },
+    // Regions actually used for the 100% crops (normalized, on the displayed image).
+    crops: null,
     indicators: null,
     rating: null,
   };
@@ -118,6 +122,8 @@ export function newVariant({ kind, source, file, key }) {
     engines: [],
     capture: emptyCapture(),
     missing: [...EXPECTED_FIELDS],
+    tag_count: null, // number of metadata fields ExifTool found in this file
+    analysis: null, // pixels: JPEG header, 100% crops and metrics (pipeline/analyze.js)
     error: null,
   };
 }

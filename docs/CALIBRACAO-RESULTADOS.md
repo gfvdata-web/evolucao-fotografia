@@ -45,14 +45,45 @@ Formato: texto do ExifTool (número com `-n`).
 ## Pontos de atenção para o código
 
 1. **Eixo Y do AF:** confirmado com fotos reais. Na F01 (ponto no canto superior direito), x = +2140 e y = +980. Na F02 (canto inferior esquerdo), x = −2010 e y = −891. Origem no centro e **Y positivo para cima**, como já está em `core/af-geometry.js`.
-2. **Listas de AF com zeros sobrando:** `AFAreaXPositions`, `AFAreaYPositions` e `AFAreaWidths` vêm com dezenas de zeros depois dos valores úteis. Use `NumAFPoints` e `AFPointsInFocus` para saber quantos valores valem.
-3. **No A+ com Face + Tracking:** o MakerNote traz uma grade inteira de pontos (13 colunas, de x = −2520 a +2520). O ponto que focou precisa sair de `AFPointsInFocus`, e não do primeiro da lista.
-4. **CR3 traz tempo e abertura "exatos", não os nominais:** CR3 com 1/76 s e f/5.657, contra 1/80 s e f/5.6 no JPG da mesma foto. Para a ficha e para os indicadores, arredondar para a escala nominal de 1/3 de ponto ou preferir o valor do JPG quando houver par.
+2. **Listas de AF com zeros sobrando:** `AFAreaXPositions`, `AFAreaYPositions` e `AFAreaWidths` vêm com dezenas de zeros depois dos valores úteis. Quem diz quantos valem é `ValidAFPoints`: 1 com AF em 1 ponto e 143 na grade do A+. `NumAFPoints` é sempre 143. **Corrigido na v0.2:** a ficha mostrava "143 áreas" no AF em 1 ponto.
+3. **No A+ com Face + Tracking:** o MakerNote traz uma grade inteira de pontos (13 colunas, de x = −2520 a +2520). O ponto que focou precisa sair de `AFPointsInFocus`, e não do primeiro da lista. O site já fazia isso (6 áreas em foco na F13). **Corrigido na v0.2:** o modo A+ aparecia como "Programa (P)". Agora vem de `Canon:EasyMode` = `Scene Intelligent Auto` quando `CanonExposureMode` = `Easy`.
+4. **Tempo e abertura "exatos" no CR3:** o 1/76 s e o f/5.657 vêm do grupo `Canon` (`Canon:ExposureTime`, `Canon:FNumber`). O mesmo CR3 tem, no grupo `ExifIFD`, os nominais 1/80 s e f/5.6, e é esse grupo que o site usa. Conferido nas 52 fotos: o site sempre mostrou os valores nominais. O erro estava só no conferidor, que pegava o primeiro grupo; agora ele também prefere o EXIF padrão.
 5. **Subsegundos são texto:** `SubSecTimeOriginal` vem como `"08"` (80 ms). Converter para número dá 8 e inverte a ordem dos quadros de uma rajada. O site usa `Composite:SubSecDateTimeOriginal` em texto e está correto. O conferidor tinha esse erro e foi corrigido.
 6. **Grupo GPS vazio:** o JPG tem o grupo `GPS` mesmo sem localização (sem `GPSLatitude`). "Tem grupo GPS" não quer dizer "tem localização".
 
+## Métricas da v0.2 nas amostras
+
+Medidas pelo próprio site com `node tests/amostras/metricas.mjs`, que envia as fotos de `amostras/cartao` a um navegador e lê o que o site calculou. Recortes e tabela completa ficam em `amostras/` (local). Valores da versão principal (JPG do cartão, qualidade estimada 97, cor 4:2:2).
+
+**Nitidez no recorte do foco** (variância do Laplaciano; depende da cena, então só vale comparar fotos da mesma cena):
+
+| Comparação | Fotos | Nitidez |
+|---|---|---|
+| Tremido à mão, 50 mm: 1/8 × 1/200 | F04 × F05 | 18 × 122 (≈ 7× menor) |
+| Tremido à mão, 300 mm: 1/100 × 1/1000 | F06 × F07 | 42 × 280 (≈ 7× menor) |
+| RF 75-300 em 300 mm no tripé: f/5.6, f/8, f/11, f/16 | T01–T04 | 36, 108, 90, 97 |
+| 205 mm no tripé, f/8: temporizador 2 s × dedo com a mão na câmera | T05 × T08b | 954 × 884 (−7%) |
+| ISO 12800, redução de ruído Forte × Desligada | F08 × F09 | 15 × 284 |
+
+- O indicador separa bem a foto tremida da foto de controle: cerca de 7× nas duas distâncias focais.
+- Na RF 75-300 em 300 mm, f/5.6 (abertura máxima) deu um terço da nitidez de f/8. De f/8 a f/16 ficou parecido.
+- Em 205 mm, tocar a câmera com a mão apoiada não fez diferença clara contra o temporizador. Falta a comparação em 300 mm (T02 × T08 refeita × T09).
+- **Ruído entra como detalhe:** em ISO 12800 sem redução de ruído o número sobe muito (284). Por isso a ficha avisa, a partir de ISO 3200, que o ruído também aumenta a nitidez medida (`THRESHOLDS.high_iso_sharpness_note`).
+- O JPEG embutido no CR3 mediu até 34% menos nitidez que o JPG do cartão na mesma região (mediana de 8%; as maiores perdas foram nas fotos de pouco detalhe, como a rajada F03), e tem qualidade estimada 80. **Mudança na v0.2:** no empate de pixels, a versão principal passou a ser o JPG da câmera.
+
+**Ruído na área uniforme** (desvio em níveis de 0 a 255):
+
+- Entre ISO 100 e 800: de 0,17 a 0,57. ISO 12800: 0,44 com redução Forte (F08) e 1,68 sem redução (F09).
+- Áreas quase brancas escondem o ruído. Na mesma foto (F01), uma área de brilho 220 mediu 0,03, e uma de brilho 151 mediu 0,25. **Mudança na v0.2:** a busca automática só aceita tons médios (brilho 30–200).
+
+**Comparação entre versões:**
+
+- A F11 (16:9 com RAW) acusava "−16% de pixels" entre o CR3 e o JPG. O JPEG dentro do CR3 é sempre o sensor inteiro (6240×4160, `AFImageHeight` 4160), e o JPG 16:9 é a faixa central (6240×3504, `CropTopMargin` 328). **Corrigido na v0.2:** agora a ficha diz "formato L 16:9 escolhido na câmera, não perda no caminho", e os recortes de cada versão mostram o mesmo trecho da cena (conferido visualmente na F11).
+- Nas outras fotos, a única diferença apontada entre CR3 e JPG é o número de campos de metadados (informativo).
+
+**Risco de tremido:** os valores batem com o roteiro (F04 6,25×, F06 3×, T04 10×). O app não sabe se havia tripé, então as fotos de tripé (F01, T02–T04) também aparecem com risco. Isso é esperado: o indicador mede a velocidade, não o resultado.
+
 ## Próximos passos
 
-- Fazer a **T09** (temporizador 10 s) e, se possível, a **T06** (através do vidro).
-- **T02, T08 e T09:** dizer se a vibração do toque no tripé tira nitidez em 300 mm. Na T08 a mão ficou apoiada na câmera.
-- Quando o site tiver os recortes a 100% e a nitidez medida (v0.2), rodar essas mesmas fotos para calibrar as métricas.
+- Fazer a **T09** (temporizador 10 s), a **T08 em 300 mm** e, se possível, a **T06** (através do vidro). Depois rodar o conferidor e `metricas.mjs` de novo para comparar T02 × T08 × T09 em 300 mm.
+- Com as avaliações da v0.3 (nítida / tremida / fora de foco...), transformar a nitidez relativa em faixas por cena e lente.

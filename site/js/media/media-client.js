@@ -20,16 +20,25 @@ function ensureWorker() {
   return worker;
 }
 
+function request(type, args) {
+  const w = ensureWorker();
+  const id = nextId++;
+  return new Promise((resolve, reject) => {
+    pending.set(id, { resolve, reject });
+    w.postMessage({ id, type, ...args });
+  });
+}
+
 /**
  * Decodes the photo and builds a preview (long edge 2048 px) in display
  * orientation. `orientation` (EXIF 1/3/6/8) is only used for CR3 files.
  * @returns {Promise<{width, height, previewBlob, previewWidth, previewHeight, decodedFrom}>}
  */
-export function makePreview(file, kind, orientation = 1) {
-  const w = ensureWorker();
-  const id = nextId++;
-  return new Promise((resolve, reject) => {
-    pending.set(id, { resolve, reject });
-    w.postMessage({ id, type: 'preview', file, kind, orientation });
-  });
-}
+export const makePreview = (file, kind, orientation = 1) => request('preview', { file, kind, orientation });
+
+/**
+ * Full-resolution analysis: JPEG header, 100% crops (PNG) and their metrics.
+ * Rects are normalized on the displayed image; uniformRect null = automatic search.
+ */
+export const analyzeImage = (file, kind, orientation, { afRect, uniformRect, uniformPx }) =>
+  request('analyze', { file, kind, orientation, afRect, uniformRect, uniformPx });

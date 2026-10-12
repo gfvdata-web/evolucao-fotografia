@@ -69,3 +69,8 @@ test('descrição da posição do AF', () => {
   assert.equal(describeAfPosition({ ...af, areas: [{ x: 0, y: 0, w: 1, h: 1 }] }), '1 área, no centro');
   assert.equal(describeAfPosition(null), null);
 });
+
+test('valores reais da EOS RP traduzidos (calibração): AF em 1 ponto e A+', () => {
+  assert.equal(translate('focus.af_area_mode', 'Flexizone Single'), 'Ponto único (AF em 1 ponto)');
+  assert.equal(translate('exposure.program', 'Scene Intelligent Auto'), 'Cena Inteligente Auto (A+)');
+});

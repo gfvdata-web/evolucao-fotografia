@@ -2,6 +2,44 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.2.0] — 2026-10-12
+
+Recortes a 100% e indicadores objetivos por foto, calibrados com 26 fotos reais da EOS RP.
+
+### Adicionado
+- Recortes a 100% (sem reamostrar) no ponto de AF da câmera, ou no centro, e numa área uniforme
+  para medir ruído. O toque na prévia escolhe outra área, e "Voltar ao automático" desfaz.
+  Ampliação de 100% e 200%.
+- Indicadores em Web Worker: resolução real × tamanhos da EOS RP (proporções, M/S, recorte
+  1,6x), metadados removidos, risco de tremido (velocidade × 1/distância focal), nitidez no
+  foco (variância do Laplaciano), ruído na área uniforme (Immerkær) e qualidade estimada do
+  JPEG pelas tabelas de quantização.
+- Comparação entre versões do mesmo disparo (CR3, JPEG do cartão, JPEG do tablet): pixels,
+  bytes por pixel, compressão, cor, dados Canon e nitidez no mesmo recorte, com o que mudou em
+  cada etapa.
+- Etiquetas na lista de fotos: reduzida no caminho, risco de tremido, metadados removidos.
+- Aba Sobre: versão das métricas e "Recalcular desatualizadas".
+- `tests/amostras/metricas.mjs`: mede as amostras reais com o próprio site (local).
+
+### Corrigido (calibração com as amostras reais)
+- AF em 1 ponto aparecia como 143 áreas: o normalizador agora usa `ValidAFPoints`.
+- Modo A+ aparecia como Programa (P): agora usa `Canon:EasyMode` ("Cena Inteligente Auto").
+- "Flexizone Single" (AF em 1 ponto da EOS RP) aparecia sem tradução.
+- Foto 16:9 com RAW acusava perda de pixels entre o CR3 e o JPG; agora aparece como formato
+  escolhido na câmera. A região de cada recorte é convertida pelo campo de visão de cada versão
+  (o JPEG dentro do CR3 é o sensor inteiro).
+- Nitidez e ruído passam a ser medidos no JPG da câmera, e não no JPEG embutido no CR3
+  (qualidade ~80 contra ~97), quando os dois têm os mesmos pixels.
+- A busca automática da área uniforme evita tons quase brancos, onde a curva do JPEG esconde
+  o ruído.
+- Fotos enviadas na v0.1 têm os metadados relidos do JSON guardado do ExifTool ao serem
+  analisadas, e recebem as correções acima.
+- O conferidor das amostras mostrava o tempo e a abertura "exatos" do CR3 (grupo Canon); agora
+  usa os nominais do EXIF, como o site.
+
+### Modelo de dados
+- Esquema 2: `crop_choice`, `crops`, `tag_count` e `analysis` por variante. Migração 1 → 2.
+
 ## [0.1.0] — 2026-10-10
 
 Primeira entrega: envio pela página e ficha básica, com dados só no navegador.

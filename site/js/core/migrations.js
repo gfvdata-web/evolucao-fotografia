@@ -11,6 +11,14 @@ export const MIGRATIONS = {
   // 0 → 1: documents written before versioning existed (none in production;
   // kept as the template for future steps).
   0: (doc) => ({ ...doc, schema_version: 1 }),
+  // 1 → 2 (v0.2): crops chosen by tapping, crop regions, per-variant analysis
+  // and metadata field count. Indicators from v0.1 did not exist (always null).
+  1: (doc) => ({
+    ...doc,
+    crop_choice: doc.crop_choice || { af: null, uniform: null },
+    crops: doc.crops || null,
+    variants: (doc.variants || []).map((v) => ({ tag_count: null, analysis: null, ...v })),
+  }),
 };
 
 export function migrate(doc, migrations = MIGRATIONS, target = SCHEMA_VERSION) {

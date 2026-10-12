@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Versão atual do esquema: **1** (`SCHEMA_VERSION` em `site/js/core/model.js`).
+Versão atual do esquema: **2** (`SCHEMA_VERSION` em `site/js/core/model.js`).
 Todo documento guardado leva `schema_version` e é migrado na leitura (`core/migrations.js`).
 Chaves em inglês, `snake_case`.
 
@@ -8,7 +8,7 @@ Chaves em inglês, `snake_case`.
 
 ```jsonc
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "012345678901-20261010T143012.45-IMG_0001",   // estável; nunca muda depois de criado
   "match_key": "20261010T143012.45-IMG_0001",          // sem a série: pareia versões do disparo
   "session_id": null,                                   // v0.3
@@ -18,10 +18,20 @@ Chaves em inglês, `snake_case`.
   "capture": { /* junção das variantes: CR3 > JPEG completo > demais */ },
   "missing": ["focus.af_point"],                       // campos esperados sem valor em capture
   "preview": { "width": 2048, "height": 1365, "from_variant": "jpeg-web" },
-  "indicators": null,                                   // v0.2 (com metrics_version)
+  "crop_choice": { "af": { "cx": 0.62, "cy": 0.4 }, "uniform": null },  // toque na prévia; null = automático
+  "crops": {                                            // regiões usadas nos recortes a 100%
+    "primary_variant": "jpeg-web",
+    "af": { "rect": { "x": 0.58, "y": 0.34, "w": 0.082, "h": 0.123 }, "source": "makernote" },
+    "uniform": { "rect": { ... }, "source": "auto" }    // ou null
+  },
+  "indicators": { /* ver Indicadores */ },
   "rating": null                                        // v0.3
 }
 ```
+
+`crop_choice` e `crops.*.rect` são normalizados (0–1) **no quadro da prévia**
+(`preview.from_variant`), já na orientação de exibição. `source`: `manual` (toque),
+`makernote` (ponto de AF da câmera), `center` (sem AF) ou `auto` (busca da área uniforme).
 
 ### Identidade
 
@@ -42,11 +52,28 @@ Chaves em inglês, `snake_case`.
   "engines": ["exifr@7.1.3", "exiftool@13.42"],
   "capture": { /* o que ESTE arquivo contém */ },
   "missing": [ ... ],
+  "tag_count": 277,                // campos de metadados que o ExifTool achou no arquivo
+  "analysis": {                    // pixels (v0.2); null até a análise rodar
+    "metrics_version": 1,
+    "analyzed_at": "...",
+    "decoded": { "width": 6240, "height": 4160 },
+    "jpeg": { "quality_estimate": 97, "sampling": "4:2:2", ... },
+    "af":      { "rect": {...}, "px": { "w": 512, "h": 512 }, "laplacian_var": 139, "sigma": 0.3, "mean_luma": 120, "source": "makernote" },
+    "uniform": { "rect": {...}, "px": { "w": 256, "h": 256 }, "laplacian_var": 2, "sigma": 0.25, "mean_luma": 151, "source": "auto" }
+  },                               // ou { metrics_version, analyzed_at, error }
   "error": null
 }
 ```
 
-Guardar a captura por variante permite comparar etapas (cartão × tablet) na v0.2.
+Guardar a captura por variante permite comparar etapas (cartão × tablet). Em `analysis`, cada
+`rect` está no quadro **desta** variante: a mesma parte da cena aparece em posições relativas
+diferentes quando as versões cobrem áreas diferentes do sensor (o JPEG dentro do CR3 é sempre o
+sensor inteiro; o JPEG da câmera pode ser 16:9 ou recorte 1,6x). Ver `core/af-geometry.js`
+(`mapRegion`) e `core/camera-profiles.js` (`sensorField`).
+
+A captura de cada variante é refeita a partir do JSON do ExifTool guardado em `raw_metadata`
+toda vez que a foto é analisada. Assim, correções no normalizador também chegam às fotos já
+guardadas.
 
 ### Captura (`capture`)
 
@@ -68,6 +95,8 @@ Guardar a captura por variante permite comparar etapas (cartão × tablet) na v0
 | `gps` | `{lat, lon}` ou `null` | EXIF |
 
 Enumerados ficam no texto em inglês do ExifTool; a tradução para pt-BR é feita na tela.
+Em `exposure.program`, os modos automáticos da Canon (A+, cenas) usam o `EasyMode` (ex.:
+`Scene Intelligent Auto`), porque o EXIF diz `Program AE` neles, igual ao P.
 
 `focus.af_point`:
 ```jsonc
@@ -75,11 +104,33 @@ Enumerados ficam no texto em inglês do ExifTool; a tradução para pt-BR é fei
   "areas": [{ "x": -1560, "y": 1040, "w": 312, "h": 312 }],   // relativo ao centro
   "in_focus": [0], "selected": [] }
 ```
+`areas` traz só as `ValidAFPoints` primeiras posições: na EOS RP as listas sempre têm 143
+posições, e com AF em 1 ponto as outras 142 são zeros.
+
+## Indicadores (`indicators`, calculados em `core/indicators.js`)
+
+```jsonc
+{
+  "metrics_version": 1, "computed_at": "...", "primary_variant": "jpeg-web",
+  "resolution": { "status", "text", "per_variant": [{ "key", "kind": "native|camera_size|crop_mode|path_reduced|no_profile", ... }] },
+  "metadata":   { "status", "text", "per_variant": [ ... ] },
+  "shake":      { "status", "text", "ratio": 3.33, "shutter_s", "focal_mm", "equivalent_focal_mm", "reference_s" },
+  "sharpness":  { "status": "info", "value": 139, "variant", "source", "text" },
+  "noise":      { "status": "info", "value": 0.25, "mean_luma": 151, "variant", "text" },
+  "jpeg":       { "status": "info", "per_variant": [ ... ], "text" },
+  "chain":      { "status", "versions": [ ... ], "steps": [{ "from", "to", "findings": [{ "kind", "severity", "text" }] }] }  // ou null
+}
+```
+`status`: `unknown` < `ok` < `info` < `attention` < `alert`. Os limites ficam em `THRESHOLDS`.
+A versão principal (`primary_variant`) é a de mais pixels; no empate, o JPEG da câmera, e não o
+JPEG embutido no CR3, que é mais comprimido. Mudou um cálculo ou um limite? Suba
+`METRICS_VERSION`: as fotos guardadas são recalculadas a partir dos originais.
 
 ## IndexedDB
 
 Banco `evolucao-fotografia`, versão 1: stores `photos`, `blobs`, `raw_metadata`, `meta`
-(detalhes em ARQUITETURA.md). O JSON completo do ExifTool fica em `raw_metadata`, fora do
+(detalhes em ARQUITETURA.md). Os recortes a 100% ficam em `blobs`, como PNG, na chave
+`<id>/crop/<variante>/<af|uniform>`. O JSON completo do ExifTool fica em `raw_metadata`, fora do
 registro, para manter a lista leve.
 
 ## Google Drive (planejado para a v0.4)
@@ -102,3 +153,4 @@ perder. Conflitos tablet × PC: junção foto a foto, vence o `updated_at` mais 
 | De → para | O que muda |
 |---|---|
 | 0 → 1 | Marca documentos sem versão como versão 1 (modelo da etapa). |
+| 1 → 2 (v0.2) | Acrescenta `crop_choice` (automático), `crops: null` e, em cada variante, `tag_count: null` e `analysis: null`. Os indicadores são calculados quando a foto é aberta ou pelo botão da aba Sobre. |

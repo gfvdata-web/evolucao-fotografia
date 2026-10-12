@@ -18,7 +18,7 @@ function renderQueue(listEl, summaryEl) {
   mount(summaryEl, items.length
     ? `${count('stored')} prontas · ${count('duplicate')} repetidas · ${count('unsupported') + count('error')} com problema`
       + `${count('waiting') + count('working') ? ` · ${count('waiting') + count('working')} em andamento` : ''}`
-      + `${reading ? ` · leitura completa de ${reading} em andamento` : ''}`
+      + `${reading ? ` · análise de ${reading} em andamento` : ''}`
     : 'Nenhum arquivo enviado nesta visita.');
   mount(listEl, items.map((i) => h('li', { class: `queue-item status-${i.status}`, 'data-testid': 'queue-item' },
     h('span', { class: 'queue-name' }, i.name),
@@ -26,7 +26,7 @@ function renderQueue(listEl, summaryEl) {
     h('span', { class: 'queue-status' },
       i.status === 'working' && i.step ? i.step : statusText(i),
       i.message ? ` — ${i.message}` : '',
-      i.status === 'stored' && i.full === 'reading' ? ' · lendo dados da Canon…' : ''),
+      i.status === 'stored' && i.full === 'reading' ? ' · lendo dados da Canon e calculando indicadores…' : ''),
     i.photoId && (i.status === 'stored' || i.status === 'duplicate')
       ? h('a', { href: `#/foto/${encodeURIComponent(i.photoId)}`, class: 'queue-link' }, 'abrir ficha')
       : null)));

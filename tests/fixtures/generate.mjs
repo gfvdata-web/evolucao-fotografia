@@ -8,29 +8,37 @@ import jpegJs from 'jpeg-js';
 import { buildTiff, insertExif } from './lib/tiff-writer.mjs';
 import { buildCr3 } from './lib/cr3-writer.mjs';
 import {
-  fullTree, noMakerNoteTree, ifd0Entries, exifEntries, gpsEntries, canonMakerNoteEntries,
+  fullTree, noMakerNoteTree, ifd0Entries, exifEntries, gpsEntries, canonMakerNoteEntries, SHOTS,
 } from './specs.mjs';
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), 'generated');
 
-/** Procedural test pattern: gradient + checkerboard, so decoders have real edges. */
-export function patternJpeg(width, height, quality = 90) {
+/** Raw RGBA of the procedural pattern (see patternJpeg). */
+export function patternPixels(width, height) {
   const data = Buffer.alloc(width * height * 4);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
+      // Bottom-right quarter is a flat mid-grey area (for the uniform-area search).
+      const flat = x >= width * 0.6 && y >= height * 0.6;
       const check = ((x >> 3) + (y >> 3)) % 2 ? 40 : 0;
-      data[i] = Math.round((x / width) * 200) + check;
-      data[i + 1] = Math.round((y / height) * 200) + check;
-      data[i + 2] = 120;
+      data[i] = flat ? 128 : Math.round((x / width) * 200) + check;
+      data[i + 1] = flat ? 128 : Math.round((y / height) * 200) + check;
+      data[i + 2] = flat ? 128 : 120;
       data[i + 3] = 255;
     }
   }
-  return new Uint8Array(jpegJs.encode({ data, width, height }, quality).data);
+  return data;
+}
+
+/** Procedural test pattern: gradient + checkerboard + flat area, so decoders have real edges. */
+export function patternJpeg(width, height, quality = 90) {
+  return new Uint8Array(jpegJs.encode({ data: patternPixels(width, height), width, height }, quality).data);
 }
 
 export function generateAll() {
-  mkdirSync(OUT, { recursive: true });
+  mkdirSync(join(OUT, 'cartao'), { recursive: true });
+  mkdirSync(join(OUT, 'tablet'), { recursive: true });
   const base = patternJpeg(96, 64);
   const files = {
     'IMG_0001.JPG': insertExif(base, buildTiff(fullTree())),
@@ -44,6 +52,13 @@ export function generateAll() {
       jpeg: patternJpeg(120, 80),
     }),
     'anotacoes.txt': new TextEncoder().encode('arquivo que não é foto'),
+    // v0.2: JPEG S2 chosen in the camera (2400×1600), slow shutter.
+    'IMG_0010.JPG': insertExif(patternJpeg(2400, 1600, 92), buildTiff(fullTree(SHOTS.small))),
+    // v0.2: one shot in two versions — camera card vs. resized & recompressed on the tablet.
+    'cartao/IMG_0011.JPG': insertExif(patternJpeg(2400, 1600, 95), buildTiff(fullTree(SHOTS.chain))),
+    'tablet/IMG_0011.JPG': insertExif(patternJpeg(1200, 800, 70), buildTiff(noMakerNoteTree(SHOTS.chain))),
+    // Shot in A+ (Scene Intelligent Auto).
+    'IMG_0012.JPG': insertExif(base, buildTiff(fullTree(SHOTS.auto))),
   };
   for (const [name, bytes] of Object.entries(files)) writeFileSync(join(OUT, name), bytes);
   return Object.keys(files).map((n) => join(OUT, n));

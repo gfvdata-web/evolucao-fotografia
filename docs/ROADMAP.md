@@ -19,7 +19,7 @@ Cada entrega pode ser testada no tablet.
   explicação curta, "o que não foi possível ler" com o motivo provável, metadados completos.
 - Tela Sobre com diagnóstico do aparelho (tela, espaço usado, versões).
 
-### 🔜 v0.2 — Recortes e indicadores
+### ✅ v0.2 — Recortes e indicadores
 - Recortes a 100%: no ponto de AF (MakerNote); sem ele, no centro, com toque na prévia para
   escolher a área. Recorte de área uniforme para ruído (escolha automática + ajuste por toque).
 - Indicadores objetivos por foto, calculados em Web Worker:
@@ -35,9 +35,10 @@ Cada entrega pode ser testada no tablet.
   versão (CR3, JPEG do cartão, JPEG do tablet, JPEG transferido "sem redimensionar"), a ficha
   compara as versões lado a lado: pixels, bytes por pixel, qualidade JPEG estimada, tags
   perdidas e nitidez no mesmo recorte — e aponta em qual etapa a qualidade caiu.
-- Calibração com as amostras reais (`docs/AMOSTRAS-CALIBRACAO.md`) assim que chegarem.
+- Calibração com as amostras reais: 1ª rodada feita com 26 fotos (séries F e T), resultados em
+  `docs/CALIBRACAO-RESULTADOS.md`. A nitidez segue relativa até haver avaliações (v0.3).
 
-### ⏳ v0.3 — Avaliação e sessões
+### 🔜 v0.3 — Avaliação e sessões
 - Sessões: data, local, nome dado pelo usuário; marcação opcional de "experimento"
   (um único parâmetro variado). Agrupamento sugerido por data ao enviar.
 - Avaliação por toque: categoria (nítida / ruído / tremida / fora de foco / pixelada no envio /

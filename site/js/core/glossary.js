@@ -80,7 +80,8 @@ const VALUES = {
     'Shutter speed priority AE': 'Prioridade de velocidade (Tv)', Bulb: 'Bulb (B)',
     'Flexible-priority AE': 'Prioridade flexível (Fv)', 'Creative (Slow speed)': 'Criativo (velocidade lenta)',
     'Action (High speed)': 'Ação (velocidade alta)', Portrait: 'Retrato', Landscape: 'Paisagem',
-    'Not Defined': 'Não definido',
+    'Not Defined': 'Não definido', 'Scene Intelligent Auto': 'Cena Inteligente Auto (A+)',
+    'Full auto': 'Automático total', Easy: 'Automático da câmera',
   },
   'exposure.metering': {
     Evaluative: 'Avaliativa', Partial: 'Parcial', Spot: 'Pontual (spot)',
@@ -92,7 +93,7 @@ const VALUES = {
     'AI Focus AF': 'AI Focus (automático)', 'Manual Focus': 'Manual (MF)',
   },
   'focus.af_area_mode': {
-    'Single-point AF': 'Ponto único', 'Spot AF': 'Ponto spot (pequeno)', 'Face + Tracking': 'Rosto + rastreamento',
+    'Single-point AF': 'Ponto único', 'Flexizone Single': 'Ponto único (AF em 1 ponto)', 'Spot AF': 'Ponto spot (pequeno)', 'Face + Tracking': 'Rosto + rastreamento',
     'Face Detect AF': 'Detecção de rosto', 'Zone AF': 'Zona', 'Large Zone AF': 'Zona ampla',
     'Large Zone AF (vertical)': 'Zona ampla (vertical)', 'Large Zone AF (horizontal)': 'Zona ampla (horizontal)',
     'AF Point Expansion (4 point)': 'Ponto com expansão (4 pontos)',

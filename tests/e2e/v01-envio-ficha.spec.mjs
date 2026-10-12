@@ -101,6 +101,6 @@ test('seletores de arquivo: galeria filtra imagens, "Arquivos" aceita CR3', asyn
 
 test('tela Sobre mostra versão e diagnóstico do aparelho', async ({ page }) => {
   await page.goto('#/sobre');
-  await expect(page.getByTestId('app-version')).toHaveText('0.1.0');
+  await expect(page.getByTestId('app-version')).toHaveText('0.2.0');
   await expect(page.getByTestId('viewport')).toContainText('densidade 2');
 });

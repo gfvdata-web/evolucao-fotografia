@@ -1,8 +1,20 @@
 // "Fotos" screen: grid of everything stored on this device.
 import { h, mount, UrlBag, serialized } from '../dom.js';
 import { listPhotos, getBlob, blobKey } from '../../storage/photos-repo.js';
-import { photoEvents } from '../../pipeline/ingest.js';
+import { photoEvents } from '../../pipeline/photo-events.js';
 import { formatDateTime, formatShutter, formatAperture, formatIso, formatFocal } from '../../core/format.js';
+import { buildIndicators } from '../../core/indicators.js';
+
+/** Short flags shown on the grid, only for the clearest problems. */
+function flags(photo) {
+  const ind = buildIndicators(photo);
+  const out = [];
+  if (ind.resolution.per_variant.some((r) => r.kind === 'path_reduced')) out.push(['alert', 'reduzida no caminho']);
+  if (ind.shake.status === 'alert') out.push(['alert', 'risco de tremido']);
+  else if (ind.shake.status === 'attention') out.push(['attention', 'velocidade abaixo da referência']);
+  if (ind.metadata.per_variant.some((m) => m.kind === 'makernotes_missing' || m.kind === 'exif_missing')) out.push(['attention', 'metadados removidos']);
+  return out;
+}
 
 function readingState(photo) {
   if (photo.variants.some((v) => v.metadata_status === 'quick' || v.metadata_status === 'pending')) return 'lendo dados da Canon…';
@@ -26,7 +38,9 @@ async function card(photo, bag) {
       h('div', { class: 'photo-card-title' }, photo.variants[0]?.file.name || photo.id),
       h('div', { class: 'muted small' }, formatDateTime(c.datetime_original) || 'sem data de captura'),
       settings ? h('div', { class: 'small' }, settings) : null,
-      state ? h('div', { class: 'small warn-text' }, state) : null));
+      state ? h('div', { class: 'small warn-text' }, state) : null,
+      h('div', { class: 'photo-chips', 'data-testid': 'photo-flags' },
+        flags(photo).map(([st, text]) => h('span', { class: `chip st-${st}` }, text)))));
 }
 
 export function photosView(root) {

@@ -7,6 +7,8 @@ import { exifToolStatus, onExifToolStatus } from '../../metadata/exiftool-client
 import { formatBytes } from '../../core/format.js';
 import { clearAll } from '../../storage/idb.js';
 import { listPhotos } from '../../storage/photos-repo.js';
+import { analyzeAllStale } from '../../pipeline/analyze.js';
+import { METRICS_VERSION, needsAnalysis } from '../../core/indicators.js';
 
 const EXIFTOOL_STATE = {
   idle: 'ainda não usado nesta visita',
@@ -25,7 +27,7 @@ async function diagnostics() {
   let versions = {};
   try { versions = await (await fetch(new URL('../../../vendor/versions.json', import.meta.url))).json(); } catch { /* offline */ }
   const photos = await listPhotos();
-  return { est, persisted, versions, photoCount: photos.length };
+  return { est, persisted, versions, photoCount: photos.length, stale: photos.filter(needsAnalysis).length };
 }
 
 export function aboutView(root) {
@@ -36,13 +38,14 @@ export function aboutView(root) {
   const off = onExifToolStatus(paintExif);
 
   const body = h('dl', { class: 'settings' }, h('p', { class: 'muted' }, 'Carregando…'));
-  diagnostics().then(({ est, persisted, versions, photoCount }) => {
+  diagnostics().then(({ est, persisted, versions, photoCount, stale }) => {
     const portrait = matchMedia('(orientation: portrait)').matches;
     mount(body,
       row('Versão do app', APP_VERSION, 'app-version'),
       row('Leitores de metadados', Object.entries(versions).map(([k, v]) => `${k} ${v}`).join(' · ') || 'indisponível'),
       h('div', { class: 'setting-row' }, h('dt', {}, 'Leitor completo (ExifTool)'), h('dd', {}, exifEl)),
       row('Fotos neste aparelho', String(photoCount), 'photo-count'),
+      row('Versão das métricas', `${METRICS_VERSION}${stale ? ` · ${stale} foto(s) a recalcular` : ' · todas atualizadas'}`, 'metrics-version'),
       row('Espaço usado pelo app', est ? `${formatBytes(est.usage)} de ${formatBytes(est.quota)} disponíveis` : 'indisponível'),
       row('Armazenamento protegido', persisted === null ? 'indisponível' : persisted ? 'sim' : 'não (o navegador pode limpar se faltar espaço)'),
       row('Tela', `${innerWidth} × ${innerHeight} px · densidade ${devicePixelRatio} · ${portrait ? 'retrato' : 'paisagem'}`, 'viewport'),
@@ -55,6 +58,20 @@ export function aboutView(root) {
       h('p', {}, 'Evolução Fotografia analisa a qualidade da captura das suas fotos antes da edição. ',
         'Nesta versão, tudo fica guardado só neste aparelho.'),
       body),
+    h('section', { class: 'card' },
+      h('h3', {}, 'Recalcular indicadores'),
+      h('p', { class: 'small' }, 'Quando as métricas mudam (por exemplo, depois da calibração), as fotos são recalculadas ao abrir a ficha. ',
+        'Este botão recalcula todas de uma vez, a partir dos originais guardados neste aparelho.'),
+      h('button', {
+        class: 'btn', type: 'button', 'data-testid': 'recalc-all',
+        onclick: async (e) => {
+          const btn = e.currentTarget;
+          btn.disabled = true;
+          btn.textContent = 'Recalculando…';
+          const n = await analyzeAllStale();
+          btn.textContent = n ? `${n} foto(s) recalculada(s)` : 'Nada a recalcular';
+        },
+      }, 'Recalcular desatualizadas')),
     h('section', { class: 'card danger-zone' },
       h('h3', {}, 'Dados locais'),
       h('p', { class: 'small' }, 'Apaga todas as fotos e dados guardados pelo app neste navegador. Não afeta as fotos do cartão nem da galeria.'),
