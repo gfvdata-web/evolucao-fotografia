@@ -102,6 +102,14 @@ do equipamento e pixels. Ver decisão 0011.
 - Comparação lado a lado: recorte do RAW neutro × recorte do JPEG da câmera (entra na cadeia
   de etapas como a etapa "sensor").
 - Testes com pytest; guia de instalação no Windows.
+- **Pedido do Guilherme (2026-10-12), ler antes de começar a v0.6:** deixar claro **na tela**,
+  de forma intuitiva, que enviar o CR3 junto com o JPEG permite ver o que o processamento da
+  câmera acrescenta ou tira (redução de ruído, nitidez do Picture Style, otimizador da lente):
+  o RAW neutro mostra a foto sem esses efeitos e distorções. Hoje ele usa só o JPEG L do tablet,
+  que basta para o diagnóstico; o CR3 é opcional e serve para essa investigação. Ideias a
+  propor: aviso no envio e na ficha quando só há JPEG ("envie o CR3 pelo importador para ver a
+  foto sem o processamento da câmera"), selo na foto que tem a etapa "sensor", explicação no
+  Sobre. Lembrar que o CR3 chega pelo importador no computador, não pelo envio do tablet.
 
 ### ⏳ v1.0 — Polimento + Painel (beta)
 - Acessibilidade, desempenho no tablet, Samsung Internet.
