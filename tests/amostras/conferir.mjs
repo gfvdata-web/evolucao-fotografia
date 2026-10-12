@@ -58,6 +58,12 @@ const num = (m, tag) => {
   const n = typeof v === 'object' ? (v.num ?? v.val) : v;
   return typeof n === 'string' && /^-?[\d.]+$/.test(n) ? Number(n) : n;
 };
+// Texto cru, sem conversão numérica: "08" em SubSecTimeOriginal são 80 ms, não 8.
+const cru = (m, tag) => {
+  const v = m.plano[tag];
+  if (v == null) return undefined;
+  return String(typeof v === 'object' ? (v.num ?? v.val) : v);
+};
 const txt = (m, tag) => {
   const v = m.plano[tag];
   if (v == null) return '—';
@@ -80,6 +86,10 @@ function bate(id, m, temRaw) {
   if (id.focal != null && !perto(num(m, 'FocalLength'), id.focal, id.focal * 0.03)) return false;
   if (id.ev != null && !perto(num(m, 'ExposureCompensation'), id.ev, 0.1)) return false;
   if (id.gps && num(m, 'GPSLatitude') == null) return false;
+  if (id.lente && !String(num(m, 'LensModel') ?? '').includes(id.lente)) return false;
+  if (id.canonModo != null && num(m, 'CanonExposureMode') !== id.canonModo) return false;
+  if (id.larguraMin != null && Math.max(num(m, 'ImageWidth'), num(m, 'ImageHeight')) < id.larguraMin) return false;
+  if (id.larguraMax != null && Math.max(num(m, 'ImageWidth'), num(m, 'ImageHeight')) > id.larguraMax) return false;
   return true;
 }
 
@@ -88,7 +98,7 @@ function bate(id, m, temRaw) {
 const chaveCaptura = (m) => {
   const dt = num(m, 'DateTimeOriginal');
   if (!dt) return `arquivo:${m.nome.replace(/\.[^.]+$/, '').toUpperCase()}`;
-  return [dt, num(m, 'SubSecTimeOriginal') ?? '', num(m, 'SerialNumber') ?? ''].join('|');
+  return [dt, cru(m, 'SubSecTimeOriginal') ?? '', cru(m, 'SerialNumber') ?? ''].join('|');
 };
 
 const capturas = new Map(); // chave → { versões: {pasta/ext: meta} }
@@ -133,7 +143,7 @@ const ordemRef = ['cartao/JPG', 'cartao/CR3', 'tablet/JPG', 'tablet-raw/CR3'];
 const lista = [...capturas.values()].map((c) => {
   c.ref = ordemRef.map((k) => c.versoes[k]).find(Boolean) ?? Object.values(c.versoes)[0];
   c.temRaw = Boolean(c.versoes['cartao/CR3'] || c.versoes['tablet-raw/CR3']);
-  c.quando = `${num(c.ref, 'DateTimeOriginal') ?? ''}.${num(c.ref, 'SubSecTimeOriginal') ?? ''}`;
+  c.quando = `${num(c.ref, 'DateTimeOriginal') ?? ''}.${cru(c.ref, 'SubSecTimeOriginal') ?? ''}`;
   c.candidatas = FOTOS.filter((f) => bate(f.id, c.ref, c.temRaw)).map((f) => f.codigo);
   return c;
 }).sort((a, b) => a.quando.localeCompare(b.quando));

@@ -8,7 +8,8 @@
 | [MODELO-DE-DADOS.md](MODELO-DE-DADOS.md) | Formato do registro da foto, identidade, captura, IndexedDB, Drive (v0.4), migrações |
 | [ROADMAP.md](ROADMAP.md) | V1 por entrega (v0.1 a v1.0), V2 e ideias |
 | [GUIA-DE-USO.md](GUIA-DE-USO.md) | Para o Guilherme: uso no tablet, Google Cloud (v0.4), importador no PC (v0.5) |
-| [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md) | Protocolo das 14 fotos reais de calibração e como entregá-las |
+| [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md) | Protocolo das fotos reais de calibração (séries F e T) e como entregá-las |
+| [CALIBRACAO-RESULTADOS.md](CALIBRACAO-RESULTADOS.md) | Resultados da 1ª rodada com fotos reais: valores da EOS RP para o normalizador |
 | [guia-fotos/Guia-fotos-calibracao.pdf](guia-fotos/Guia-fotos-calibracao.pdf) | O mesmo protocolo em versão para imprimir ou levar no celular (fonte: `guia.html`) |
 | [CHANGELOG.md](CHANGELOG.md) | O que mudou em cada versão |
 | [decisoes/0001-site-estatico-sem-build.md](decisoes/0001-site-estatico-sem-build.md) | JS puro sem build, publicação por Actions |

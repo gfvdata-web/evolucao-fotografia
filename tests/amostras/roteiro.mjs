@@ -85,13 +85,15 @@ export const FOTOS = [
   },
   {
     codigo: 'F12', titulo: 'Recorte 1,6x',
-    id: { programa: 3, abertura: 4, iso: 400, focal: 50 },
+    id: { programa: 3, abertura: 4, focal: 50, larguraMax: 3888 },
+    // Capturada com ISO 640 (ISO Auto), não 400: reconhecida pelo recorte.
     confere: { jpegCamera: [3888, 2592], recorte: '1,6x' },
   },
   {
     codigo: 'F13', titulo: 'Cena Inteligente Auto (A+), só JPEG M',
-    id: { semRaw: true, larguraJpeg: 4160 },
-    confere: { jpegCamera: [4160, 2768], modo: 'Cena Inteligente Auto', fotoReduzidaNaCamera: true },
+    id: { canonModo: 0, focal: 50 },
+    // Capturada em RAW + JPEG L (a qualidade não foi trocada para JPEG M).
+    confere: { modo: 'Cena Inteligente Auto (CanonExposureMode Easy)', jpegCamera: [6240, 4160] },
   },
   {
     codigo: 'F14', titulo: 'GPS pelo Camera Connect (opcional)', opcional: true,
@@ -138,7 +140,8 @@ export const FOTOS = [
   },
   {
     codigo: 'T08', titulo: 'Tele 300 mm, tripé, f/8, disparo com o dedo (sem temporizador)', serie: 'tele',
-    id: { programa: 3, abertura: 8, iso: 400, focal: 300 },
+    id: { programa: 3, abertura: 8, iso: 400, lente: 'RF75-300' },
+    // Capturada em 205 mm: o zoom ficou na posição da T05. Comparar com a T05, não com a T02.
     confere: { disparo: 'foto única', observacao: 'ISO 400 só para diferenciar da T02' },
   },
   {
