@@ -71,6 +71,7 @@ Isola o que tira nitidez na tele, uma variável por vez: abertura, distância fo
 | T06 | 300 mm | f/8 · **ISO 200** | **Janela fechada**, através do vidro. O ISO 200 só serve para diferenciar da T02 |
 | T07 | 300 mm | **Tv 1/640 · ISO Auto** | **À mão livre**, sem tripé |
 | T08 | 300 mm | f/8 · **ISO 400** | Tripé, mas **sem temporizador** (*Single shooting*), disparando com o dedo. O ISO 400 só serve para diferenciar da T02 |
+| T09 | 300 mm | f/8 · **ISO 800** | Tripé, **temporizador de 10 s** (*Self-timer: 10 sec/remote*), mãos fora: dá tempo de a vibração do toque passar. O ISO 800 só serve para diferenciar da T02 |
 
 Se a janela não abrir, faça todas através do vidro, pule a T06 e avise.
 
@@ -81,9 +82,7 @@ Coloque tudo nestas pastas dentro de `EvolucaoFotografia\amostras\`, **sem renom
 | Pasta | O que vai nela |
 |---|---|
 | `cartao\` | Do **cartão, pelo leitor**: o CR3 **e** o JPG de todas as fotos. |
-| `tablet\` | Do **Camera Connect**, o JPG de todas as fotos, transferido **do jeito que você sempre faz** (sem mudar a configuração do app). |
-| `tablet-original\` | Só se o seu habitual **não** for "Tam. original": F01, F06 e F10 transferidas de novo com **Tam. original**. |
-| `tablet-reduzido\` | F01, F06 e F10 transferidas de novo com **Reduzido** (opção "Tamanho do formato JPEG salvo" do Camera Connect), para medir quanto o app reduz. |
+| `tablet\` | Do **Camera Connect**, o JPG de todas as fotos, transferido com **Tam. original** (o habitual; "Reduzido" nunca é usado e fica fora da análise). |
 | `tablet-raw\` *(opcional)* | O CR3 da F01 transferido pelo Camera Connect. |
 
 O JPG do cartão é o original da câmera: comparado ao do tablet, mostra o que o caminho altera.

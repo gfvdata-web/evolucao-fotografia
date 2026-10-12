@@ -141,13 +141,16 @@ export const FOTOS = [
     id: { programa: 3, abertura: 8, iso: 400, focal: 300 },
     confere: { disparo: 'foto única', observacao: 'ISO 400 só para diferenciar da T02' },
   },
+  {
+    codigo: 'T09', titulo: 'Tele 300 mm, tripé, f/8, temporizador 10 s (vibração assentada)', serie: 'tele',
+    id: { programa: 3, abertura: 8, iso: 800, focal: 300 },
+    confere: { disparo: 'temporizador 10 s', observacao: 'ISO 800 só para diferenciar da T02' },
+  },
 ];
 
 // Pastas dentro de amostras/ (ignorada pelo git).
 export const PASTAS = {
   cartao: 'copiadas do cartão pelo leitor (CR3 + JPG, nomes originais)',
-  tablet: 'JPG do Camera Connect, com a configuração que você usa sempre',
-  'tablet-original': 'JPG do Camera Connect com "Tam. original" (F01, F06, F10), se o habitual for outro',
-  'tablet-reduzido': 'JPG do Camera Connect com "Reduzido" (F01, F06, F10)',
+  tablet: 'JPG do Camera Connect em "Tam. original" (o habitual dele; "Reduzido" nunca é usado)',
   'tablet-raw': 'CR3 transferido pelo Camera Connect (opcional, só F01)',
 };
