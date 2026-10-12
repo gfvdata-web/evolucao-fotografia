@@ -7,7 +7,7 @@ import { getPhoto, listPhotos, getBlob, blobKey, getRawMetadata, deletePhoto } f
 import { photoEvents } from '../../pipeline/photo-events.js';
 import { listSessions } from '../../storage/sessions-repo.js';
 import { assignPhotos } from '../../pipeline/organize.js';
-import { RATING_LABELS } from '../../core/glossary.js';
+import { RATING_LABELS, ratingText } from '../../core/glossary.js';
 import { formatDate } from '../../core/sessions.js';
 import { scheduleAnalysis, setCropChoice, AF_CROP_PX, UNIFORM_CROP_PX } from '../../pipeline/analyze.js';
 import { FIELDS, MISSING_HINTS, fieldLabel, translate } from '../../core/glossary.js';
@@ -204,9 +204,9 @@ function ratingBlock(photo, sessions) {
   const r = photo.rating;
   const scope = photo.session_id || 'sem-sessao';
   const parts = r ? [
-    r.category ? RATING_LABELS.category[r.category] : 'sem categoria',
-    r.score ? `nota ${r.score}/5` : null,
-    r.light ? RATING_LABELS.light[r.light] : null,
+    ratingText(r),
+    r.place ? RATING_LABELS.place[r.place] : null,
+    r.light ? `luz ${RATING_LABELS.light[r.light].toLowerCase()}` : null,
     r.subject ? RATING_LABELS.subject[r.subject] : null,
   ].filter(Boolean) : [];
   const select = h('select', { 'data-testid': 'photo-session', 'aria-label': 'Sessão da foto' },

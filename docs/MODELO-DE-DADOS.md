@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Versão atual do esquema: **3** (`SCHEMA_VERSION` em `site/js/core/model.js`).
+Versão atual do esquema: **4** (`SCHEMA_VERSION` em `site/js/core/model.js`).
 Todo documento guardado leva `schema_version` e é migrado na leitura (`core/migrations.js`).
 Chaves em inglês, `snake_case`.
 
@@ -8,7 +8,7 @@ Chaves em inglês, `snake_case`.
 
 ```jsonc
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "id": "012345678901-20261010T143012.45-IMG_0001",   // estável; nunca muda depois de criado
   "match_key": "20261010T143012.45-IMG_0001",          // sem a série: pareia versões do disparo
   "session_id": "ses-20261010-k3x9ab",                 // v0.3; null = sem sessão
@@ -25,10 +25,11 @@ Chaves em inglês, `snake_case`.
     "uniform": { "rect": { ... }, "source": "auto" }    // ou null
   },
   "indicators": { /* ver Indicadores */ },
-  "rating": {                                          // v0.3; null = não avaliada
-    "category": "sharp",       // sharp | noise | shake | out_of_focus | pixelated_upload | other
-    "score": 4,                // 1–5 ou null
-    "light": "shade",          // harsh_sun | shade | overcast | indoor | night ou null
+  "rating": {                                          // v0.3.1 (esquema 4); null = não avaliada
+    "sharpness": 4,            // 1–5 no que o usuário queria nítido, ou null
+    "problem": "none",         // none | soft | missed_focus | motion_blur | grain | blocky | other ou null
+    "place": "outdoor",        // indoor | outdoor ou null
+    "light": "medium",         // strong | medium | weak (luz percebida) ou null
     "subject": "still",        // still | moving ou null
     "note": "",
     "rated_at": "..."          // última mudança
@@ -36,9 +37,12 @@ Chaves em inglês, `snake_case`.
 }
 ```
 
-Uma foto conta como **avaliada** quando tem `category` (`core/rating.js`). Os valores são
-guardados em inglês e traduzidos na tela (`RATING_LABELS` em `core/glossary.js`). Avaliação
-toda vazia volta a `null`.
+Uma foto conta como **avaliada** quando tem `sharpness` **e** `problem` (`core/rating.js`).
+`problem` é o sintoma visto ao ampliar, não a causa: mole por inteiro, foco no lugar errado,
+arrastada, granulada, quadriculada ao ampliar (decisão 0012). Os valores são guardados em inglês
+e traduzidos na tela (`RATING_LABELS` em `core/glossary.js`). Avaliação toda vazia volta a
+`null`. A luz da cena calculada pela exposição (`sceneLight` em `core/indicators.js`) não é
+guardada: sai dos metadados na hora.
 
 `crop_choice` e `crops.*.rect` são normalizados (0–1) **no quadro da prévia**
 (`preview.from_variant`), já na orientação de exibição. `source`: `manual` (toque),
@@ -122,7 +126,7 @@ posições, e com AF em 1 ponto as outras 142 são zeros.
 
 ```jsonc
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "id": "ses-20261010-k3x9ab",        // ses-<AAAAMMDD | semdata>-<6 caracteres aleatórios>
   "name": "Sessão de 10/10/2026",     // vazio volta a este padrão
   "date": "2026-10-10",               // ou null
@@ -136,7 +140,7 @@ O vínculo fica só na foto (`session_id`); a sessão não lista as fotos. `expe
 `iso`, `shutter`, `aperture`, `focal_length`, `lens`, `af_mode`, `af_area`, `drive_mode` (lidos
 da foto, e a sessão mostra o valor de cada uma), `transfer` e `other` (só a descrição). Sessões
 usam o mesmo `SCHEMA_VERSION`, com migrações próprias (`SESSION_MIGRATIONS`); a versão 3 é a
-primeira. Ver decisão 0009.
+primeira e a 4 não mudou o formato. Ver decisão 0009.
 
 ## Indicadores (`indicators`, calculados em `core/indicators.js`)
 
@@ -186,3 +190,4 @@ perder. Conflitos tablet × PC: junção foto a foto, vence o `updated_at` mais 
 | 0 → 1 | Marca documentos sem versão como versão 1 (modelo da etapa). |
 | 1 → 2 (v0.2) | Acrescenta `crop_choice` (automático), `crops: null` e, em cada variante, `tag_count: null` e `analysis: null`. Os indicadores são calculados quando a foto é aberta ou pelo botão da aba Sobre. |
 | 2 → 3 (v0.3) | Garante `session_id` e `rating` (já existiam, sempre `null`). O banco local passa da versão 1 para a 2 (store `sessions` e índice `session_id`). |
+| 3 → 4 (v0.3.1) | Avaliação por sintoma (decisão 0012). Passa só o que tem o mesmo sentido: `sharp`→`none`, `noise`→`grain`, `shake`→`motion_blur`, `pixelated_upload`→`blocky`, `other`; `harsh_sun`→fora + forte, `shade`/`overcast`→fora, `indoor`→dentro; assunto e nota. `out_of_focus`, `score` e `night` viram "não marcado". `sharpness` fica `null`, então a foto volta a "não avaliada". Sessões: só a versão. |

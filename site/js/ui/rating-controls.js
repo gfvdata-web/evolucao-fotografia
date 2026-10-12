@@ -1,14 +1,17 @@
-// Touch controls for rating a photo: score, light, subject, free note and
-// category. Built once and repainted per photo, so images on the same screen
-// do not reload on every tap. Tapping the selected option again clears it.
+// Touch controls for rating a photo: sharpness, place, light, subject, free
+// note and main problem. Built once and repainted per photo, so images on the
+// same screen do not reload on every tap. Tapping the selected option again
+// clears it.
 import { h } from './dom.js';
-import { CATEGORIES, LIGHTS, SUBJECTS, SCORES, NOTE_MAX } from '../core/rating.js';
-import { RATING_LABELS, CATEGORY_HINTS } from '../core/glossary.js';
+import {
+  PROBLEMS, PLACES, LIGHTS, SUBJECTS, SHARPNESS, NOTE_MAX, sameContext,
+} from '../core/rating.js';
+import { RATING_LABELS, PROBLEM_HINTS } from '../core/glossary.js';
 
 /**
  * @param {object} p
  * @param {(patch: object) => void} p.onChange   partial rating change
- * @param {(patch: object) => void} [p.onCopyPrevious]  "same as previous" (light + subject)
+ * @param {(patch: object) => void} [p.onCopyPrevious]  "same as previous" (place, light, subject)
  * @returns {{el: HTMLElement, paint: (rating: object|null, previous?: object|null) => void, flush: () => void}}
  */
 export function ratingControls({ onChange, onCopyPrevious }) {
@@ -25,14 +28,14 @@ export function ratingControls({ onChange, onCopyPrevious }) {
     buttons.push({ field, value, el });
     return el;
   };
-  const group = (title, field, values, labels) => h('div', { class: `rate-group rate-g-${field}`, role: 'group', 'aria-label': title },
-    h('span', { class: 'rate-label' }, title),
+  const group = (title, field, values, labels, hint) => h('div', { class: `rate-group rate-g-${field}`, role: 'group', 'aria-label': title },
+    h('span', { class: 'rate-label' }, title, hint ? h('small', { class: 'rate-hint' }, ` ${hint}`) : null),
     h('div', { class: 'rate-options' }, values.map((v) => option(field, v, labels ? labels[v] : String(v)))));
 
   const copyBtn = onCopyPrevious ? h('button', {
     type: 'button', class: 'btn btn-small', 'data-testid': 'rate-copy-previous', disabled: true,
     onclick: () => copyBtn.previous && onCopyPrevious(copyBtn.previous),
-  }, 'Luz e assunto iguais à anterior') : null;
+  }, 'Onde, luz e assunto iguais à anterior') : null;
 
   const note = h('textarea', {
     class: 'rate-note', rows: 1, maxlength: NOTE_MAX, 'data-testid': 'rate-note',
@@ -47,19 +50,20 @@ export function ratingControls({ onChange, onCopyPrevious }) {
   };
   note.addEventListener('change', flush);
 
-  const categories = h('div', { class: 'rate-group rate-g-category', role: 'group', 'aria-label': 'Categoria' },
-    h('span', { class: 'rate-label' }, 'Categoria'),
-    h('div', { class: 'rate-categories' }, CATEGORIES.map((c) => option('category', c,
-      [h('span', { class: 'rate-cat-name' }, RATING_LABELS.category[c]), h('small', { class: 'rate-cat-hint' }, CATEGORY_HINTS[c])],
-      { 'aria-label': RATING_LABELS.category[c] }))));
+  const problems = h('div', { class: 'rate-group rate-g-problem', role: 'group', 'aria-label': 'Problema principal' },
+    h('span', { class: 'rate-label' }, 'Problema principal', h('small', { class: 'rate-hint' }, ' o que você vê ao ampliar')),
+    h('div', { class: 'rate-problems' }, PROBLEMS.map((c) => option('problem', c,
+      [h('span', { class: 'rate-prob-name' }, RATING_LABELS.problem[c]), h('small', { class: 'rate-prob-hint' }, PROBLEM_HINTS[c])],
+      { 'aria-label': RATING_LABELS.problem[c] }))));
 
   const el = h('section', { class: 'rating', 'data-testid': 'rating' },
-    group('Nota', 'score', SCORES),
+    group('Nitidez', 'sharpness', SHARPNESS, null, '1 = borrada · 5 = perfeita, no que você queria nítido'),
+    group('Onde', 'place', PLACES, RATING_LABELS.place),
     group('Luz', 'light', LIGHTS, RATING_LABELS.light),
     group('Assunto', 'subject', SUBJECTS, RATING_LABELS.subject),
     copyBtn ? h('div', { class: 'rate-copy' }, copyBtn) : null,
     note,
-    categories);
+    problems);
 
   const paint = (rating, previous = null) => {
     current = rating;
@@ -67,7 +71,7 @@ export function ratingControls({ onChange, onCopyPrevious }) {
     if (document.activeElement !== note) { note.value = rating?.note || ''; noteDirty = false; }
     if (copyBtn) {
       copyBtn.previous = previous;
-      copyBtn.disabled = !previous || (previous.light === rating?.light && previous.subject === rating?.subject);
+      copyBtn.disabled = !previous || sameContext(previous, rating);
     }
   };
   return { el, paint, flush };

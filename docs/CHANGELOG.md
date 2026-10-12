@@ -2,6 +2,29 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.3.1] — 2026-10-12
+
+Avaliação refeita depois do primeiro uso no tablet (decisão 0012).
+
+### Mudado
+- **Nitidez 1–5** no lugar da nota geral, em botões (teclas 1–5 no computador).
+- **Problema principal** pelo que se vê ao ampliar, sem supor a causa: nenhum problema, mole
+  por inteiro, foco no lugar errado, arrastada, granulada, quadriculada ao ampliar, outro.
+  Substitui a categoria ("pixelada no envio" supunha o envio como causa).
+- **Onde** (dentro / fora) e **Luz** percebida (forte / média / fraca) no lugar das cinco
+  opções de luz; "Onde, luz e assunto iguais à anterior".
+- Avaliada = nitidez + problema; o avanço automático acontece quando os dois estão marcados,
+  em qualquer ordem. Corrigir só a nitidez de uma foto já avaliada não muda de foto.
+- Sessão mostra a nitidez média e a contagem de cada problema; selo da lista e ficha mostram
+  nitidez e problema.
+
+### Adicionado
+- **Luz da cena pela exposição** (EV a ISO 100, com faixa de referência) na tela Avaliar.
+
+### Modelo de dados
+- Esquema 4: novo formato de `rating`. Migração 3 → 4 mantém só o que tem o mesmo sentido;
+  as fotos já avaliadas voltam a "não avaliada" (falta a nitidez).
+
 ## [0.3.0] — 2026-10-12
 
 Avaliação e sessões.

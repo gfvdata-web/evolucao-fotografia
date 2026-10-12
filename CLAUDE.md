@@ -129,8 +129,9 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 ## Estado atual
 
-**v0.3.0**: sessões sugeridas por dia e avaliação por toque, sobre os recortes e indicadores da
-v0.2; dados só no navegador. Próximo: v0.4 (Google Drive, sincronização, PWA e backup); depois v0.5 (cenas e diagnóstico
+**v0.3.1**: sessões sugeridas por dia e avaliação por toque (nitidez 1–5, problema principal
+pelo sintoma, onde/luz/assunto e luz da cena calculada pela exposição; decisão 0012), sobre os
+recortes e indicadores da v0.2; dados só no navegador. Esquema de dados 4. Próximo: v0.4 (Google Drive, sincronização, PWA e backup); depois v0.5 (cenas e diagnóstico
 com orientação, decisão 0011). Ver
 `docs/ROADMAP.md`.
 

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   resolutionOfVariant, metadataOfVariant, shakeRisk, chainComparison, chainOrder, primaryVariant,
-  buildIndicators, needsAnalysis, METRICS_VERSION, isCropMode,
+  buildIndicators, needsAnalysis, METRICS_VERSION, isCropMode, sceneLight,
 } from '../../site/js/core/indicators.js';
 import { matchSizes, PROFILES } from '../../site/js/core/camera-profiles.js';
 import { newPhotoRecord, newVariant, emptyCapture, refreshRecord, SCHEMA_VERSION } from '../../site/js/core/model.js';
@@ -187,4 +187,26 @@ test('nitidez em ISO alto avisa que o ruído também conta; ruído com duas casa
   p.capture.exposure.iso = 12800;
   assert.match(buildIndicators(p).sharpness.text, /Em ISO 12800, o ruído também aumenta este número/);
   assert.match(buildIndicators(p).noise.text, /desvio de 1,20 níveis/);
+});
+
+test('luz da cena pela exposição: EV a ISO 100 e faixa de referência', () => {
+  // The photo on the rating screen of 12/10/2026: f/1.8, 1/500 s, ISO 12800.
+  const dim = sceneLight({ exposure: { aperture: 1.8, shutter_s: 1 / 500, iso: 12800 } });
+  assert.equal(dim.status, 'info');
+  assert.ok(Math.abs(dim.ev - 3.66) < 0.01);
+  assert.equal(dim.band, 'dim');
+  assert.equal(dim.text, 'Luz da cena (pela exposição): EV 3,7, pouca luz: interno escuro ou noite.');
+  // Sunny 16: f/16, 1/100 s, ISO 100 ≈ EV 14,6.
+  assert.equal(sceneLight({ exposure: { aperture: 16, shutter_s: 1 / 100, iso: 100 } }).band, 'sun');
+  assert.equal(sceneLight({ exposure: { aperture: 4, shutter_s: 1 / 125, iso: 400 } }).band, 'bright');
+  const neg = sceneLight({ exposure: { aperture: 1.8, shutter_s: 2, iso: 6400 } });
+  assert.match(neg.text, /EV −5,3/);
+});
+
+test('luz da cena: campo ausente não vira valor plausível', () => {
+  const r = sceneLight({ exposure: { aperture: 1.8, shutter_s: null, iso: null } });
+  assert.equal(r.status, 'unknown');
+  assert.equal(r.ev, null);
+  assert.equal(r.text, 'Luz da cena não calculada: falta velocidade, ISO.');
+  assert.equal(sceneLight(null).status, 'unknown');
 });
