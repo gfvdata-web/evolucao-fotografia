@@ -87,6 +87,34 @@ test('migração 1 → 3 em sequência mantém o que já existia', () => {
   assert.equal(out.rating, null);
 });
 
+test('migração 3 → 4: avaliação da v0.3.0 mantém só o que tem o mesmo sentido', () => {
+  const v3 = {
+    schema_version: 3, id: 'a', session_id: 'ses-1', variants: [],
+    rating: { category: 'shake', score: 4, light: 'harsh_sun', subject: 'moving', note: 'vento', rated_at: 't1' },
+  };
+  const out = migrate(v3);
+  assert.equal(out.schema_version, SCHEMA_VERSION);
+  assert.equal(out.session_id, 'ses-1');
+  assert.deepEqual(out.rating, {
+    sharpness: null, problem: 'motion_blur', place: 'outdoor', light: 'strong', subject: 'moving', note: 'vento', rated_at: 't1',
+  });
+  const map = (rating) => migrate({ schema_version: 3, id: 'a', rating }).rating;
+  assert.equal(map({ category: 'sharp' }).problem, 'none');
+  assert.equal(map({ category: 'noise' }).problem, 'grain');
+  assert.equal(map({ category: 'pixelated_upload' }).problem, 'blocky');
+  assert.deepEqual([map({ category: 'other', light: 'shade' }).place, map({ category: 'other', light: 'shade' }).light], ['outdoor', null]);
+  assert.equal(map({ category: 'other', light: 'indoor' }).place, 'indoor');
+  // Ambiguous in the new form: "fora de foco", the general score and "noite" are not guessed.
+  assert.equal(map({ category: 'out_of_focus', score: 2, light: 'night' }), null);
+  assert.equal(map(null), null);
+});
+
+test('migração de sessão 3 → 4 só acompanha a versão', async () => {
+  const { SESSION_MIGRATIONS } = await import('../../site/js/core/migrations.js');
+  const s = { schema_version: 3, id: 'ses-1', name: 'Parque' };
+  assert.deepEqual(migrate(s, SESSION_MIGRATIONS), { ...s, schema_version: SCHEMA_VERSION });
+});
+
 test('migrate: falha clara quando falta uma etapa', () => {
   assert.throws(() => migrate({ schema_version: 0 }, {}, 1), /Falta a migração da versão 0/);
 });

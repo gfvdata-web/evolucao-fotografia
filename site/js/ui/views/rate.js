@@ -1,12 +1,13 @@
 // "Avaliar": one photo at a time, large, with touch controls, built to rate
 // dozens of photos in a few minutes.
-//   #/avaliar/<escopo>            starts at the first photo without a category
+//   #/avaliar/<escopo>            starts at the first photo not yet rated
 //   #/avaliar/<escopo>/<fotoId>   starts at that photo
 // escopo = a session id, "sem-sessao" or "todas". Photos in capture order.
 //
 // The screen is built once; moving between photos swaps the image and repaints
 // the controls (the address is updated with replaceState, without re-routing).
-// Choosing a category moves on to the next photo when "avançar" is on.
+// Completing the rating (sharpness and main problem) moves on to the next
+// photo when "avançar" is on.
 import { h, mount, attachSwipe } from '../dom.js';
 import { listPhotos, getBlob, blobKey } from '../../storage/photos-repo.js';
 import { getSession } from '../../storage/sessions-repo.js';
@@ -14,9 +15,9 @@ import { photoEvents } from '../../pipeline/photo-events.js';
 import { setRating } from '../../pipeline/organize.js';
 import { scheduleAnalysis, AF_CROP_PX } from '../../pipeline/analyze.js';
 import { ratingControls } from '../rating-controls.js';
-import { isRated, previousContext, ratingSummary } from '../../core/rating.js';
+import { isComplete, isRated, previousContext, ratingSummary } from '../../core/rating.js';
 import { byCapture, sessionPhotos } from '../../core/sessions.js';
-import { buildIndicators, needsAnalysis, primaryVariant } from '../../core/indicators.js';
+import { buildIndicators, needsAnalysis, primaryVariant, sceneLight } from '../../core/indicators.js';
 import { formatAperture, formatDateTime, formatFocal, formatIso, formatShutter } from '../../core/format.js';
 
 const ADVANCE_KEY = 'ef.rate.advance';
@@ -75,7 +76,7 @@ export function rateView(root, { scope, photoId = null }) {
 
   const controls = ratingControls({
     onChange: (patch) => save(patch),
-    onCopyPrevious: (prev) => save({ light: prev.light, subject: prev.subject }),
+    onCopyPrevious: (prev) => save({ place: prev.place, light: prev.light, subject: prev.subject }),
   });
 
   const current = () => data?.photos[index];
@@ -84,12 +85,16 @@ export function rateView(root, { scope, photoId = null }) {
     const photo = current();
     if (!photo) return;
     clearTimeout(advanceTimer);
+    const wasComplete = isComplete(photo.rating);
     const saved = await setRating(photo.id, patch);
     if (!alive || !saved) return;
     const i = data.photos.findIndex((p) => p.id === saved.id);
     if (i >= 0) data.photos[i] = saved;
     if (saved.id === current()?.id) paint();
-    if (advance && patch.category && i === index) {
+    // Moves on when this tap completed the rating, or chose the problem (the
+    // closing tap); correcting only the sharpness of a rated photo stays.
+    const closing = patch.problem || (patch.sharpness && !wasComplete);
+    if (advance && closing && isComplete(saved.rating) && i === index) {
       advanceTimer = setTimeout(() => {
         if (!alive || index !== i) return;
         if (index < data.photos.length - 1) go(index + 1);
@@ -124,12 +129,14 @@ export function rateView(root, { scope, photoId = null }) {
     const settings = [formatFocal(c.lens.focal_length_mm), formatAperture(c.exposure.aperture),
       formatShutter(c.exposure.shutter_s), formatIso(c.exposure.iso)].filter(Boolean).join(' · ');
     const shake = buildIndicators(photo).shake;
+    const light = sceneLight(c);
     mount(info,
       h('strong', {}, photo.variants[0]?.file.name || photo.id), ' ',
       h('span', { class: 'muted' }, formatDateTime(c.datetime_original) || 'sem data de captura'),
       settings ? h('div', {}, settings) : null,
       shake.status === 'alert' || shake.status === 'attention'
-        ? h('div', { class: `st-${shake.status}` }, shake.text) : null);
+        ? h('div', { class: `st-${shake.status}` }, shake.text) : null,
+      h('div', { class: light.ev === null ? 'muted' : '', 'data-testid': 'rate-scene-light' }, light.text));
     controls.paint(photo.rating, previousContext(data.photos, index));
     doneBanner.hidden = rated !== total;
     if (rated === total) {
@@ -190,7 +197,7 @@ export function rateView(root, { scope, photoId = null }) {
     if (e.target.closest?.('input, textarea, select')) return;
     if (e.key === 'ArrowLeft') go(index - 1);
     else if (e.key === 'ArrowRight') go(index + 1);
-    else if (/^[1-5]$/.test(e.key)) save({ score: Number(e.key) });
+    else if (/^[1-5]$/.test(e.key)) save({ sharpness: Number(e.key) });
   };
 
   (async () => {
@@ -226,7 +233,7 @@ export function rateView(root, { scope, photoId = null }) {
         h('div', { class: 'rate-right' },
           doneBanner,
           controls.el,
-          h('label', { class: 'rate-advance small' }, advanceBox, ' Avançar para a próxima ao escolher a categoria'))));
+          h('label', { class: 'rate-advance small' }, advanceBox, ' Avançar para a próxima quando nitidez e problema estiverem marcados'))));
     paint();
     showMedia();
   })();

@@ -6,7 +6,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   keep_cr3: false, // send the CR3 originals (≈30 MB each)
   keep_gps: false, // false = location removed from everything sent to the Drive
   history_versions: 10, // dated copies of sessao.json kept in _historico/
-  drive_limit_gb: 100, // the app stops sending originals before passing this
+  drive_limit_gb: 100, // the app stops sending originals before passing this (free Google accounts have 15 GB)
 });
 
 const RULES = {

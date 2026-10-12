@@ -22,13 +22,46 @@ export const MIGRATIONS = {
   // 2 → 3 (v0.3): sessions and rating. Both fields existed as placeholders
   // (always null), so only make sure they are present.
   2: (doc) => ({ ...doc, session_id: doc.session_id ?? null, rating: doc.rating ?? null }),
+  // 3 → 4 (v0.3.1): rating by symptom (decision 0012). Only what has exactly
+  // the same meaning is carried over; the rest becomes "not marked" (rule 5).
+  3: (doc) => ({ ...doc, rating: ratingV3toV4(doc.rating) }),
+};
+
+const V3_CATEGORY = { sharp: 'none', noise: 'grain', shake: 'motion_blur', pixelated_upload: 'blocky', other: 'other' };
+const V3_LIGHT = {
+  harsh_sun: { place: 'outdoor', light: 'strong' }, shade: { place: 'outdoor' }, overcast: { place: 'outdoor' },
+  indoor: { place: 'indoor' },
 };
 
 /**
- * Session documents (v0.3 on) share SCHEMA_VERSION but have their own steps.
- * Version 3 is their first format, so there is nothing to upgrade yet.
+ * v0.3 rating → v0.4 format. "Fora de foco" may be soft or missed focus, the
+ * old 1–5 score was a general mark (not sharpness) and "Noite" says nothing
+ * about the place: those are dropped.
  */
-export const SESSION_MIGRATIONS = {};
+export function ratingV3toV4(old) {
+  if (!old) return null;
+  const out = {
+    sharpness: null,
+    problem: V3_CATEGORY[old.category] ?? null,
+    place: null,
+    light: null,
+    ...V3_LIGHT[old.light],
+    subject: old.subject ?? null,
+    note: old.note || '',
+    rated_at: old.rated_at ?? null,
+  };
+  const empty = !out.problem && !out.place && !out.light && !out.subject && !out.note.trim();
+  return empty ? null : out;
+}
+
+/**
+ * Session documents (v0.3 on) share SCHEMA_VERSION but have their own steps.
+ * Version 3 is their first format.
+ */
+export const SESSION_MIGRATIONS = {
+  // 3 → 4: nothing changed in sessions; the version follows the photos.
+  3: (doc) => ({ ...doc }),
+};
 
 export function migrate(doc, migrations = MIGRATIONS, target = SCHEMA_VERSION) {
   let current = { ...doc };

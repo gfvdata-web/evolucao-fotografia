@@ -8,8 +8,9 @@ import { getSession, listSessions } from '../../storage/sessions-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
 import { updateSession, deleteSession, assignPhotos, createSession } from '../../pipeline/organize.js';
 import { EXPERIMENT_PARAMETERS, experimentField, experimentValue, formatDate, sessionPhotos } from '../../core/sessions.js';
-import { CATEGORIES, ratingSummary } from '../../core/rating.js';
+import { PROBLEMS, ratingSummary } from '../../core/rating.js';
 import { EXPERIMENT_LABELS, RATING_LABELS } from '../../core/glossary.js';
+import { formatDecimal } from '../../core/format.js';
 import { photoCard } from './photos.js';
 import { displayValue } from './photo-sheet.js';
 
@@ -74,7 +75,7 @@ export function sessionView(root, { id }) {
     if (!alive) return;
     const photos = sessionPhotos(all, id);
     for (const pid of sel.ids) if (!photos.some((p) => p.id === pid)) sel.ids.delete(pid);
-    const { rated, total, by_category } = ratingSummary(photos);
+    const { rated, total, by_problem, mean_sharpness } = ratingSummary(photos);
     const next = new UrlBag();
     const exp = session.experiment;
     const expField = exp && experimentField(exp.parameter);
@@ -126,9 +127,11 @@ export function sessionView(root, { id }) {
         h('div', { class: 'card-head' },
           h('h3', {}, 'Avaliação'),
           h('span', { 'data-testid': 'session-rated' }, `${rated} de ${total} avaliadas`)),
-        rated ? h('div', { class: 'photo-chips', 'data-testid': 'session-categories' },
-          CATEGORIES.filter((c) => by_category[c]).map((c) => h('span', { class: `chip rating-chip cat-${c}` },
-            `${RATING_LABELS.category[c]}: ${by_category[c]}`))) : null,
+        rated ? h('p', { 'data-testid': 'session-sharpness' },
+          `Nitidez média: ${formatDecimal(mean_sharpness, 1)} de 5`) : null,
+        rated ? h('div', { class: 'photo-chips', 'data-testid': 'session-problems' },
+          PROBLEMS.filter((c) => by_problem[c]).map((c) => h('span', { class: `chip rating-chip prob-${c}` },
+            `${RATING_LABELS.problem[c]}: ${by_problem[c]}`))) : null,
         h('div', { class: 'actions' },
           total ? h('a', { href: `#/avaliar/${id}`, class: 'btn btn-primary', 'data-testid': 'start-rating' },
             rated === total ? 'Rever avaliações' : rated ? 'Continuar avaliação' : 'Avaliar fotos') : null,

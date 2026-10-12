@@ -100,6 +100,9 @@ ingestão e da análise) e relida dentro da trava, para não perder uma avaliaç
 a análise roda. Eventos: `changed` (uma foto) e `sessions` em `photoEvents`.
 A tela de avaliação é montada uma vez e só troca a imagem e repinta os controles
 (`ui/rating-controls.js`); o endereço muda com `history.replaceState`, sem recriar a tela.
+Desde a v0.3.1 a avaliação é nitidez 1–5 + problema principal (sintoma) + onde/luz/assunto
+(decisão 0012); a tela mostra a luz da cena pela exposição (`sceneLight`, `core/indicators.js`),
+calculada na hora a partir dos metadados.
 
 ## Google Drive (v0.4)
 

@@ -25,12 +25,12 @@ function readingState(photo) {
   return null;
 }
 
-/** Category and score chosen by the user, as a chip (null when not rated). */
+/** Sharpness and main problem chosen by the user, as a chip (null when not rated). */
 export function ratingChip(photo) {
   if (!isRated(photo)) return null;
   const r = photo.rating;
-  return h('span', { class: `chip rating-chip cat-${r.category}`, 'data-testid': 'rating-chip' },
-    RATING_LABELS.category[r.category], r.score ? ` · ${r.score}/5` : '');
+  return h('span', { class: `chip rating-chip prob-${r.problem}`, 'data-testid': 'rating-chip' },
+    `${r.sharpness}/5 · ${RATING_LABELS.problem[r.problem]}`);
 }
 
 /**

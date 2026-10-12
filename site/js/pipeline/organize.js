@@ -33,7 +33,7 @@ async function updatePhoto(photoId, change) {
   return saved;
 }
 
-/** @param {{category?, score?, light?, subject?, note?}} patch — null clears a field */
+/** @param {{sharpness?, problem?, place?, light?, subject?, note?}} patch — null clears a field */
 export function setRating(photoId, patch) {
   return updatePhoto(photoId, (r) => { r.rating = applyRatingPatch(r.rating, patch, now()); });
 }

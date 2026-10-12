@@ -72,11 +72,13 @@ async function syncAgain(page) {
   await expect(page.getByTestId('sync-status')).toHaveText('Tudo sincronizado.', { timeout: 60_000 });
 }
 
-async function rateFirst(page, category) {
+/** Rates the first photo (v0.3.1 form: sharpness 1–5 + main problem), without moving on. */
+async function rateFirst(page, sharpness, problem) {
   await page.goto('#/avaliar/todas');
   await page.getByTestId('rate-advance').uncheck();
-  await page.getByTestId(`rate-category-${category}`).click();
-  await expect(page.getByTestId(`rate-category-${category}`)).toHaveAttribute('aria-pressed', 'true');
+  await page.getByTestId(`rate-sharpness-${sharpness}`).click();
+  await page.getByTestId(`rate-problem-${problem}`).click();
+  await expect(page.getByTestId(`rate-problem-${problem}`)).toHaveAttribute('aria-pressed', 'true');
 }
 
 const sessionDocs = (drive) => drive.byProps({ ef_kind: 'sessao' }).map((f) => ({ file: f, doc: JSON.parse(drive.text(f)) }));
@@ -96,7 +98,7 @@ test('sincronização: pastas, sessao.json, originais sem GPS, CR3 só quando pe
   await upload(page, fx('IMG_0001.JPG', 'IMG_0001.CR3'));
   await page.getByTestId('suggestion').first().getByTestId('suggestion-create').click();
   await expect(page.getByTestId('session-rated')).toHaveText('0 de 1 avaliadas');
-  await rateFirst(page, 'sharp');
+  await rateFirst(page, 5, 'none');
   await connect(page);
   await expect(page.getByTestId('sync-badge')).toHaveText('Sincronizado');
 
@@ -107,7 +109,8 @@ test('sincronização: pastas, sessao.json, originais sem GPS, CR3 só quando pe
   const [{ doc }] = sessionDocs(drive);
   expect(doc.session.name).toBe('Sessão de 10/10/2026');
   expect(doc.photos).toHaveLength(1);
-  expect(doc.photos[0].rating.category).toBe('sharp');
+  expect(doc.photos[0].rating.problem).toBe('none');
+  expect(doc.photos[0].rating.sharpness).toBe(5);
   expect(doc.photos[0].capture.gps).toBeNull();
   expect(doc.photos[0].drive_assets.preview.id).toBeTruthy();
 
@@ -141,7 +144,7 @@ test('dois aparelhos: o PC recebe fotos e avaliações do tablet, e o tablet rec
   const drive = createFakeDrive();
   const tablet = await device(browser, drive, testInfo);
   await upload(tablet, fx('IMG_0010.JPG'));
-  await rateFirst(tablet, 'sharp');
+  await rateFirst(tablet, 5, 'none');
   await connect(tablet);
 
   const pc = await device(browser, drive, testInfo);
@@ -149,21 +152,22 @@ test('dois aparelhos: o PC recebe fotos e avaliações do tablet, e o tablet rec
   await pc.goto('#/fotos');
   const card = pc.getByTestId('photo-card');
   await expect(card).toHaveCount(1);
-  await expect(card.getByTestId('rating-chip')).toHaveText('Nítida');
+  await expect(card.getByTestId('rating-chip')).toHaveText('5/5 · Nenhum problema');
   await expect(card.locator('img')).toBeVisible(); // preview downloaded from the Drive
   await card.click();
   await expect(pc.getByTestId('crop-af').first().locator('img')).toBeVisible(); // crops too
-  await expect(pc.getByTestId('rating-summary')).toHaveText('Nítida');
+  await expect(pc.getByTestId('rating-summary')).toHaveText('Nitidez 5/5 · Nenhum problema');
 
   await pc.getByTestId('rate-this').click();
   await pc.getByTestId('rate-advance').uncheck();
-  await pc.getByTestId('rate-category-shake').click();
-  await expect(pc.getByTestId('rate-category-shake')).toHaveAttribute('aria-pressed', 'true');
+  await pc.getByTestId('rate-sharpness-2').click();
+  await pc.getByTestId('rate-problem-motion_blur').click();
+  await expect(pc.getByTestId('rate-problem-motion_blur')).toHaveAttribute('aria-pressed', 'true');
   await syncAgain(pc);
 
   await syncAgain(tablet);
   await tablet.goto('#/fotos');
-  await expect(tablet.getByTestId('rating-chip')).toHaveText('Tremida');
+  await expect(tablet.getByTestId('rating-chip')).toHaveText('2/5 · Arrastada');
   // Nothing was sent twice: one preview and one original for the photo.
   expect(drive.byProps({ ef_kind: 'asset' }).filter((f) => f.name.endsWith('.jpg'))).toHaveLength(1);
   expect(drive.byProps({ ef_kind: 'asset' }).filter((f) => f.name.endsWith('.JPG'))).toHaveLength(1);
@@ -232,29 +236,29 @@ test('login expirado: pausa, renova no próximo toque; se não der, botão Recon
   await connect(page);
 
   drive.state.rejectToken = true; // the Drive stops accepting the token (expired)
-  await rateFirst(page, 'noise');
+  await rateFirst(page, 4, 'grain');
   await expect(page.getByTestId('sync-badge')).toHaveText('Reconectar ao Drive', { timeout: 30_000 });
   drive.state.rejectToken = false;
   // The next tap renews silently (no consent screen) and the pending change goes up.
-  await page.getByTestId('rate-score-3').click();
+  await page.getByTestId('rate-sharpness-3').click();
   await expect(page.getByTestId('sync-badge')).toHaveText('Sincronizado', { timeout: 30_000 });
   const prompts = await page.evaluate(() => window.__gis.requests.map((r) => r.prompt));
   expect(prompts.at(-1)).toBe('');
-  await expect.poll(() => sessionDocs(drive)[0]?.doc.photos[0].rating?.score).toBe(3);
+  await expect.poll(() => sessionDocs(drive)[0]?.doc.photos[0].rating?.sharpness).toBe(3);
 
   // Silent renewal refused: the Drive screen offers "Reconectar".
   drive.state.rejectToken = true;
   await page.evaluate(() => { window.__gis.deny = true; });
-  await page.getByTestId('rate-score-4').click();
+  await page.getByTestId('rate-sharpness-4').click();
   await expect(page.getByTestId('sync-badge')).toHaveText('Reconectar ao Drive', { timeout: 30_000 });
-  await page.getByTestId('rate-score-5').click(); // a tap triggers the silent try, which is refused
+  await page.getByTestId('rate-sharpness-5').click(); // a tap triggers the silent try, which is refused
   await page.goto('#/drive');
   await expect(page.getByTestId('drive-reconnect')).toBeVisible();
   drive.state.rejectToken = false;
   await page.evaluate(() => { window.__gis.deny = false; });
   await page.getByTestId('drive-reconnect').click();
   await expect(page.getByTestId('sync-status')).toHaveText('Tudo sincronizado.', { timeout: 30_000 });
-  await expect.poll(() => sessionDocs(drive)[0]?.doc.photos[0].rating?.score).toBe(5);
+  await expect.poll(() => sessionDocs(drive)[0]?.doc.photos[0].rating?.sharpness).toBe(5);
   await page.context().close();
 });
 
@@ -265,7 +269,7 @@ test('backup: exportar num aparelho e importar em outro, sem Drive', async ({ br
   await a.goto('#/sessoes');
   await a.getByTestId('suggestion-create').first().click();
   await expect(a).toHaveURL(/#\/sessao\//);
-  await rateFirst(a, 'out_of_focus');
+  await rateFirst(a, 2, 'missed_focus');
   await a.goto('#/drive');
   const [download] = await Promise.all([a.waitForEvent('download'), a.getByTestId('backup-export').click()]);
   expect(download.suggestedFilename()).toMatch(/^evolucao-fotografia-\d{4}-\d{2}-\d{2}\.efbackup$/);
@@ -279,7 +283,7 @@ test('backup: exportar num aparelho e importar em outro, sem Drive', async ({ br
   await b.goto('#/sessoes');
   await expect(b.getByTestId('session-card').getByTestId('session-progress')).toHaveText('1 de 2 avaliadas');
   await b.goto('#/fotos');
-  await expect(b.getByTestId('rating-chip')).toHaveText('Fora de foco');
+  await expect(b.getByTestId('rating-chip')).toHaveText('2/5 · Foco no lugar errado');
   await expect(b.getByTestId('photo-card').first().locator('img')).toBeVisible();
 
   // Importing the same backup again changes nothing (the data here is not older).

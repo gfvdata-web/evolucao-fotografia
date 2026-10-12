@@ -244,9 +244,9 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .select-bar select { width: auto; max-width: 100%; }
 
 .rating-chip { color: var(--text); border-color: var(--border); background: var(--surface-2); }
-.rating-chip.cat-sharp { color: var(--ok); border-color: currentColor; }
-.rating-chip.cat-shake, .rating-chip.cat-out_of_focus, .rating-chip.cat-pixelated_upload { color: var(--danger); border-color: currentColor; }
-.rating-chip.cat-noise { color: var(--warn); border-color: currentColor; }
+.rating-chip.prob-none { color: var(--ok); border-color: currentColor; }
+.rating-chip.prob-soft, .rating-chip.prob-missed_focus, .rating-chip.prob-motion_blur, .rating-chip.prob-blocky { color: var(--danger); border-color: currentColor; }
+.rating-chip.prob-grain { color: var(--warn); border-color: currentColor; }
 
 /* Rating screen: photo as large as possible, controls within thumb reach. */
 .rate-nav { flex-wrap: wrap; }
@@ -265,18 +265,20 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .rating { display: flex; flex-direction: column; gap: 10px; }
 .rate-group { display: flex; flex-direction: column; gap: 6px; }
 .rate-label { color: var(--muted); font-size: .875rem; }
+.rate-hint { font-size: .75rem; }
 .rate-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .rate-opt { padding: 0 16px; }
-.rate-score { min-width: 56px; font-weight: 700; }
+.rate-sharpness { min-width: 56px; font-weight: 700; }
 .rate-opt[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-.rate-categories { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-.rate-category {
+.rate-problems { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.rate-problem {
   flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; border-radius: var(--radius);
   min-height: 64px; padding: 8px 12px; text-align: left; line-height: 1.25;
 }
-.rate-cat-name { font-weight: 700; }
-.rate-cat-hint { font-size: .75rem; color: var(--muted); font-weight: 400; }
-.rate-category[aria-pressed="true"] .rate-cat-hint { color: inherit; opacity: .85; }
+.rate-prob-name { font-weight: 700; }
+.rate-prob-hint { font-size: .75rem; color: var(--muted); font-weight: 400; }
+.rate-problem[aria-pressed="true"] .rate-prob-hint { color: inherit; opacity: .85; }
+.rate-problem[data-testid="rate-problem-none"] { grid-column: 1 / -1; min-height: 56px; }
 .rate-copy .btn { width: 100%; }
 .rate-advance { display: flex; align-items: center; gap: 10px; min-height: var(--tap); margin-top: 8px; cursor: pointer; }
 .sync-badge { text-decoration: none; }
@@ -284,25 +286,31 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .block { display: block; }
 .rate-done { padding: 12px; border-radius: var(--radius); background: var(--surface-2); color: var(--ok); margin-bottom: 12px; font-weight: 600; }
 
-/* Portrait tablet: categories (the main tap) beside score, light and subject,
+/* Portrait tablet: problems (the closing tap) beside sharpness and context,
    so everything fits under the photo without scrolling. */
 @media (min-width: 700px) {
   .rating {
     display: grid; gap: 10px 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: "cat score" "cat light" "cat subject" "copy note";
+    grid-template-areas: "sharp sharp" "prob place" "prob light" "prob subject" "prob copy" "prob note";
+    align-items: start;
   }
-  .rate-g-category { grid-area: cat; }
-  .rate-g-score { grid-area: score; }
+  .rate-g-problem { grid-area: prob; }
+  .rate-g-sharpness { grid-area: sharp; }
+  .rate-g-place { grid-area: place; }
   .rate-g-light { grid-area: light; }
   .rate-g-subject { grid-area: subject; }
   .rate-copy { grid-area: copy; }
   .rate-note { grid-area: note; }
-  .rate-categories { grid-template-columns: 1fr 1fr; }
+  .rate-problems { grid-template-columns: 1fr 1fr; }
   .rate-img, .rate-crop { max-height: 40vh; }
 }
+/* Landscape: one column beside the photo; place and light share a row. */
 @media (min-width: 1000px) and (orientation: landscape), (min-width: 1200px) {
-  .rating { display: flex; }
-  .rate-categories { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .rating {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "sharp sharp" "place light" "subject subject" "copy copy" "note note" "prob prob";
+  }
+  .rate-problems { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .rate-layout { grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr); align-items: start; }
   .rate-img, .rate-crop { max-height: calc(100vh - 220px); }
 }

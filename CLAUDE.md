@@ -132,11 +132,12 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 ## Estado atual
 
-**v0.3.0** publicada: sessões sugeridas por dia e avaliação por toque, sobre os recortes e
-indicadores da v0.2. **v0.4** (Drive, sincronização, PWA, backup) pronta no ramo `v0.4`, testada
-com um Drive simulado; espera o Client ID do Google Cloud do Guilherme (guia em
-`docs/GUIA-DE-USO.md`) para o primeiro uso real. Depois: v0.5 (cenas e diagnóstico com
-orientação, decisão 0011). Ver `docs/ROADMAP.md` e a decisão 0010.
+**v0.3.1**: sessões sugeridas por dia e avaliação por toque (nitidez 1–5, problema principal
+pelo sintoma, onde/luz/assunto e luz da cena calculada pela exposição; decisão 0012), sobre os
+recortes e indicadores da v0.2. Esquema de dados 4. **v0.4** (Drive, sincronização, PWA,
+backup; decisão 0010) em fechamento no ramo `v0.4`, testada com um Drive simulado; o primeiro
+uso real espera o Client ID do Google Cloud do Guilherme (guia em `docs/GUIA-DE-USO.md`).
+Depois: v0.5 (cenas e diagnóstico com orientação, decisão 0011). Ver `docs/ROADMAP.md`.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

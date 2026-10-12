@@ -23,3 +23,4 @@
 | [decisoes/0009-sessoes-e-avaliacao.md](decisoes/0009-sessoes-e-avaliacao.md) | Sessões sugeridas por dia, vínculo na foto, avaliação por toque com avanço automático |
 | [decisoes/0008-versao-principal-e-campo-de-visao.md](decisoes/0008-versao-principal-e-campo-de-visao.md) | Qual versão mede nitidez e ruído; mesma parte da cena em versões com campos diferentes (16:9, recorte, CR3) |
 | [decisoes/0011-diagnostico-com-orientacao.md](decisoes/0011-diagnostico-com-orientacao.md) | O site passa a orientar (com o porquê); cenas com arrastar e soltar; motor de diagnóstico sem IA; IA fica para a V3 |
+| [decisoes/0012-avaliacao-por-sintoma.md](decisoes/0012-avaliacao-por-sintoma.md) | Avaliação: nitidez 1–5 em botões (não slider), problema principal pelo sintoma, onde/luz/assunto; luz da cena calculada pela exposição |

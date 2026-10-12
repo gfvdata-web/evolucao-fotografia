@@ -145,23 +145,34 @@ export function translate(path, value) {
 
 /** Rating options (keys stored in English, see core/rating.js). */
 export const RATING_LABELS = {
-  category: {
-    sharp: 'Nítida', noise: 'Ruído', shake: 'Tremida', out_of_focus: 'Fora de foco',
-    pixelated_upload: 'Pixelada no envio', other: 'Outro',
+  problem: {
+    none: 'Nenhum problema', soft: 'Mole por inteiro', missed_focus: 'Foco no lugar errado',
+    motion_blur: 'Arrastada', grain: 'Granulada', blocky: 'Quadriculada ao ampliar', other: 'Outro',
   },
-  light: { harsh_sun: 'Sol forte', shade: 'Sombra', overcast: 'Nublado', indoor: 'Interno', night: 'Noite' },
+  place: { indoor: 'Dentro', outdoor: 'Fora' },
+  light: { strong: 'Forte', medium: 'Média', weak: 'Fraca' },
   subject: { still: 'Parado', moving: 'Em movimento' },
 };
 
-/** One-line meaning of each category, shown on the rating screen. */
-export const CATEGORY_HINTS = {
-  sharp: 'O ponto de foco está nítido.',
-  noise: 'Granulado ou manchas de cor, mais visível nas áreas lisas.',
-  shake: 'Tudo levemente borrado na mesma direção: a câmera mexeu.',
-  out_of_focus: 'O foco ficou em outro lugar, ou em lugar nenhum.',
-  pixelated_upload: 'Blocos ou serrilhado: a foto perdeu qualidade no envio.',
+/** One-line description of each problem as seen on screen (a symptom, never the cause). */
+export const PROBLEM_HINTS = {
+  none: 'O que eu queria está nítido.',
+  soft: 'Nada fica bem nítido, sem rastro.',
+  missed_focus: 'Algo está nítido, mas não o assunto.',
+  motion_blur: 'Rastro numa direção: a câmera ou o assunto mexeu.',
+  grain: 'Grão ou manchas de cor, mais visível nas áreas lisas.',
+  blocky: 'Blocos, serrilhado ou “aquarela” ao dar zoom.',
   other: 'Outro problema; descreva na nota.',
 };
+
+/** Short form of the problem for chips and summaries ("Nitidez 4 · Granulada"). */
+export function ratingText(rating) {
+  if (!rating) return '';
+  return [
+    rating.sharpness ? `Nitidez ${rating.sharpness}/5` : 'nitidez não marcada',
+    rating.problem ? RATING_LABELS.problem[rating.problem] : 'problema não marcado',
+  ].join(' · ');
+}
 
 /** Parameters an experiment can vary (keys in core/sessions.js). */
 export const EXPERIMENT_LABELS = {

@@ -39,25 +39,34 @@ Na sessão:
   sessão" (para separar dois passeios do mesmo dia).
 - **Excluir sessão** apaga só a sessão: as fotos e as avaliações continuam no aparelho.
 
-### Avaliar (v0.3)
+### Avaliar (v0.3.1)
 **Avaliar fotos** (na sessão ou na aba Fotos) abre uma foto por vez, na ordem em que foram
-tiradas, começando pela primeira sem avaliação.
-1. Se quiser, toque em **Nota** (1–5), **Luz** e **Assunto**. **Luz e assunto iguais à
-   anterior** repete os da foto anterior.
-2. Toque na **Categoria**: nítida, ruído, tremida, fora de foco, pixelada no envio ou outro.
-   O app passa sozinho para a próxima foto (desmarque "Avançar…" se preferir passar à mão).
-- Tocar de novo numa opção marcada desmarca.
+tiradas, começando pela primeira sem avaliação. Você diz o que **vê**; a causa é o app que
+procura, pelos números.
+1. Se quiser, marque o contexto: **Onde** (dentro / fora), **Luz** que você percebeu (forte /
+   média / fraca) e **Assunto** (parado / em movimento). **Onde, luz e assunto iguais à
+   anterior** repete os três da foto anterior.
+2. Toque na **Nitidez**, de 1 (borrada) a 5 (perfeita), no que você queria nítido.
+3. Toque no **Problema principal**, o que aparece ao ampliar: nenhum problema, mole por
+   inteiro, foco no lugar errado, arrastada, granulada, quadriculada ao ampliar ou outro.
+   Com nitidez e problema marcados, o app passa sozinho para a próxima foto (desmarque
+   "Avançar…" se preferir passar à mão). A ordem dos toques não importa.
+- Abaixo da foto aparece a **luz da cena** calculada pela exposição (EV a ISO 100: cada ponto
+  a mais é o dobro de luz; sol direto ≈ 14–15, interno comum ≈ 5–8). Dia ou noite sai do
+  horário da foto, por isso não é perguntado.
+- Tocar de novo numa opção marcada desmarca. Corrigir só a nitidez de uma foto já avaliada não
+  muda de foto.
 - **Foco a 100%** mostra o recorte do ponto de foco em tamanho real; **Foto inteira** volta.
 - Deslize a foto para os lados ou use ‹ › para navegar; **Próxima sem avaliação** pula as já
-  avaliadas. No computador, as setas do teclado navegam e as teclas 1–5 dão a nota.
+  avaliadas. No computador, as setas do teclado navegam e as teclas 1–5 dão a nitidez.
 - A **nota livre** é salva ao sair do campo ou ao trocar de foto.
 
 A ficha da foto mostra a avaliação, a sessão (dá para trocar ali) e o botão **Avaliar**.
 
 ### Lista de fotos
 Aba **Fotos**. Etiquetas aparecem só nos casos mais claros: **reduzida no caminho**,
-**risco de tremido** e **metadados removidos**. A categoria e a nota dadas por você aparecem
-num selo à parte. O topo mostra quantas já foram avaliadas.
+**risco de tremido** e **metadados removidos**. A nitidez e o problema dados por você aparecem
+num selo à parte; a sessão mostra a nitidez média e quantas fotos tiveram cada problema. O topo mostra quantas já foram avaliadas.
 
 ### Ver a ficha
 Aba **Fotos** → toque numa foto. Assim que a foto chega, o app calcula sozinho os recortes e
@@ -128,8 +137,19 @@ recente, então importar um backup antigo não desfaz avaliações novas.
 
 **Para que serve:** o Google só deixa um site mexer no seu Drive se esse site estiver
 cadastrado. O cadastro gera um código chamado **ID do cliente** (Client ID), que vai no
-código do site. Faz-se uma vez só, no computador, em uns 15 minutos. Não custa nada e não
-pede cartão de crédito.
+código do site. Faz-se uma vez só, no computador, em uns 15 minutos.
+
+**Custo:** nenhum. A API do Drive é gratuita, e o projeto não precisa de conta de faturamento
+nem de cartão (se o Google oferecer "teste gratuito" ou pedir faturamento, recuse: não é
+necessário). O único limite é o espaço do seu próprio Drive: a conta gratuita tem 15 GB,
+divididos com o Gmail e o Google Fotos. Ajuste o limite na aba Drive do app ao espaço que você
+tem.
+
+**Privacidade:** ninguém além de você vê as suas fotos. O cadastro diz ao Google que este site
+pode pedir acesso; cada pessoa que conectar só dá acesso ao **próprio** Drive, e só à pasta que
+o app cria. Com o app "em teste" (Etapa 6), só os e-mails que você listar conseguem conectar.
+
+O console pode aparecer em inglês: os nomes em inglês vêm entre parênteses.
 
 O ID do cliente é público (qualquer um pode vê-lo no site, e isso não dá acesso a nada). O que
 nunca se compartilha é a **chave secreta do cliente**, que este app não usa.
@@ -158,43 +178,56 @@ nunca se compartilha é a **chave secreta do cliente**, que este app não usa.
 ### Etapa 4 — Tela de permissão (o que você vê ao conectar)
 1. Na barra de pesquisa do topo, escreva `Google Auth Platform` e clique no resultado (o nome
    também pode aparecer como **Tela de permissão OAuth**).
-2. Clique em **Começar** (ou **Primeiros passos**). Abre um formulário em 4 partes:
-   - **Informações do app**: em **Nome do app**, escreva `Evolução Fotografia`; em
-     **E-mail para suporte do usuário**, escolha o seu e-mail. Clique em **Próxima**.
-   - **Público-alvo**: marque **Externo**. Clique em **Próxima**.
-   - **Informações de contato**: escreva o seu e-mail. Clique em **Próxima**.
-   - **Concluir**: marque a caixa de que concorda com a política de dados do Google. Clique em
-     **Continuar** e depois em **Criar**.
+2. Clique em **Começar** (**Get started**). Abre um formulário em 4 partes:
+   - **Informações do app** (**App information**): em **Nome do app** (**App name**), escreva
+     `Evolução Fotografia`; em **E-mail para suporte do usuário** (**User support email**),
+     escolha o seu e-mail. **Próxima** (**Next**).
+   - **Público-alvo** (**Audience**): marque **Externo** (**External**). **Next**.
+     "Externo" só quer dizer "contas Google comuns, como o Gmail" (o contrário seria "só
+     funcionários de uma empresa"). Não deixa ninguém ver nada seu.
+   - **Informações de contato** (**Contact information**): o seu e-mail. **Next**.
+   - **Concluir** (**Finish**): marque a caixa de que concorda com a política de dados do
+     Google. **Continuar** (**Continue**) e depois **Criar** (**Create**).
 
 ### Etapa 5 — Permissão só para a pasta do app
-1. No menu da esquerda (dentro do Google Auth Platform), clique em **Acesso a dados**.
-2. Clique em **Adicionar ou remover escopos**.
+1. No menu da esquerda (dentro do Google Auth Platform), clique em **Acesso a dados**
+   (**Data Access**).
+2. Clique em **Adicionar ou remover escopos** (**Add or remove scopes**).
 3. Na lista que abre, use o filtro e escreva `drive.file`. Marque a linha
    **.../auth/drive.file** ("ver, editar, criar e excluir apenas os arquivos do Google Drive
    que você usa com este app").
-4. Clique em **Atualizar** (no fim da lista) e depois em **Salvar** (no fim da página).
+4. Clique em **Atualizar** (**Update**, no fim da lista) e depois em **Salvar** (**Save**,
+   no fim da página).
 
 Essa permissão só deixa o app ver a pasta **EvolucaoFotografia** que ele mesmo cria. O resto do
 seu Drive fica invisível para ele.
 
-### Etapa 6 — Liberar o uso
-1. No menu da esquerda, clique em **Público-alvo**.
-2. Em **Status de publicação** aparece **Em teste**. Clique em **Publicar app** e confirme.
-   Como o app só pede a permissão `drive.file`, o Google não exige análise.
-3. (Se preferir não publicar: em **Usuários de teste**, clique em **Adicionar usuários**,
-   escreva o seu e-mail e salve. Funciona do mesmo jeito para você.)
+### Etapa 6 — Liberar o seu e-mail
+O app fica **"em teste"** (**Testing**): só os e-mails da lista conseguem conectar. É o certo
+para um app pessoal. **Não clique em "Publicar app"** (**Publish app**): o Google pediria
+página inicial e política de privacidade, e não há necessidade.
+1. No menu da esquerda, clique em **Público-alvo** (**Audience**).
+2. Role a página até **Usuários de teste** (**Test users**).
+3. Clique em **Adicionar usuários** (**+ Add users**), escreva o e-mail da conta Google da
+   Etapa 1 e clique em **Salvar** (**Save**).
+
+Em teste, o Google pode pedir para você confirmar a permissão de novo de vez em quando (no
+app, aparece "Reconectar"). É só tocar e confirmar.
 
 ### Etapa 7 — Criar o ID do cliente
-1. No menu da esquerda, clique em **Clientes**.
-2. Clique em **Criar cliente** (ou **+ Criar cliente OAuth**).
-3. Em **Tipo de aplicativo**, escolha **Aplicativo da Web**.
-4. Em **Nome**, escreva `Site`.
-5. Em **Origens JavaScript autorizadas**, clique em **Adicionar URI** e escreva exatamente
+1. No menu da esquerda, clique em **Clientes** (**Clients**).
+2. Clique em **Criar cliente** (**+ Create client**).
+3. Em **Tipo de aplicativo** (**Application type**), escolha **Aplicativo da Web**
+   (**Web application**).
+4. Em **Nome** (**Name**), escreva `Site`.
+5. Em **Origens JavaScript autorizadas** (**Authorized JavaScript origins**), clique em
+   **Adicionar URI** (**+ Add URI**) e escreva exatamente
    `https://gfvdata-web.github.io` (sem barra no final e sem o resto do endereço).
    Clique em **Adicionar URI** de novo e escreva `http://localhost:8765`.
-6. Deixe **URIs de redirecionamento autorizados** em branco.
-7. Clique em **Criar**.
-8. Abre uma janela **Cliente OAuth criado**. Copie o **ID do cliente**: um código longo que
+6. Deixe **URIs de redirecionamento autorizados** (**Authorized redirect URIs**) em branco.
+7. Clique em **Criar** (**Create**).
+8. Abre uma janela **Cliente OAuth criado** (**OAuth client created**). Copie o **ID do
+   cliente** (**Client ID**): um código longo que
    termina em `.apps.googleusercontent.com`. Se a janela fechar, ele continua na lista
    **Clientes**: clique no nome **Site** para ver.
 
@@ -208,8 +241,9 @@ aparecer "erro 401: invalid_client" ou "origin_mismatch", espere um pouco e tent
 ### Depois: conectar no tablet
 1. Abra o app, aba **Drive** → **Conectar ao Google Drive**.
 2. Escolha a mesma conta Google da Etapa 1.
-3. Se aparecer **"O Google não verificou este app"**: toque em **Avançado** e depois em
-   **Acessar Evolução Fotografia**. É normal para um app pessoal: quem o cadastrou foi você.
+3. Aparece **"O Google não verificou este app"** (**Google hasn't verified this app**):
+   toque em **Continuar** (**Continue**; em algumas telas, **Avançado** → **Acessar Evolução
+   Fotografia**). É normal para um app em teste: quem o cadastrou foi você.
 4. Na tela de permissão, toque em **Continuar** (ou **Permitir**).
 5. O selo no topo do app passa para **Sincronizando…** e depois **Sincronizado**. No seu Drive
    aparece a pasta **EvolucaoFotografia**.

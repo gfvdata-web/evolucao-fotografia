@@ -121,6 +121,37 @@ export function shakeRisk(capture, cropMode = false) {
   };
 }
 
+// --------------------------------------------------------------- scene light
+
+/**
+ * Light of the scene computed from the exposure used: EV at ISO 100,
+ * log2(N²/t) − log2(ISO/100). Each step of 1 is twice (or half) the light.
+ * It reflects what the camera exposed for: exposure compensation and an
+ * over- or underexposed photo are not corrected here (that is v0.5).
+ * Bands: usual photographic exposure tables (EV 15 = sunny day).
+ */
+export const EV_BANDS = [
+  { min: 14, key: 'sun', text: 'luz de sol direto' },
+  { min: 11, key: 'day', text: 'dia nublado ou sombra' },
+  { min: 8, key: 'bright', text: 'entardecer ou interno muito iluminado' },
+  { min: 5, key: 'indoor', text: 'interno comum' },
+  { min: -Infinity, key: 'dim', text: 'pouca luz: interno escuro ou noite' },
+];
+
+export function sceneLight(capture) {
+  const t = capture?.exposure?.shutter_s;
+  const n = capture?.exposure?.aperture;
+  const iso = capture?.exposure?.iso;
+  const missing = [!t && 'velocidade', !n && 'abertura', !iso && 'ISO'].filter(Boolean);
+  if (missing.length) {
+    return { status: 'unknown', ev: null, band: null, text: `Luz da cena não calculada: falta ${missing.join(', ')}.` };
+  }
+  const ev = Math.log2((n * n) / t) - Math.log2(iso / 100);
+  const band = EV_BANDS.find((b) => ev >= b.min);
+  const value = ev.toFixed(1).replace('.', ',').replace('-', '−');
+  return { status: 'info', ev, band: band.key, text: `Luz da cena (pela exposição): EV ${value}, ${band.text}.` };
+}
+
 // ---------------------------------------------------------------- per photo
 
 /**
