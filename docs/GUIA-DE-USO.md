@@ -24,9 +24,39 @@ Endereço: **https://gfvdata-web.github.io/evolucao-fotografia/**
 Se o JPEG e o CR3 da mesma foto forem enviados, eles aparecem como **uma foto só**, com as
 etiquetas JPEG e CR3.
 
+### Sessões (v0.3)
+Depois de enviar, o quadro **Organizar em sessões** (aba Enviar e aba **Sessões**) mostra as
+fotos sem sessão agrupadas pelo dia em que foram tiradas. **Criar sessão** cria a sessão do dia
+com essas fotos; se já houver uma sessão daquele dia, aparece **Juntar a "…"**.
+
+Na sessão:
+- **Nome, Data, Local e Notas** são salvos sozinhos ao sair do campo ("salvo" no canto).
+- **Esta sessão é um experimento**: marque quando variou um único ajuste de propósito (por
+  exemplo, ISO 100, 800, 3200 e 12800 no mesmo assunto). Escolha o parâmetro e descreva o que
+  fez; cada foto passa a mostrar o valor daquele ajuste.
+- **Selecionar fotos** → toque nas fotos → **Mover para** outra sessão, uma nova ou "sem
+  sessão" (para separar dois passeios do mesmo dia).
+- **Excluir sessão** apaga só a sessão: as fotos e as avaliações continuam no aparelho.
+
+### Avaliar (v0.3)
+**Avaliar fotos** (na sessão ou na aba Fotos) abre uma foto por vez, na ordem em que foram
+tiradas, começando pela primeira sem avaliação.
+1. Se quiser, toque em **Nota** (1–5), **Luz** e **Assunto**. **Luz e assunto iguais à
+   anterior** repete os da foto anterior.
+2. Toque na **Categoria**: nítida, ruído, tremida, fora de foco, pixelada no envio ou outro.
+   O app passa sozinho para a próxima foto (desmarque "Avançar…" se preferir passar à mão).
+- Tocar de novo numa opção marcada desmarca.
+- **Foco a 100%** mostra o recorte do ponto de foco em tamanho real; **Foto inteira** volta.
+- Deslize a foto para os lados ou use ‹ › para navegar; **Próxima sem avaliação** pula as já
+  avaliadas. No computador, as setas do teclado navegam e as teclas 1–5 dão a nota.
+- A **nota livre** é salva ao sair do campo ou ao trocar de foto.
+
+A ficha da foto mostra a avaliação, a sessão (dá para trocar ali) e o botão **Avaliar**.
+
 ### Lista de fotos
 Aba **Fotos**. Etiquetas aparecem só nos casos mais claros: **reduzida no caminho**,
-**risco de tremido** e **metadados removidos**.
+**risco de tremido** e **metadados removidos**. A categoria e a nota dadas por você aparecem
+num selo à parte. O topo mostra quantas já foram avaliadas.
 
 ### Ver a ficha
 Aba **Fotos** → toque numa foto. Assim que a foto chega, o app calcula sozinho os recortes e

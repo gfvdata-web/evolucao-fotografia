@@ -4,6 +4,8 @@
 /** Fired with detail {id} whenever a stored photo changes. */
 export const photoEvents = new EventTarget();
 export const notifyChanged = (id) => photoEvents.dispatchEvent(new CustomEvent('changed', { detail: { id } }));
+/** Fired when sessions are created, edited or deleted, or photos change session. */
+export const notifySessionsChanged = () => photoEvents.dispatchEvent(new Event('sessions'));
 
 // The lock key is the match key (falls back to the id), so the JPEG and the CR3
 // of the same shot share it even when their ids differ.

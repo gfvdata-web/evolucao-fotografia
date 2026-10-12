@@ -7,7 +7,7 @@ Tablet / PC (navegador)
  ├─ UI: HTML + CSS + JavaScript puro (módulos ES, sem build)
  ├─ Worker de metadados: ExifTool-WASM (MakerNotes, CR3)        ← exifr no thread principal (rápido)
  ├─ Worker de mídia: decodifica, gera prévia, recortes a 100% e métricas de pixels
- ├─ IndexedDB: fotos, arquivos originais, prévias, metadados completos
+ ├─ IndexedDB: fotos, sessões, arquivos originais, prévias, metadados completos
  └─ (v0.4) Cliente Drive + token GIS ⇄ Google Drive /EvolucaoFotografia
 PC Windows (v0.5): importador Python → pacote .efsessao → mesmo botão de envio
 GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo passar.
@@ -78,20 +78,32 @@ GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo pas
 Esse JPEG é processado pela câmera (mesmo caminho do JPEG gravado), portanto **não substitui** a
 renderização neutra do RAW, que fica com o importador Python.
 
-## Armazenamento local (IndexedDB `evolucao-fotografia`, versão 1)
+## Armazenamento local (IndexedDB `evolucao-fotografia`, versão 2)
 
 | Store | Chave | Conteúdo |
 |---|---|---|
-| `photos` | `id` | registro da foto (ver MODELO-DE-DADOS); índices `match_key`, `added_at` |
+| `photos` | `id` | registro da foto (ver MODELO-DE-DADOS); índices `match_key`, `added_at`, `session_id` |
+| `sessions` | `id` | sessão (v0.3) |
 | `blobs` | `<id>/original/<variante>`, `<id>/preview`, `<id>/crop/<variante>/<af\|uniform>` | arquivo original, prévia e recortes a 100% (PNG) |
 | `raw_metadata` | `<id>/<variante>` | JSON completo do ExifTool |
-| `meta` | texto | reservado (configurações, v0.3+) |
+| `meta` | texto | reservado (configurações) |
 
 Toda leitura de registro passa por `migrate()`.
 
+## Sessões e avaliação (v0.3)
+
+`pipeline/organize.js` grava avaliações (`setRating`) e sessões (criar, editar, excluir, mover
+fotos). Toda mudança numa foto é feita dentro de `withLock` (a mesma trava por disparo da
+ingestão e da análise) e relida dentro da trava, para não perder uma avaliação feita enquanto
+a análise roda. Eventos: `changed` (uma foto) e `sessions` em `photoEvents`.
+A tela de avaliação é montada uma vez e só troca a imagem e repinta os controles
+(`ui/rating-controls.js`); o endereço muda com `history.replaceState`, sem recriar a tela.
+
 ## Telas
 
-`#/enviar` (padrão), `#/fotos`, `#/foto/<id>` (ficha; setas, teclado e deslize), `#/sobre`.
+`#/enviar` (padrão), `#/sessoes`, `#/sessao/<id>`, `#/avaliar/<escopo>[/<fotoId>]` (escopo = id
+da sessão, `sem-sessao` ou `todas`), `#/fotos`, `#/foto/<id>` (ficha; setas, teclado e
+deslize), `#/sobre`.
 Texto vindo de arquivos sempre entra via `textContent` (`ui/dom.js`).
 
 ## Publicação

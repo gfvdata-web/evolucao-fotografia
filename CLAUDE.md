@@ -40,13 +40,16 @@ tablet e dá direção.
 ```
 site/                       ← publicado no Pages (sem build; módulos ES)
   index.html, css/, icons/
-  js/app.js                 roteador por hash (#/enviar, #/fotos, #/foto/<id>, #/sobre)
+  js/app.js                 roteador por hash (#/enviar, #/sessoes, #/sessao/<id>, #/avaliar/...,
+                            #/fotos, #/foto/<id>, #/sobre)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
-                            e campos de visão, perfis de câmera, indicadores, métricas de pixels, qualidade JPEG
+                            e campos de visão, perfis de câmera, indicadores, métricas de pixels, qualidade JPEG,
+                            sessões e avaliação
   js/metadata/              exifr (rápido) + ExifTool-WASM em Web Worker (completo) → normalize.js
   js/media/                 worker de pixels (prévia, recortes a 100% e métricas)
-  js/storage/               IndexedDB (idb.js) e repositório de fotos
-  js/pipeline/              ingestão de arquivos, fila de envio e análise de pixels (analyze.js)
+  js/storage/               IndexedDB (idb.js) e repositórios de fotos e sessões
+  js/pipeline/              ingestão de arquivos, fila de envio, análise de pixels (analyze.js) e
+                            sessões/avaliações (organize.js)
   js/ui/                    dom.js (sempre textContent, nunca innerHTML) e telas
   vendor/                   GERADO por `npm run vendor` (não versionado)
 tests/unit/                 node:test (puro + ExifTool real sobre fixtures)
@@ -106,8 +109,10 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 ## Estado atual
 
-**v0.2.0**: recortes a 100%, indicadores objetivos e comparação entre versões; dados só no
-navegador. Próximo: v0.3 (avaliação e sessões). Ver `docs/ROADMAP.md`.
+**v0.2.0** publicada: recortes a 100%, indicadores objetivos e comparação entre versões; dados
+só no navegador. **v0.3** (avaliação e sessões) em desenvolvimento no ramo `v0.3`, sem
+publicar, enquanto o Guilherme testa a v0.2 no tablet; vai para `main` quando ele liberar.
+Ver `docs/ROADMAP.md` e a decisão 0009.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

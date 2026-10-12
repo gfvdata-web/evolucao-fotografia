@@ -27,6 +27,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--text);
@@ -212,3 +213,93 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .sw-af { border-color: var(--af); }
 .sw-focus { border-color: var(--focus); border-style: dashed; }
 .sw-uniform { border-color: var(--uniform); border-style: dashed; }
+
+/* --- v0.3: sessions and rating ---------------------------------------------- */
+.form-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.form-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.form-label { color: var(--muted); font-size: .875rem; }
+.form-field input, .form-field select, .form-field textarea, .select-bar select, .rate-note {
+  min-height: var(--tap); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); font: inherit; width: 100%;
+}
+.form-field textarea, .rate-note { resize: vertical; }
+.check-field { display: flex; align-items: center; gap: 10px; min-height: var(--tap); cursor: pointer; }
+.check-field input, .rate-advance input { width: 24px; height: 24px; accent-color: var(--accent); }
+.experiment-fields { display: grid; gap: 0 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.section-head { flex-wrap: wrap; }
+.session-grid { margin-bottom: var(--gutter); }
+
+.suggestion-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.suggestion { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.suggestion:last-child { border-bottom: 0; }
+.suggestion .actions { margin: 8px 0; }
+
+.photo-card.selectable { cursor: pointer; position: relative; }
+.photo-card.selected { outline: 3px solid var(--accent); outline-offset: -3px; }
+.photo-card.selected::after {
+  content: "✓"; position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; display: grid; place-items: center;
+  border-radius: 50%; background: var(--accent); color: var(--accent-text); font-weight: 700;
+}
+.select-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; position: sticky; top: 72px; z-index: 4; }
+.select-bar select { width: auto; max-width: 100%; }
+
+.rating-chip { color: var(--text); border-color: var(--border); background: var(--surface-2); }
+.rating-chip.cat-sharp { color: var(--ok); border-color: currentColor; }
+.rating-chip.cat-shake, .rating-chip.cat-out_of_focus, .rating-chip.cat-pixelated_upload { color: var(--danger); border-color: currentColor; }
+.rating-chip.cat-noise { color: var(--warn); border-color: currentColor; }
+
+/* Rating screen: photo as large as possible, controls within thumb reach. */
+.rate-nav { flex-wrap: wrap; }
+.rate-where { display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.3; }
+.rate-layout { display: grid; gap: var(--gutter); }
+.rate-media {
+  position: relative; display: grid; place-items: center; background: #000; border-radius: var(--radius);
+  overflow: hidden; touch-action: pan-y; min-height: 200px; user-select: none;
+}
+.rate-img { display: block; width: 100%; height: auto; max-height: 52vh; object-fit: contain; }
+.rate-crop { overflow: auto; max-width: 100%; max-height: 52vh; line-height: 0; }
+.rate-crop img { image-rendering: pixelated; }
+.rate-crop p { line-height: 1.5; padding: 24px; }
+.rate-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 8px 0; }
+.rate-info { color: var(--text); }
+.rating { display: flex; flex-direction: column; gap: 10px; }
+.rate-group { display: flex; flex-direction: column; gap: 6px; }
+.rate-label { color: var(--muted); font-size: .875rem; }
+.rate-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.rate-opt { padding: 0 16px; }
+.rate-score { min-width: 56px; font-weight: 700; }
+.rate-opt[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: transparent; }
+.rate-categories { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.rate-category {
+  flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; border-radius: var(--radius);
+  min-height: 64px; padding: 8px 12px; text-align: left; line-height: 1.25;
+}
+.rate-cat-name { font-weight: 700; }
+.rate-cat-hint { font-size: .75rem; color: var(--muted); font-weight: 400; }
+.rate-category[aria-pressed="true"] .rate-cat-hint { color: inherit; opacity: .85; }
+.rate-copy .btn { width: 100%; }
+.rate-advance { display: flex; align-items: center; gap: 10px; min-height: var(--tap); margin-top: 8px; cursor: pointer; }
+.rate-done { padding: 12px; border-radius: var(--radius); background: var(--surface-2); color: var(--ok); margin-bottom: 12px; font-weight: 600; }
+
+/* Portrait tablet: categories (the main tap) beside score, light and subject,
+   so everything fits under the photo without scrolling. */
+@media (min-width: 700px) {
+  .rating {
+    display: grid; gap: 10px 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "cat score" "cat light" "cat subject" "copy note";
+  }
+  .rate-g-category { grid-area: cat; }
+  .rate-g-score { grid-area: score; }
+  .rate-g-light { grid-area: light; }
+  .rate-g-subject { grid-area: subject; }
+  .rate-copy { grid-area: copy; }
+  .rate-note { grid-area: note; }
+  .rate-categories { grid-template-columns: 1fr 1fr; }
+  .rate-img, .rate-crop { max-height: 40vh; }
+}
+@media (min-width: 1000px) and (orientation: landscape), (min-width: 1200px) {
+  .rating { display: flex; }
+  .rate-categories { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .rate-layout { grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr); align-items: start; }
+  .rate-img, .rate-crop { max-height: calc(100vh - 220px); }
+}

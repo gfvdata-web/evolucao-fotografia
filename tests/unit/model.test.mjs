@@ -71,6 +71,22 @@ test('migrate: recusa dados de uma versão mais nova do app', () => {
   assert.throws(() => migrate({ schema_version: SCHEMA_VERSION + 1 }), /mais novos/);
 });
 
+test('migração 2 → 3: foto da v0.2 ganha sessão e avaliação vazias', () => {
+  const v2 = { schema_version: 2, id: 'a', variants: [], crop_choice: { af: null, uniform: null }, crops: null };
+  const out = migrate(v2);
+  assert.equal(out.schema_version, SCHEMA_VERSION);
+  assert.equal(out.session_id, null);
+  assert.equal(out.rating, null);
+  assert.deepEqual(out.crop_choice, v2.crop_choice);
+});
+
+test('migração 1 → 3 em sequência mantém o que já existia', () => {
+  const v1 = { schema_version: 1, id: 'a', session_id: null, rating: null, variants: [{ key: 'jpeg-web' }] };
+  const out = migrate(v1);
+  assert.deepEqual(out.variants, [{ tag_count: null, analysis: null, key: 'jpeg-web' }]);
+  assert.equal(out.rating, null);
+});
+
 test('migrate: falha clara quando falta uma etapa', () => {
   assert.throws(() => migrate({ schema_version: 0 }, {}, 1), /Falta a migração da versão 0/);
 });

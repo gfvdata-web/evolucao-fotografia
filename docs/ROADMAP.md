@@ -1,6 +1,6 @@
 # Roadmap
 
-Legenda: ✅ entregue · 🔜 próxima · ⏳ planejada · 💡 ideia (precisa de OK antes)
+Legenda: ✅ entregue · 🔨 em andamento · 🔜 próxima · ⏳ planejada · 💡 ideia (precisa de OK antes)
 
 ## V1 — revisar cada sessão com dados
 
@@ -38,13 +38,16 @@ Cada entrega pode ser testada no tablet.
 - Calibração com as amostras reais: 1ª rodada feita com 26 fotos (séries F e T), resultados em
   `docs/CALIBRACAO-RESULTADOS.md`. A nitidez segue relativa até haver avaliações (v0.3).
 
-### 🔜 v0.3 — Avaliação e sessões
+### 🔨 v0.3 — Avaliação e sessões (em desenvolvimento no ramo `v0.3`)
 - Sessões: data, local, nome dado pelo usuário; marcação opcional de "experimento"
   (um único parâmetro variado). Agrupamento sugerido por data ao enviar.
 - Avaliação por toque: categoria (nítida / ruído / tremida / fora de foco / pixelada no envio /
   outro), nota 1–5, luz (sol forte / sombra / nublado / interno / noite), assunto (parado / em
   movimento), nota livre.
 - Navegação por deslize otimizada para avaliar dezenas de fotos em poucos minutos.
+- Feito: aba **Sessões** com sugestão por dia; tela **Avaliar** com avanço automático ao escolher
+  a categoria, "luz e assunto iguais à anterior" e foco a 100%; mover fotos entre sessões;
+  avaliação e sessão na ficha. Decisão 0009. Falta: uso real no tablet.
 
 ### ⏳ v0.4 — Google Drive, sincronização, PWA e backup
 - Login Google (Google Identity Services, modelo de token) com escopo `drive.file`.

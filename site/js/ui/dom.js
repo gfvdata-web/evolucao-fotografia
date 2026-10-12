@@ -55,3 +55,16 @@ export class UrlBag {
   url(blob) { const u = URL.createObjectURL(blob); this.urls.push(u); return u; }
   revokeAll() { for (const u of this.urls) URL.revokeObjectURL(u); this.urls = []; }
 }
+
+/** Horizontal swipe on `el` (≥ 60 px, mostly horizontal); `enabled()` can pause it. */
+export function attachSwipe(el, onPrev, onNext, enabled = () => true) {
+  let start = null;
+  el.addEventListener('pointerdown', (e) => { start = { x: e.clientX, y: e.clientY }; });
+  el.addEventListener('pointerup', (e) => {
+    if (!start || !enabled()) { start = null; return; }
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    start = null;
+    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) (dx > 0 ? onPrev : onNext)();
+  });
+}

@@ -2,6 +2,7 @@
 import { h, mount } from '../dom.js';
 import { enqueue, queue, queueEvents, statusText, clearFinished } from '../../pipeline/upload-queue.js';
 import { formatBytes } from '../../core/format.js';
+import { sessionSuggestions } from '../session-suggestions.js';
 
 function fileInput(label, { accept, primary, testId }) {
   const input = h('input', {
@@ -35,6 +36,7 @@ function renderQueue(listEl, summaryEl) {
 export function uploadView(root) {
   const listEl = h('ol', { class: 'queue-list', 'aria-live': 'polite' });
   const summaryEl = h('p', { class: 'muted', 'data-testid': 'queue-summary' });
+  const suggestions = sessionSuggestions({ title: 'Organizar em sessões' });
 
   const drop = h('section', { class: 'card dropzone', 'data-testid': 'dropzone' },
     h('h2', {}, 'Enviar fotos'),
@@ -62,10 +64,11 @@ export function uploadView(root) {
         h('button', { class: 'btn btn-small', type: 'button', onclick: clearFinished }, 'Limpar lista')),
       summaryEl,
       listEl,
-      h('p', {}, h('a', { href: '#/fotos', class: 'btn' }, 'Ver todas as fotos'))));
+      h('p', {}, h('a', { href: '#/fotos', class: 'btn' }, 'Ver todas as fotos'))),
+    suggestions.el);
 
   const update = () => renderQueue(listEl, summaryEl);
   update();
   queueEvents.addEventListener('update', update);
-  return () => queueEvents.removeEventListener('update', update);
+  return () => { queueEvents.removeEventListener('update', update); suggestions.dispose(); };
 }

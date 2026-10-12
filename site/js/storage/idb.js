@@ -1,14 +1,15 @@
 // Minimal promise wrapper around IndexedDB (no dependencies).
 //
-// Stores (DB_VERSION 1):
-//   photos        records (keyPath "id"), indexes: match_key, added_at
+// Stores (DB_VERSION 2):
+//   photos        records (keyPath "id"), indexes: match_key, added_at, session_id (v2)
 //   blobs         original files and previews, key "<photoId>/<what>"
 //   raw_metadata  full ExifTool JSON per variant, key "<photoId>/<variantKey>"
 //   meta          app key/value (settings, counters)
+//   sessions      session documents (keyPath "id"), v2
 export const DB_NAME = 'evolucao-fotografia';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
-function upgrade(db, oldVersion) {
+function upgrade(db, oldVersion, tx) {
   if (oldVersion < 1) {
     const photos = db.createObjectStore('photos', { keyPath: 'id' });
     photos.createIndex('match_key', 'match_key', { unique: false });
@@ -17,6 +18,10 @@ function upgrade(db, oldVersion) {
     db.createObjectStore('raw_metadata');
     db.createObjectStore('meta');
   }
+  if (oldVersion < 2) {
+    tx.objectStore('photos').createIndex('session_id', 'session_id', { unique: false });
+    db.createObjectStore('sessions', { keyPath: 'id' });
+  }
 }
 
 let dbPromise = null;
@@ -24,7 +29,7 @@ let dbPromise = null;
 export function openDb() {
   dbPromise ??= new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = (e) => upgrade(req.result, e.oldVersion);
+    req.onupgradeneeded = (e) => upgrade(req.result, e.oldVersion, req.transaction);
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
     req.onblocked = () => reject(new Error('Banco local bloqueado por outra aba aberta. Feche as outras abas do app.'));

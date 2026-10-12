@@ -2,6 +2,26 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [Não publicado] — v0.3 em desenvolvimento (ramo `v0.3`)
+
+Avaliação e sessões.
+
+### Adicionado
+- Aba **Sessões**: fotos sem sessão agrupadas pelo dia da captura, com "Criar sessão" ou
+  "Juntar a" uma sessão do mesmo dia; o mesmo quadro aparece na aba Enviar depois do envio.
+- Sessão com nome, data, local, notas e marcação de experimento (parâmetro variado e
+  descrição); cada foto mostra o valor do parâmetro. Seleção de fotos para mover entre
+  sessões; excluir sessão mantém as fotos.
+- Tela **Avaliar**: categoria, nota 1–5, luz, assunto e nota livre por toque; avanço
+  automático ao escolher a categoria; "luz e assunto iguais à anterior"; foco a 100%;
+  deslize, setas e teclas 1–5; "próxima sem avaliação".
+- Ficha da foto: avaliação, troca de sessão e botão Avaliar. Lista de fotos: selo da avaliação
+  e contagem de avaliadas.
+
+### Modelo de dados
+- Esquema 3: formato de `rating`, documento de sessão. Migração 2 → 3. Banco local versão 2
+  (store `sessions`, índice `session_id`).
+
 ## [0.2.0] — 2026-10-12
 
 Recortes a 100% e indicadores objetivos por foto, calibrados com 26 fotos reais da EOS RP.

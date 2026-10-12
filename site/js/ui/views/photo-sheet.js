@@ -2,9 +2,13 @@
 // indicators, 100% crops of every version, comparison between versions
 // (where quality was lost), settings in plain language, what could not be
 // read and the raw metadata.
-import { h, mount, UrlBag, serialized } from '../dom.js';
+import { h, mount, UrlBag, serialized, attachSwipe } from '../dom.js';
 import { getPhoto, listPhotos, getBlob, blobKey, getRawMetadata, deletePhoto } from '../../storage/photos-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
+import { listSessions } from '../../storage/sessions-repo.js';
+import { assignPhotos } from '../../pipeline/organize.js';
+import { RATING_LABELS } from '../../core/glossary.js';
+import { formatDate } from '../../core/sessions.js';
 import { scheduleAnalysis, setCropChoice, AF_CROP_PX, UNIFORM_CROP_PX } from '../../pipeline/analyze.js';
 import { FIELDS, MISSING_HINTS, fieldLabel, translate } from '../../core/glossary.js';
 import { MAKERNOTE_FIELDS, getPath } from '../../core/model.js';
@@ -196,6 +200,30 @@ function cropsBlock(photo, bag, state, labels, onPick, onReset) {
     h('p', { class: 'small muted' }, '100% = cada pixel da foto ocupa um pixel da tela. Para escolher uma área, toque no botão e depois na foto.'));
 }
 
+function ratingBlock(photo, sessions) {
+  const r = photo.rating;
+  const scope = photo.session_id || 'sem-sessao';
+  const parts = r ? [
+    r.category ? RATING_LABELS.category[r.category] : 'sem categoria',
+    r.score ? `nota ${r.score}/5` : null,
+    r.light ? RATING_LABELS.light[r.light] : null,
+    r.subject ? RATING_LABELS.subject[r.subject] : null,
+  ].filter(Boolean) : [];
+  const select = h('select', { 'data-testid': 'photo-session', 'aria-label': 'Sessão da foto' },
+    h('option', { value: '' }, 'Sem sessão'),
+    sessions.map((s) => h('option', { value: s.id }, `${s.name}${s.date ? ` (${formatDate(s.date)})` : ''}`)));
+  select.value = photo.session_id || '';
+  select.addEventListener('change', () => assignPhotos([photo.id], select.value || null));
+  return h('section', { class: 'card', 'data-testid': 'photo-rating' },
+    h('div', { class: 'card-head' }, h('h3', {}, 'Avaliação'),
+      h('a', { class: 'btn btn-small', href: `#/avaliar/${encodeURIComponent(scope)}/${encodeURIComponent(photo.id)}`, 'data-testid': 'rate-this' },
+        r ? 'Mudar avaliação' : 'Avaliar')),
+    h('p', { 'data-testid': 'rating-summary' }, r ? parts.join(' · ') : h('span', { class: 'muted' }, 'Ainda não avaliada.')),
+    r?.note ? h('p', { class: 'small' }, r.note) : null,
+    h('label', { class: 'form-field' }, h('span', { class: 'form-label' }, 'Sessão'), select),
+    photo.session_id ? h('a', { class: 'small', href: `#/sessao/${photo.session_id}` }, 'Abrir a sessão') : null);
+}
+
 function settingsTable(capture, reading) {
   return h('dl', { class: 'settings', 'data-testid': 'settings' }, ROWS.map((path) => {
     const value = displayValue(path, capture);
@@ -276,18 +304,6 @@ function figure(photo, previewUrl, state, onTap) {
   return fig;
 }
 
-function attachSwipe(el, onPrev, onNext, enabled) {
-  let start = null;
-  el.addEventListener('pointerdown', (e) => { start = { x: e.clientX, y: e.clientY }; });
-  el.addEventListener('pointerup', (e) => {
-    if (!start || !enabled()) { start = null; return; }
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
-    start = null;
-    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) (dx > 0 ? onPrev : onNext)();
-  });
-}
-
 // ---------------------------------------------------------------- view
 
 export function photoSheetView(root, { id }) {
@@ -306,7 +322,7 @@ export function photoSheetView(root, { id }) {
     // Old or missing analysis (e.g. after a metrics update): recompute from the originals.
     if (needsAnalysis(photo)) scheduleAnalysis(photo.id);
 
-    const all = await listPhotos();
+    const [all, sessions] = await Promise.all([listPhotos(), listSessions()]);
     const idx = all.findIndex((p) => p.id === id);
     const prev = all[idx - 1];
     const next = all[idx + 1];
@@ -357,6 +373,7 @@ export function photoSheetView(root, { id }) {
       h('div', { class: 'sheet' },
         h('div', { class: 'sheet-media' }, fig, cropsBlock(photo, nextBag, state, labels, onPick, onReset)),
         h('div', { class: 'sheet-info' },
+          ratingBlock(photo, sessions),
           indicatorsBlock(photo, ind, labels),
           chainBlock(ind, labels),
           h('section', { class: 'card' }, h('h3', {}, 'Arquivos desta foto'),

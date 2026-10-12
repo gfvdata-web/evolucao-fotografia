@@ -5,7 +5,7 @@
 // Each variant keeps the metadata read from that exact file, so later versions
 // can compare stages (camera → transfer → app) and find where quality was lost.
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** Fields the analysis needs. Order = display order of the "missing" list. */
 export const EXPECTED_FIELDS = [
@@ -89,7 +89,7 @@ export function newPhotoRecord({ id, matchKey, now }) {
     schema_version: SCHEMA_VERSION,
     id,
     match_key: matchKey,
-    session_id: null,
+    session_id: null, // core/sessions.js
     added_at: now,
     updated_at: now,
     variants: [],
@@ -101,7 +101,7 @@ export function newPhotoRecord({ id, matchKey, now }) {
     // Regions actually used for the 100% crops (normalized, on the displayed image).
     crops: null,
     indicators: null,
-    rating: null,
+    rating: null, // core/rating.js: {category, score, light, subject, note, rated_at}
   };
 }
 

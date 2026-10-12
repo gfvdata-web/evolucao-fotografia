@@ -4,6 +4,8 @@ import { listPhotos, getBlob, blobKey } from '../../storage/photos-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
 import { formatDateTime, formatShutter, formatAperture, formatIso, formatFocal } from '../../core/format.js';
 import { buildIndicators } from '../../core/indicators.js';
+import { RATING_LABELS } from '../../core/glossary.js';
+import { isRated, ratingSummary } from '../../core/rating.js';
 
 /** Short flags shown on the grid, only for the clearest problems. */
 function flags(photo) {
@@ -23,13 +25,29 @@ function readingState(photo) {
   return null;
 }
 
-async function card(photo, bag) {
+/** Category and score chosen by the user, as a chip (null when not rated). */
+export function ratingChip(photo) {
+  if (!isRated(photo)) return null;
+  const r = photo.rating;
+  return h('span', { class: `chip rating-chip cat-${r.category}`, 'data-testid': 'rating-chip' },
+    RATING_LABELS.category[r.category], r.score ? ` · ${r.score}/5` : '');
+}
+
+/**
+ * Photo card for grids. `opts.href` = link (default: the photo sheet);
+ * `opts.onSelect` turns it into a toggle button; `opts.extra` = more lines.
+ */
+export async function photoCard(photo, bag, opts = {}) {
   const preview = await getBlob(blobKey.preview(photo.id));
   const c = photo.capture;
   const settings = [formatFocal(c.lens.focal_length_mm), formatAperture(c.exposure.aperture),
     formatShutter(c.exposure.shutter_s), formatIso(c.exposure.iso)].filter(Boolean).join(' · ');
   const state = readingState(photo);
-  return h('a', { class: 'photo-card', href: `#/foto/${encodeURIComponent(photo.id)}`, 'data-testid': 'photo-card' },
+  const attrs = opts.onSelect
+    ? { class: `photo-card selectable${opts.selected ? ' selected' : ''}`, role: 'button', tabindex: '0', 'aria-pressed': String(Boolean(opts.selected)),
+      'data-testid': 'photo-card', onclick: opts.onSelect, onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opts.onSelect(); } } }
+    : { class: 'photo-card', href: opts.href || `#/foto/${encodeURIComponent(photo.id)}`, 'data-testid': 'photo-card' };
+  return h(opts.onSelect ? 'div' : 'a', attrs,
     preview
       ? h('img', { src: bag.url(preview), alt: `Prévia de ${photo.variants[0]?.file.name}`, loading: 'lazy' })
       : h('div', { class: 'no-preview' }, 'sem prévia'),
@@ -39,6 +57,8 @@ async function card(photo, bag) {
       h('div', { class: 'muted small' }, formatDateTime(c.datetime_original) || 'sem data de captura'),
       settings ? h('div', { class: 'small' }, settings) : null,
       state ? h('div', { class: 'small warn-text' }, state) : null,
+      opts.extra || null,
+      h('div', { class: 'photo-chips' }, ratingChip(photo)),
       h('div', { class: 'photo-chips', 'data-testid': 'photo-flags' },
         flags(photo).map(([st, text]) => h('span', { class: `chip st-${st}` }, text)))));
 }
@@ -58,10 +78,16 @@ export function photosView(root) {
       return;
     }
     const next = new UrlBag();
-    const cards = await Promise.all(photos.map((p) => card(p, next)));
+    const cards = await Promise.all(photos.map((p) => photoCard(p, next)));
     if (!alive) { next.revokeAll(); return; }
+    const { rated } = ratingSummary(photos);
     mount(root,
-      h('div', { class: 'section-head' }, h('h2', {}, `Fotos (${photos.length})`)),
+      h('div', { class: 'section-head' },
+        h('h2', {}, `Fotos (${photos.length})`),
+        h('span', { class: 'muted small', 'data-testid': 'rated-count' }, `${rated} de ${photos.length} avaliadas`),
+        rated < photos.length
+          ? h('a', { href: '#/avaliar/todas', class: 'btn btn-primary', 'data-testid': 'rate-all' }, 'Avaliar fotos')
+          : h('a', { href: '#/avaliar/todas', class: 'btn' }, 'Rever avaliações')),
       h('div', { class: 'photo-grid' }, cards));
     // Revoke the previous images only after the new ones are on screen.
     bag.revokeAll();

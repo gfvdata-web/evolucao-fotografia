@@ -19,7 +19,16 @@ export const MIGRATIONS = {
     crops: doc.crops || null,
     variants: (doc.variants || []).map((v) => ({ tag_count: null, analysis: null, ...v })),
   }),
+  // 2 → 3 (v0.3): sessions and rating. Both fields existed as placeholders
+  // (always null), so only make sure they are present.
+  2: (doc) => ({ ...doc, session_id: doc.session_id ?? null, rating: doc.rating ?? null }),
 };
+
+/**
+ * Session documents (v0.3 on) share SCHEMA_VERSION but have their own steps.
+ * Version 3 is their first format, so there is nothing to upgrade yet.
+ */
+export const SESSION_MIGRATIONS = {};
 
 export function migrate(doc, migrations = MIGRATIONS, target = SCHEMA_VERSION) {
   let current = { ...doc };

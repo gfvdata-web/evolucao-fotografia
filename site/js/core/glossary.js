@@ -142,3 +142,30 @@ export function translate(path, value) {
   }
   return VALUES[path]?.[value] ?? value;
 }
+
+/** Rating options (keys stored in English, see core/rating.js). */
+export const RATING_LABELS = {
+  category: {
+    sharp: 'Nítida', noise: 'Ruído', shake: 'Tremida', out_of_focus: 'Fora de foco',
+    pixelated_upload: 'Pixelada no envio', other: 'Outro',
+  },
+  light: { harsh_sun: 'Sol forte', shade: 'Sombra', overcast: 'Nublado', indoor: 'Interno', night: 'Noite' },
+  subject: { still: 'Parado', moving: 'Em movimento' },
+};
+
+/** One-line meaning of each category, shown on the rating screen. */
+export const CATEGORY_HINTS = {
+  sharp: 'O ponto de foco está nítido.',
+  noise: 'Granulado ou manchas de cor, mais visível nas áreas lisas.',
+  shake: 'Tudo levemente borrado na mesma direção: a câmera mexeu.',
+  out_of_focus: 'O foco ficou em outro lugar, ou em lugar nenhum.',
+  pixelated_upload: 'Blocos ou serrilhado: a foto perdeu qualidade no envio.',
+  other: 'Outro problema; descreva na nota.',
+};
+
+/** Parameters an experiment can vary (keys in core/sessions.js). */
+export const EXPERIMENT_LABELS = {
+  iso: 'ISO', shutter: 'Velocidade do obturador', aperture: 'Abertura', focal_length: 'Distância focal',
+  lens: 'Lente', af_mode: 'Modo de foco', af_area: 'Área de AF', drive_mode: 'Modo de disparo',
+  transfer: 'Forma de transferência (Camera Connect)', other: 'Outro',
+};

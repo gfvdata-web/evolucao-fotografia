@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Versão atual do esquema: **2** (`SCHEMA_VERSION` em `site/js/core/model.js`).
+Versão atual do esquema: **3** (`SCHEMA_VERSION` em `site/js/core/model.js`).
 Todo documento guardado leva `schema_version` e é migrado na leitura (`core/migrations.js`).
 Chaves em inglês, `snake_case`.
 
@@ -8,10 +8,10 @@ Chaves em inglês, `snake_case`.
 
 ```jsonc
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "id": "012345678901-20261010T143012.45-IMG_0001",   // estável; nunca muda depois de criado
   "match_key": "20261010T143012.45-IMG_0001",          // sem a série: pareia versões do disparo
-  "session_id": null,                                   // v0.3
+  "session_id": "ses-20261010-k3x9ab",                 // v0.3; null = sem sessão
   "added_at": "2026-10-10T18:00:00.000Z",
   "updated_at": "...",
   "variants": [ /* uma por arquivo da mesma foto, ver abaixo */ ],
@@ -25,9 +25,20 @@ Chaves em inglês, `snake_case`.
     "uniform": { "rect": { ... }, "source": "auto" }    // ou null
   },
   "indicators": { /* ver Indicadores */ },
-  "rating": null                                        // v0.3
+  "rating": {                                          // v0.3; null = não avaliada
+    "category": "sharp",       // sharp | noise | shake | out_of_focus | pixelated_upload | other
+    "score": 4,                // 1–5 ou null
+    "light": "shade",          // harsh_sun | shade | overcast | indoor | night ou null
+    "subject": "still",        // still | moving ou null
+    "note": "",
+    "rated_at": "..."          // última mudança
+  }
 }
 ```
+
+Uma foto conta como **avaliada** quando tem `category` (`core/rating.js`). Os valores são
+guardados em inglês e traduzidos na tela (`RATING_LABELS` em `core/glossary.js`). Avaliação
+toda vazia volta a `null`.
 
 `crop_choice` e `crops.*.rect` são normalizados (0–1) **no quadro da prévia**
 (`preview.from_variant`), já na orientação de exibição. `source`: `manual` (toque),
@@ -107,6 +118,26 @@ Em `exposure.program`, os modos automáticos da Canon (A+, cenas) usam o `EasyMo
 `areas` traz só as `ValidAFPoints` primeiras posições: na EOS RP as listas sempre têm 143
 posições, e com AF em 1 ponto as outras 142 são zeros.
 
+## Sessão (store `sessions`, v0.3; na v0.4 também em `sessao.json`)
+
+```jsonc
+{
+  "schema_version": 3,
+  "id": "ses-20261010-k3x9ab",        // ses-<AAAAMMDD | semdata>-<6 caracteres aleatórios>
+  "name": "Sessão de 10/10/2026",     // vazio volta a este padrão
+  "date": "2026-10-10",               // ou null
+  "location": "", "notes": "",
+  "experiment": null,                 // ou { "parameter": "iso", "description": "100 a 12800" }
+  "created_at": "...", "updated_at": "..."
+}
+```
+
+O vínculo fica só na foto (`session_id`); a sessão não lista as fotos. `experiment.parameter`:
+`iso`, `shutter`, `aperture`, `focal_length`, `lens`, `af_mode`, `af_area`, `drive_mode` (lidos
+da foto, e a sessão mostra o valor de cada uma), `transfer` e `other` (só a descrição). Sessões
+usam o mesmo `SCHEMA_VERSION`, com migrações próprias (`SESSION_MIGRATIONS`); a versão 3 é a
+primeira. Ver decisão 0009.
+
 ## Indicadores (`indicators`, calculados em `core/indicators.js`)
 
 ```jsonc
@@ -128,7 +159,7 @@ JPEG embutido no CR3, que é mais comprimido. Mudou um cálculo ou um limite? Su
 
 ## IndexedDB
 
-Banco `evolucao-fotografia`, versão 1: stores `photos`, `blobs`, `raw_metadata`, `meta`
+Banco `evolucao-fotografia`, versão 2: stores `photos` (índice `session_id` desde a versão 2), `blobs`, `raw_metadata`, `meta` e `sessions` (versão 2)
 (detalhes em ARQUITETURA.md). Os recortes a 100% ficam em `blobs`, como PNG, na chave
 `<id>/crop/<variante>/<af|uniform>`. O JSON completo do ExifTool fica em `raw_metadata`, fora do
 registro, para manter a lista leve.
@@ -154,3 +185,4 @@ perder. Conflitos tablet × PC: junção foto a foto, vence o `updated_at` mais 
 |---|---|
 | 0 → 1 | Marca documentos sem versão como versão 1 (modelo da etapa). |
 | 1 → 2 (v0.2) | Acrescenta `crop_choice` (automático), `crops: null` e, em cada variante, `tag_count: null` e `analysis: null`. Os indicadores são calculados quando a foto é aberta ou pelo botão da aba Sobre. |
+| 2 → 3 (v0.3) | Garante `session_id` e `rating` (já existiam, sempre `null`). O banco local passa da versão 1 para a 2 (store `sessions` e índice `session_id`). |
