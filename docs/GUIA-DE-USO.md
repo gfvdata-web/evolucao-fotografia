@@ -126,38 +126,93 @@ recente, então importar um backup antigo não desfaz avaliações novas.
 
 ## Configuração do Google Cloud
 
-Uma vez só, no computador. Cria o "Client ID", que identifica o app para o Google. Ele é
-público (vai no código do site); a **chave secreta não é usada** e não deve ser enviada a
-ninguém.
+**Para que serve:** o Google só deixa um site mexer no seu Drive se esse site estiver
+cadastrado. O cadastro gera um código chamado **ID do cliente** (Client ID), que vai no
+código do site. Faz-se uma vez só, no computador, em uns 15 minutos. Não custa nada e não
+pede cartão de crédito.
 
-1. Abra https://console.cloud.google.com/ com a conta do Google cujo Drive vai guardar as fotos.
-2. No seletor de projetos (topo) → **Novo projeto** → nome `Evolucao Fotografia` → **Criar**.
-   Confira que o projeto novo está selecionado.
-3. Menu ☰ → **APIs e serviços** → **Biblioteca** → procure **Google Drive API** → **Ativar**.
-4. Menu ☰ → **Google Auth Platform** (ou **APIs e serviços → Tela de permissão OAuth**) →
-   **Começar**:
-   - Nome do app: `Evolução Fotografia`; e-mail de suporte: o seu;
-   - Público: **Externo**;
-   - Dados de contato: o seu e-mail → aceite a política → **Criar**.
-5. **Acesso a dados** → **Adicionar ou remover escopos** → marque
-   `.../auth/drive.file` ("Ver, editar, criar e excluir apenas os arquivos do Google Drive que
-   você usa com este app") → **Atualizar** → **Salvar**.
-6. **Público-alvo** → **Publicar app** → confirmar. Como o escopo `drive.file` não é sensível,
-   o Google não exige verificação. (Alternativa: deixar "Em teste" e adicionar o seu e-mail em
-   **Usuários de teste**.)
-7. **Clientes** → **Criar cliente** → tipo **Aplicativo da Web** → nome `Site` →
-   **Origens JavaScript autorizadas** → adicione:
-   - `https://gfvdata-web.github.io`
-   - `http://localhost:8765` (para testes no computador)
+O ID do cliente é público (qualquer um pode vê-lo no site, e isso não dá acesso a nada). O que
+nunca se compartilha é a **chave secreta do cliente**, que este app não usa.
 
-   Não precisa de "URIs de redirecionamento". → **Criar**.
-8. Copie o **ID do cliente** (termina em `.apps.googleusercontent.com`) e mande para o Claude,
-   que o coloca em `site/js/config.js`. Ignore a "chave secreta do cliente".
+### Etapa 1 — Entrar no Google Cloud
+1. No computador, abra **https://console.cloud.google.com/**.
+2. Entre com a **conta Google onde as fotos vão ficar** (a do Drive que você quer usar).
+3. Se for a primeira vez, aparece uma janela de boas-vindas: escolha **Brasil**, marque que
+   aceita os Termos de Serviço e clique em **Concordar e continuar**.
 
-Na primeira conexão, o Google mostra uma tela de permissão com o nome do app; se aparecer
-"O Google não verificou este app", toque em **Avançado → Acessar Evolução Fotografia**
-(acontece com apps pessoais publicados sem verificação).
+### Etapa 2 — Criar o projeto
+1. No topo, à esquerda, clique na caixa **Selecione um projeto** (ou no nome de um projeto, se
+   já houver um).
+2. Na janela que abre, clique em **Novo projeto** (canto superior direito).
+3. Em **Nome do projeto**, escreva `Evolucao Fotografia`. Deixe o resto como está e clique em
+   **Criar**.
+4. Espere uns segundos. Aparece um aviso no sino (canto superior direito): clique em
+   **Selecionar projeto**. Confira que o nome **Evolucao Fotografia** aparece no topo.
 
+### Etapa 3 — Ligar a API do Google Drive
+1. Na barra de pesquisa do topo, escreva `Google Drive API` e clique no resultado
+   **Google Drive API**.
+2. Clique no botão azul **Ativar**. Espere a página mudar (aparece "API ativada" ou um painel
+   com gráficos). Pronto.
+
+### Etapa 4 — Tela de permissão (o que você vê ao conectar)
+1. Na barra de pesquisa do topo, escreva `Google Auth Platform` e clique no resultado (o nome
+   também pode aparecer como **Tela de permissão OAuth**).
+2. Clique em **Começar** (ou **Primeiros passos**). Abre um formulário em 4 partes:
+   - **Informações do app**: em **Nome do app**, escreva `Evolução Fotografia`; em
+     **E-mail para suporte do usuário**, escolha o seu e-mail. Clique em **Próxima**.
+   - **Público-alvo**: marque **Externo**. Clique em **Próxima**.
+   - **Informações de contato**: escreva o seu e-mail. Clique em **Próxima**.
+   - **Concluir**: marque a caixa de que concorda com a política de dados do Google. Clique em
+     **Continuar** e depois em **Criar**.
+
+### Etapa 5 — Permissão só para a pasta do app
+1. No menu da esquerda (dentro do Google Auth Platform), clique em **Acesso a dados**.
+2. Clique em **Adicionar ou remover escopos**.
+3. Na lista que abre, use o filtro e escreva `drive.file`. Marque a linha
+   **.../auth/drive.file** ("ver, editar, criar e excluir apenas os arquivos do Google Drive
+   que você usa com este app").
+4. Clique em **Atualizar** (no fim da lista) e depois em **Salvar** (no fim da página).
+
+Essa permissão só deixa o app ver a pasta **EvolucaoFotografia** que ele mesmo cria. O resto do
+seu Drive fica invisível para ele.
+
+### Etapa 6 — Liberar o uso
+1. No menu da esquerda, clique em **Público-alvo**.
+2. Em **Status de publicação** aparece **Em teste**. Clique em **Publicar app** e confirme.
+   Como o app só pede a permissão `drive.file`, o Google não exige análise.
+3. (Se preferir não publicar: em **Usuários de teste**, clique em **Adicionar usuários**,
+   escreva o seu e-mail e salve. Funciona do mesmo jeito para você.)
+
+### Etapa 7 — Criar o ID do cliente
+1. No menu da esquerda, clique em **Clientes**.
+2. Clique em **Criar cliente** (ou **+ Criar cliente OAuth**).
+3. Em **Tipo de aplicativo**, escolha **Aplicativo da Web**.
+4. Em **Nome**, escreva `Site`.
+5. Em **Origens JavaScript autorizadas**, clique em **Adicionar URI** e escreva exatamente
+   `https://gfvdata-web.github.io` (sem barra no final e sem o resto do endereço).
+   Clique em **Adicionar URI** de novo e escreva `http://localhost:8765`.
+6. Deixe **URIs de redirecionamento autorizados** em branco.
+7. Clique em **Criar**.
+8. Abre uma janela **Cliente OAuth criado**. Copie o **ID do cliente**: um código longo que
+   termina em `.apps.googleusercontent.com`. Se a janela fechar, ele continua na lista
+   **Clientes**: clique no nome **Site** para ver.
+
+### Etapa 8 — Mandar o ID para o Claude
+Cole o ID do cliente na conversa com o Claude. Ele coloca o ID no site e publica. A
+**chave secreta do cliente**, se aparecer, fica onde está: não copie nem mande.
+
+O Google pode levar de 5 minutos a algumas horas para ativar um cliente novo. Se ao conectar
+aparecer "erro 401: invalid_client" ou "origin_mismatch", espere um pouco e tente de novo.
+
+### Depois: conectar no tablet
+1. Abra o app, aba **Drive** → **Conectar ao Google Drive**.
+2. Escolha a mesma conta Google da Etapa 1.
+3. Se aparecer **"O Google não verificou este app"**: toque em **Avançado** e depois em
+   **Acessar Evolução Fotografia**. É normal para um app pessoal: quem o cadastrou foi você.
+4. Na tela de permissão, toque em **Continuar** (ou **Permitir**).
+5. O selo no topo do app passa para **Sincronizando…** e depois **Sincronizado**. No seu Drive
+   aparece a pasta **EvolucaoFotografia**.
 ## No computador (importador Python)
 
 Chega na **v0.6**. Instalação no Windows (Python, ExifTool via `winget install
