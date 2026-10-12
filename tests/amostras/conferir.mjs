@@ -106,10 +106,15 @@ for (const pasta of Object.keys(PASTAS)) {
     m.pasta = pasta;
     m.tipo = extname(f).slice(1).toUpperCase().replace('JPEG', 'JPG');
     let chave = chaveCaptura(m);
-    // O tablet pode perder subsegundos/série: tenta casar só pela data/hora.
+    // O tablet pode perder subsegundos/série ou o EXIF inteiro: tenta casar
+    // pela data/hora e, se houver empate (rajada) ou nada, pelo nome do arquivo.
     if (!capturas.has(chave) && pasta.startsWith('tablet')) {
       const dt = num(m, 'DateTimeOriginal');
-      const candidatas = [...capturas.keys()].filter((k) => k.startsWith(`${dt}|`));
+      const raiz = m.nome.replace(/\.[^.]+$/, '').toUpperCase();
+      const mesmoNome = (k) => Object.values(capturas.get(k).versoes)
+        .some((v) => v.nome.replace(/\.[^.]+$/, '').toUpperCase() === raiz);
+      let candidatas = dt ? [...capturas.keys()].filter((k) => k.startsWith(`${dt}|`)) : [];
+      if (candidatas.length !== 1) candidatas = (candidatas.length ? candidatas : [...capturas.keys()]).filter(mesmoNome);
       if (candidatas.length === 1) chave = candidatas[0];
     }
     if (!capturas.has(chave)) capturas.set(chave, { versoes: {} });
