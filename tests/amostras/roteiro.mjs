@@ -75,17 +75,17 @@ export const FOTOS = [
   },
   {
     codigo: 'F10', titulo: 'Programa, −1 EV, medição Pontual, estilo Paisagem',
-    id: { programa: 2, ev: -1, iso: 200 },
+    id: { programa: 2, ev: -1, iso: 200, focal: 50 },
     confere: { medicao: 'Pontual', estiloImagem: 'Paisagem' },
   },
   {
     codigo: 'F11', titulo: 'Proporção 16:9',
-    id: { programa: 3, abertura: 8, iso: 400 },
+    id: { programa: 3, abertura: 8, iso: 400, focal: 50 },
     confere: { jpegCamera: [6240, 3504], proporcao: '16:9' },
   },
   {
     codigo: 'F12', titulo: 'Recorte 1,6x',
-    id: { programa: 3, abertura: 4, iso: 400 },
+    id: { programa: 3, abertura: 4, iso: 400, focal: 50 },
     confere: { jpegCamera: [3888, 2592], recorte: '1,6x' },
   },
   {
@@ -95,8 +95,51 @@ export const FOTOS = [
   },
   {
     codigo: 'F14', titulo: 'GPS pelo Camera Connect (opcional)', opcional: true,
-    id: { programa: 3, abertura: 11, iso: 100 },
+    id: { programa: 3, abertura: 11, iso: 100, gps: true },
     confere: { gps: true },
+  },
+
+  // Série T: RF 75-300 no tripé, mesmo alvo distante pela janela. Isola o que
+  // tira nitidez na tele: abertura, distância focal, vidro, apoio e disparo.
+  {
+    codigo: 'T01', titulo: 'Tele 300 mm, tripé, f/5.6 (abertura máxima)', serie: 'tele',
+    id: { programa: 3, abertura: 5.6, iso: 100, focal: 300 },
+    confere: { lente: 'RF75-300mm F4-5.6', disparo: 'temporizador 2 s' },
+  },
+  {
+    codigo: 'T02', titulo: 'Tele 300 mm, tripé, f/8', serie: 'tele',
+    id: { programa: 3, abertura: 8, iso: 100, focal: 300 },
+    confere: { disparo: 'temporizador 2 s' },
+  },
+  {
+    codigo: 'T03', titulo: 'Tele 300 mm, tripé, f/11', serie: 'tele',
+    id: { programa: 3, abertura: 11, iso: 100, focal: 300 },
+    confere: { disparo: 'temporizador 2 s' },
+  },
+  {
+    codigo: 'T04', titulo: 'Tele 300 mm, tripé, f/16 (difração)', serie: 'tele',
+    id: { programa: 3, abertura: 16, iso: 100, focal: 300 },
+    confere: { disparo: 'temporizador 2 s' },
+  },
+  {
+    codigo: 'T05', titulo: 'Tele 200 mm, tripé, f/8', serie: 'tele',
+    id: { programa: 3, abertura: 8, iso: 100, focal: 200 },
+    confere: { disparo: 'temporizador 2 s' },
+  },
+  {
+    codigo: 'T06', titulo: 'Tele 300 mm, tripé, f/8, através do vidro fechado', serie: 'tele',
+    id: { programa: 3, abertura: 8, iso: 200, focal: 300 },
+    confere: { observacao: 'ISO 200 só para diferenciar da T02' },
+  },
+  {
+    codigo: 'T07', titulo: 'Tele 300 mm à mão livre, 1/640', serie: 'tele',
+    id: { programa: 4, tempo: 1 / 640, focal: 300 },
+    confere: { riscoTremido: false },
+  },
+  {
+    codigo: 'T08', titulo: 'Tele 300 mm, tripé, f/8, disparo com o dedo (sem temporizador)', serie: 'tele',
+    id: { programa: 3, abertura: 8, iso: 400, focal: 300 },
+    confere: { disparo: 'foto única', observacao: 'ISO 400 só para diferenciar da T02' },
   },
 ];
 

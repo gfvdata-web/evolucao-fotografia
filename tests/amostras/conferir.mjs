@@ -79,6 +79,7 @@ function bate(id, m, temRaw) {
   if (id.iso != null && num(m, 'ISO') !== id.iso) return false;
   if (id.focal != null && !perto(num(m, 'FocalLength'), id.focal, id.focal * 0.03)) return false;
   if (id.ev != null && !perto(num(m, 'ExposureCompensation'), id.ev, 0.1)) return false;
+  if (id.gps && num(m, 'GPSLatitude') == null) return false;
   return true;
 }
 

@@ -55,6 +55,25 @@ Sugestão de roteiro: de dia, perto da janela, faça F01, F02, F04, F05, F10–F
 
 São 16 disparos (F03 vale 3). F13 não tem CR3.
 
+## Série T: a RF 75-300 no tripé
+
+Isola o que tira nitidez na tele, uma variável por vez: abertura, distância focal, vidro da janela, apoio e forma de disparar. Fotografe todas com o **mesmo alvo distante** e o **mesmo ponto de AF**, em poucos minutos, para a luz não mudar.
+
+**Base da série:** RF 75-300, tripé, modo **Av**, ISO 100, temporizador 2 s (*Self-timer: 2 sec*), AF de 1 ponto sobre o alvo e **janela aberta**. Escolha um alvo com detalhe fino: antena, placa, telhado com telhas ou prédio com janelas. Evite olhar por cima de telhados muito quentes ao sol do meio-dia, porque o ar quente ondula a imagem.
+
+| Código | Focal | Ajustes | O que muda |
+|---|---|---|---|
+| T01 | 300 mm | f/5.6 · ISO 100 | Abertura máxima |
+| T02 | 300 mm | f/8 · ISO 100 | Referência da série |
+| T03 | 300 mm | f/11 · ISO 100 | Mais fechada |
+| T04 | 300 mm | f/16 · ISO 100 | Bem fechada (difração) |
+| T05 | **200 mm** | f/8 · ISO 100 | Distância focal menor, mesmo alvo |
+| T06 | 300 mm | f/8 · **ISO 200** | **Janela fechada**, através do vidro. O ISO 200 só serve para diferenciar da T02 |
+| T07 | 300 mm | **Tv 1/640 · ISO Auto** | **À mão livre**, sem tripé |
+| T08 | 300 mm | f/8 · **ISO 400** | Tripé, mas **sem temporizador** (*Single shooting*), disparando com o dedo. O ISO 400 só serve para diferenciar da T02 |
+
+Se a janela não abrir, faça todas através do vidro, pule a T06 e avise.
+
 ## Como entregar os arquivos
 
 Coloque tudo nestas pastas dentro de `EvolucaoFotografia\amostras\`, **sem renomear, editar, girar ou recortar**:
