@@ -323,3 +323,52 @@ test.describe('app instalável', () => {
     await context.setOffline(false);
   });
 });
+
+test.describe('outras abas do app abertas', () => {
+  // A tab opened before an update keeps the local database at the old version.
+  const OPEN_OLD_DB = async () => {
+    window.__oldDb = await new Promise((resolve, reject) => {
+      const req = indexedDB.open('evolucao-fotografia', 2);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        const photos = db.createObjectStore('photos', { keyPath: 'id' });
+        photos.createIndex('match_key', 'match_key', { unique: false });
+        photos.createIndex('added_at', 'added_at', { unique: false });
+        photos.createIndex('session_id', 'session_id', { unique: false });
+        for (const s of ['blobs', 'raw_metadata', 'meta']) db.createObjectStore(s);
+        db.createObjectStore('sessions', { keyPath: 'id' });
+      };
+      req.onsuccess = () => resolve(req.result); // no versionchange handler, like v0.3
+      req.onerror = () => reject(req.error);
+    });
+  };
+
+  test('aba antiga segurando os dados: aviso claro e a aba nova continua sozinha', async ({ context }) => {
+    const old = await context.newPage();
+    await old.goto('icons/icon.svg');
+    await old.evaluate(OPEN_OLD_DB);
+    const page = await context.newPage();
+    await page.goto('#/drive');
+    await expect(page.locator('#app-alert')).toContainText('Feche as outras abas do Evolução Fotografia');
+    await expect(page.getByTestId('setting-keep_jpeg')).toHaveCount(0); // waiting for the data
+    await old.close();
+    await expect(page.locator('#app-alert')).toBeHidden();
+    await expect(page.getByTestId('setting-keep_jpeg')).toBeChecked();
+  });
+
+  test('versão mais nova aberta em outra aba: esta larga os dados e pede para recarregar', async ({ context }) => {
+    const page = await context.newPage();
+    await page.goto('#/drive');
+    await expect(page.getByTestId('setting-keep_jpeg')).toBeChecked();
+    const newer = await context.newPage();
+    await newer.goto('icons/icon.svg');
+    const opened = await newer.evaluate(() => new Promise((resolve) => {
+      const req = indexedDB.open('evolucao-fotografia', 99);
+      req.onsuccess = () => { req.result.close(); resolve('aberto'); };
+      req.onblocked = () => resolve('bloqueado');
+    }));
+    expect(opened).toBe('aberto');
+    await expect(page.locator('#app-alert')).toContainText('O app foi atualizado em outra aba');
+    await expect(page.locator('#app-alert').getByRole('button', { name: 'Recarregar' })).toBeVisible();
+  });
+});

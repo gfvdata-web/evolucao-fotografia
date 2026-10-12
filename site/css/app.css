@@ -314,3 +314,10 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
   .rate-layout { grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr); align-items: start; }
   .rate-img, .rate-crop { max-height: calc(100vh - 220px); }
 }
+
+/* Banner about the local database (another tab of the app open). */
+.app-alert {
+  max-width: 1400px; margin: var(--gutter) auto 0; padding: 12px var(--gutter); border-radius: var(--radius);
+  border: 2px solid var(--warn); background: var(--surface); display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+}
+@media (max-width: 1432px) { .app-alert { margin-left: var(--gutter); margin-right: var(--gutter); } }

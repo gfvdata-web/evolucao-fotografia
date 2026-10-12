@@ -92,6 +92,11 @@ renderização neutra do RAW, que fica com o importador Python.
 
 Toda leitura de registro passa por `migrate()`.
 
+Outras abas: uma aba aberta com uma versão antiga segura o banco e impede a atualização dele
+(`blocked`). O `openDb` não desiste: avisa (`dbEvents`, faixa no topo da página) e continua
+quando a outra aba fecha. Cada conexão fecha sozinha quando uma versão mais nova pede o banco
+(`versionchange`) e pede para recarregar.
+
 ## Sessões e avaliação (v0.3)
 
 `pipeline/organize.js` grava avaliações (`setRating`) e sessões (criar, editar, excluir, mover

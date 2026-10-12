@@ -127,6 +127,9 @@ Aba **Drive** → **Conectar ao Google Drive** e escolha a conta. O app cria a p
 - No PC, abrindo o mesmo endereço e conectando a mesma conta, aparecem as mesmas sessões e
   avaliações (as fotos vêm com prévia e recortes).
 
+Se aparecer **"Feche as outras abas do Evolução Fotografia"**: o app foi atualizado e uma aba
+aberta antes ainda usa os dados. Feche (ou recarregue) a outra aba; esta continua sozinha.
+
 ### Backup neste aparelho (v0.4)
 Aba **Drive** → **Exportar backup** gera um arquivo `.efbackup` (avaliações, sessões,
 metadados, prévias e recortes; marque **Incluir os arquivos originais** para levar as fotos).

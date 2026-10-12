@@ -28,13 +28,35 @@ function upgrade(db, oldVersion, tx) {
 
 let dbPromise = null;
 
+/**
+ * Events about the local database, shown by app.js as a banner:
+ *   'blocked'  another tab of the app (older version) holds the database, so
+ *              this one cannot upgrade it; the open waits and continues by
+ *              itself when that tab is closed or reloaded
+ *   'ready'    the database opened
+ *   'replaced' a newer version of the app opened in another tab: this tab let
+ *              go of the database and must be reloaded
+ */
+export const dbEvents = new EventTarget();
+const emit = (type) => dbEvents.dispatchEvent(new Event(type));
+const BLOCKED_HINT_MS = 3000; // some browsers never fire "blocked" for a frozen background tab
+
 export function openDb() {
   dbPromise ??= new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
+    const slow = setTimeout(() => emit('blocked'), BLOCKED_HINT_MS);
     req.onupgradeneeded = (e) => upgrade(req.result, e.oldVersion, req.transaction);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-    req.onblocked = () => reject(new Error('Banco local bloqueado por outra aba aberta. Feche as outras abas do app.'));
+    req.onsuccess = () => {
+      clearTimeout(slow);
+      const db = req.result;
+      // Let a newer version in another tab upgrade the database instead of blocking it.
+      db.onversionchange = () => { db.close(); dbPromise = null; emit('replaced'); };
+      emit('ready');
+      resolve(db);
+    };
+    req.onerror = () => { clearTimeout(slow); dbPromise = null; reject(req.error); };
+    // Keep waiting: the request completes as soon as the other tab lets go.
+    req.onblocked = () => emit('blocked');
   });
   return dbPromise;
 }

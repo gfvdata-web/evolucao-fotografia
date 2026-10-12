@@ -2,6 +2,16 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.4.1] — 2026-10-12
+
+### Corrigido
+- Com uma aba aberta antes da atualização, o app travava calado: a sincronização ficava em
+  "Sincronizando…" e as configurações não apareciam, porque a aba antiga segurava os dados
+  locais (banco na versão anterior). Agora aparece um aviso "Feche as outras abas do
+  Evolução Fotografia", e a aba nova continua sozinha quando a outra fecha. Uma aba antiga
+  aberta com esta versão larga os dados quando uma versão mais nova abre e pede para ser
+  recarregada.
+
 ## [0.4.0] — 2026-10-12
 
 Google Drive, sincronização, app instalável e backup. Client ID do projeto "Evolucao

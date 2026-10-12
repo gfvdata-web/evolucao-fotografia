@@ -134,7 +134,7 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 **v0.3.1**: sessões sugeridas por dia e avaliação por toque (nitidez 1–5, problema principal
 pelo sintoma, onde/luz/assunto e luz da cena calculada pela exposição; decisão 0012), sobre os
-recortes e indicadores da v0.2. Esquema de dados 4. **v0.4.0**: Google Drive (Client ID em
+recortes e indicadores da v0.2. Esquema de dados 4. **v0.4.1**: Google Drive (Client ID em
 `site/js/config.js`, projeto "Evolucao Fotografia" em teste, decisão 0010), sincronização entre
 aparelhos, PWA e backup `.efbackup`. Próximo: v0.5 (cenas e diagnóstico com orientação, decisão
 0011). Ver `docs/ROADMAP.md`.

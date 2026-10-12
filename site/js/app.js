@@ -20,6 +20,8 @@ import { startSync, syncStatus, scheduleSync } from './pipeline/sync.js';
 import { preloadAuth, renewOnGesture } from './drive/auth.js';
 import { startPwa, askPersistence } from './pwa.js';
 import { photoEvents } from './pipeline/photo-events.js';
+import { dbEvents } from './storage/idb.js';
+import { h, mount } from './ui/dom.js';
 import { APP_VERSION } from './version.js';
 
 const routes = [
@@ -54,6 +56,18 @@ function route() {
 }
 
 document.getElementById('app-version').textContent = `v${APP_VERSION}`;
+
+// Local database shared with other tabs of the app (see storage/idb.js).
+const alertEl = document.getElementById('app-alert');
+const showAlert = (...content) => { mount(alertEl, ...content); alertEl.hidden = false; };
+dbEvents.addEventListener('blocked', () => showAlert(
+  h('strong', {}, 'Feche as outras abas do Evolução Fotografia. '),
+  'Uma aba aberta antes da atualização está usando os dados do app, e esta aba precisa atualizá-los. ',
+  'Assim que a outra aba for fechada ou recarregada, esta continua sozinha.'));
+dbEvents.addEventListener('ready', () => { alertEl.hidden = true; });
+dbEvents.addEventListener('replaced', () => showAlert(
+  h('strong', {}, 'O app foi atualizado em outra aba. '), 'Recarregue esta aba para continuar. ',
+  h('button', { type: 'button', class: 'btn btn-small', onclick: () => location.reload() }, 'Recarregar')));
 window.addEventListener('hashchange', route);
 route();
 
