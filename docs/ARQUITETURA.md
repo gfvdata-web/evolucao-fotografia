@@ -9,7 +9,7 @@ Tablet / PC (navegador)
  ├─ Worker de mídia: decodifica, gera prévia, recortes a 100% e métricas de pixels
  ├─ IndexedDB: fotos, sessões, arquivos originais, prévias, metadados completos
  └─ (v0.4) Cliente Drive + token GIS ⇄ Google Drive /EvolucaoFotografia
-PC Windows (v0.5): importador Python → pacote .efsessao → mesmo botão de envio
+PC Windows (v0.6): importador Python → pacote .efsessao → mesmo botão de envio
 GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo passar.
 ```
 

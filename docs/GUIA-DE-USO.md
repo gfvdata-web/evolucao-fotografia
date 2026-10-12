@@ -104,7 +104,7 @@ Chega na **v0.4** (Drive e sincronização). O passo a passo será escrito aqui.
 
 ## No computador (importador Python)
 
-Chega na **v0.5**. Instalação no Windows (Python, ExifTool via `winget install
+Chega na **v0.6**. Instalação no Windows (Python, ExifTool via `winget install
 OliverBetz.ExifTool`, dependências) e uso serão descritos aqui.
 
 ## Amostras de calibração

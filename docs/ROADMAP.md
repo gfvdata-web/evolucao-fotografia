@@ -65,7 +65,36 @@ Cada entrega pode ser testada no tablet.
 - PWA instalável no Android, `navigator.storage.persist()`, exportar/importar backup.
 - Guia passo a passo da configuração do Google Cloud no GUIA-DE-USO.
 
-### ⏳ v0.5 — Importador Python (Windows)
+### ⏳ v0.5 — Cenas e diagnóstico com orientação
+Pedido do Guilherme (2026-10-12): mandar uma foto, ou uma sessão, e o site dizer se está boa
+ou ruim, o que aconteceu e o que fazer na próxima captura. Sem IA: física da exposição, perfil
+do equipamento e pixels. Ver decisão 0011.
+- **Cenas dentro da sessão**, separadas sozinhas (intervalo entre disparos, troca de lente ou
+  salto de zoom, semelhança das prévias) e reajustadas por **arrastar e soltar** no tablet
+  (segurar a foto e soltar em outra cena ou num espaço vazio), com "mover para…" como
+  alternativa.
+- **Motor de diagnóstico** (`core/`, puro), que funciona com **uma foto só**:
+  - luz da cena calculada pela exposição (abertura, velocidade, ISO e compensação), corrigida
+    pelo brilho real da foto;
+  - perfil das lentes: abertura máxima, faixa mais nítida e perda por difração (RF 50 e
+    RF 75-300, nenhuma estabilizada);
+  - "o que era possível com essa luz": combinações de velocidade, abertura e ISO que evitariam
+    o problema, pesando tremido × ruído × profundidade de campo;
+  - foco errado × tremido × ruído, separados pelos pixels (nitidez no ponto de AF × no resto
+    da foto) e pelos metadados;
+  - **histograma** e altas luzes estouradas (céu), sombras empastadas.
+- **Orientação com o porquê**: cada orientação mostra o número que a gerou, de onde vem (física,
+  calibração da EOS RP, comparação na cena, suas avaliações) e o grau de certeza. Campo não lido
+  não gera orientação: a ficha diz o que faltou (regra 5).
+- **Diagnóstico por cena**: o que deu errado em cada cena e o ajuste principal; comparação
+  entre as fotos da cena (a mais nítida × as piores e o que mudou entre elas) como reforço.
+- **Quanto as configurações variaram** na cena e na sessão: quais ajustes mudaram e entre quais
+  valores; aviso quando dois ajustes mudaram ao mesmo tempo entre fotos parecidas.
+- Pré-requisito: **Rodada 2 de amostras** (`docs/AMOSTRAS-CALIBRACAO.md`), que mede ruído por
+  ISO, o limite de tremido da mão do Guilherme, a abertura da RF 50, foco errado e altas luzes.
+  Pode ser feita a qualquer momento, antes da v0.5 começar.
+
+### ⏳ v0.6 — Importador Python (Windows)
 - `importador/`: ExifTool (metadados completos), rawpy/LibRaw (renderização neutra do RAW, sem
   redução de ruído nem nitidez), prévias, recortes e "pacote de sessão" `.efsessao` (ZIP sem
   compressão, lido por partes no navegador).
@@ -88,9 +117,22 @@ Cada entrega pode ser testada no tablet.
 - Reprocessamento de sessões antigas com métricas novas a partir dos originais no Drive
   (`metrics_version` em cada foto identifica o que está desatualizado; comando
   "reprocessar sessão / todas" previsto no modelo).
+- **Orientações ajustadas pelas avaliações**: a nitidez relativa vira "nítida / não nítida" pelo
+  olho do Guilherme (limite abaixo do qual ele marca tremida ou fora de foco), e os limites do
+  motor de diagnóstico (ruído aceitável por ISO, velocidade mínima por distância focal) passam
+  a ser os dele. Estatística sobre as avaliações, sem treinar modelo.
+
+## V3 — IA (a discutir)
+O que a física e os pixels não resolvem: entender o assunto (pessoa, pássaro, paisagem, céu no
+fundo), saber se o assunto se mexia sem o usuário marcar, julgar nitidez como um olho humano,
+separar cenas pelo conteúdo e escrever a orientação em contexto. As fotos avaliadas podem servir
+de exemplo para o modelo. Antes de começar, decidir:
+- **onde fica a chave do modelo** (nunca no repositório): colada pelo usuário no próprio
+  navegador, chamada pelo importador Python ou modelo pequeno rodando no tablet;
+- **custo por foto** e quando chamar (toda foto, só as ruins, sob pedido);
+- **privacidade**: as fotos saem do tablet e do Drive para o provedor do modelo.
 
 ## Ideias (pedir OK antes)
 - 💡 Fluxo "sem guardar originais para sempre": manter no Drive só prévias, recortes e
   metadados completos depois de analisada a sessão; originais apagados após N dias ou após
   avaliação. Os metadados completos do ExifTool já são guardados por foto para permitir isso.
-- 💡 Histograma e recorte de altas luzes como indicador de exposição.

@@ -26,11 +26,13 @@ tablet e dá direção.
 2. **Nada de segredo no repositório.** O Client ID do Google é público e pode ficar no código;
    nunca client secret, tokens ou credenciais.
 3. **Sem backend.** Todo processamento roda no navegador. O GitHub guarda só o código.
-4. **Indicadores são objetivos, sem conselhos.** Mostrar o número e o que ele significa; não
-   dizer "use ISO menor".
+4. **Orientar sempre com o porquê.** O site ajuda a fotografar melhor: diz o que aconteceu e o
+   que fazer na próxima captura, mas toda orientação mostra o número que a gerou, de onde ela
+   vem (física, calibração, comparação na cena, avaliações) e o grau de certeza. Conselho sem
+   número por trás, não. Decisão 0011 (substitui o "sem conselhos" da v0.1–v0.3).
 5. **O que não foi lido aparece como não lido.** Nunca preencher campo ausente com um valor
    plausível. A ficha mostra o que faltou e o motivo provável.
-6. **Uma única implementação de cada métrica**, em JavaScript. O importador Python (v0.5)
+6. **Uma única implementação de cada métrica**, em JavaScript. O importador Python (v0.6)
    entrega metadados, prévias e recortes, mas não calcula indicadores.
 7. **Não adicionar funcionalidade fora do escopo sem perguntar.** Escolha não óbvia: trazer
    1–2 alternativas com prós e contras e registrar em `docs/decisoes/`.
@@ -57,7 +59,7 @@ tests/e2e/                  Playwright, viewport de tablet retrato e paisagem
 tests/fixtures/             gerador de JPEG/CR3 sintéticos com EXIF e MakerNote Canon
 tests/amostras/             conferência das amostras reais (roda só localmente)
 scripts/                    vendor.mjs, serve.mjs
-importador/                 script Python (v0.5)
+importador/                 script Python (v0.6)
 docs/                       catálogo em docs/INDICE.md
 ```
 
@@ -128,13 +130,15 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 ## Estado atual
 
 **v0.3.0**: sessões sugeridas por dia e avaliação por toque, sobre os recortes e indicadores da
-v0.2; dados só no navegador. Próximo: v0.4 (Google Drive, sincronização, PWA e backup). Ver
+v0.2; dados só no navegador. Próximo: v0.4 (Google Drive, sincronização, PWA e backup); depois v0.5 (cenas e diagnóstico
+com orientação, decisão 0011). Ver
 `docs/ROADMAP.md`.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o
 `conferir.mjs` e depois o `metricas.mjs`, e comparar com o normalizador e os indicadores.
-Pendentes do Guilherme: T09, T08 em 300 mm e, se ele fotografa através de vidro, T06.
+Pendentes do Guilherme: a **Rodada 2** (mesmo documento), que já inclui T09, T08 em 300 mm e,
+se ele fotografa através de vidro, T06.
 
 O monitoramento do site no `painel-status` é feito pelo Guilherme naquele repositório — não
 mexer lá a partir daqui.
