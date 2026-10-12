@@ -101,6 +101,24 @@ node tests/amostras/metricas.mjs   # métricas do site sobre as amostras + recor
 6. Conferir que o workflow "Testes e publicação" passou e o Pages atualizou
    (`gh run list`, `curl` na URL), e dizer ao Guilherme o link e o que testar no tablet.
 
+## Fechar uma versão (regressão obrigatória)
+
+Pedido permanente do Guilherme: **nenhuma versão é dada por terminada sem garantir que todas
+as funcionalidades acumuladas (desta e de todas as anteriores) continuam funcionando.** Faz
+parte do desenvolvimento, não é etapa opcional nem precisa ser pedida.
+
+1. Cada funcionalidade marcada como feita no `docs/ROADMAP.md`, de qualquer versão, tem teste
+   automatizado: unitário para a lógica e ponta a ponta (`tests/e2e/vNN-*.spec.mjs`) para o
+   fluxo na tela. Faltou teste? Escrever antes de fechar.
+2. Specs de versões anteriores nunca são apagadas, desligadas (`skip`, `fixme`, `only`) nem
+   afrouxadas para passar; se o comportamento mudou de propósito, ajustar o teste e explicar
+   no commit.
+3. Rodar `npm test` completo (unitários + ponta a ponta em retrato e paisagem) e só fechar com
+   tudo verde. Havendo amostras em `amostras/`, rodar também `conferir.mjs` e `metricas.mjs`.
+4. Depois do push: workflow verde e conferência do site publicado.
+5. Ao entregar, dizer ao Guilherme o resultado (quantos testes, todos passaram) e citar
+   qualquer funcionalidade que só dá para conferir no tablet.
+
 ## Commits
 
 Conventional Commits em português: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`,
@@ -109,10 +127,9 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 ## Estado atual
 
-**v0.2.0** publicada: recortes a 100%, indicadores objetivos e comparação entre versões; dados
-só no navegador. **v0.3** (avaliação e sessões) em desenvolvimento no ramo `v0.3`, sem
-publicar, enquanto o Guilherme testa a v0.2 no tablet; vai para `main` quando ele liberar.
-Ver `docs/ROADMAP.md` e a decisão 0009.
+**v0.3.0**: sessões sugeridas por dia e avaliação por toque, sobre os recortes e indicadores da
+v0.2; dados só no navegador. Próximo: v0.4 (Google Drive, sincronização, PWA e backup). Ver
+`docs/ROADMAP.md`.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

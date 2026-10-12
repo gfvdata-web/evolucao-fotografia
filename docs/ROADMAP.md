@@ -38,7 +38,7 @@ Cada entrega pode ser testada no tablet.
 - Calibração com as amostras reais: 1ª rodada feita com 26 fotos (séries F e T), resultados em
   `docs/CALIBRACAO-RESULTADOS.md`. A nitidez segue relativa até haver avaliações (v0.3).
 
-### 🔨 v0.3 — Avaliação e sessões (em desenvolvimento no ramo `v0.3`)
+### ✅ v0.3 — Avaliação e sessões
 - Sessões: data, local, nome dado pelo usuário; marcação opcional de "experimento"
   (um único parâmetro variado). Agrupamento sugerido por data ao enviar.
 - Avaliação por toque: categoria (nítida / ruído / tremida / fora de foco / pixelada no envio /
@@ -47,9 +47,9 @@ Cada entrega pode ser testada no tablet.
 - Navegação por deslize otimizada para avaliar dezenas de fotos em poucos minutos.
 - Feito: aba **Sessões** com sugestão por dia; tela **Avaliar** com avanço automático ao escolher
   a categoria, "luz e assunto iguais à anterior" e foco a 100%; mover fotos entre sessões;
-  avaliação e sessão na ficha. Decisão 0009. Falta: uso real no tablet.
+  avaliação e sessão na ficha. Decisão 0009.
 
-### ⏳ v0.4 — Google Drive, sincronização, PWA e backup
+### 🔨 v0.4 — Google Drive, sincronização, PWA e backup
 - Login Google (Google Identity Services, modelo de token) com escopo `drive.file`.
   Token de 1 h sem renovação automática garantida: renovação silenciosa no próximo toque,
   botão "Reconectar" se falhar, fila pausa e retoma. Ver decisão 0005.

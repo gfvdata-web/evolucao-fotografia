@@ -2,7 +2,7 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
-## [Não publicado] — v0.3 em desenvolvimento (ramo `v0.3`)
+## [0.3.0] — 2026-10-12
 
 Avaliação e sessões.
 

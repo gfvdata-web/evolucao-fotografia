@@ -2,6 +2,7 @@
 // missing data. Uses only the synthetic fixtures.
 import { test, expect } from '@playwright/test';
 import { join } from 'node:path';
+import { APP_VERSION } from '../../site/js/version.js';
 
 const FIX = join(process.cwd(), 'tests', 'fixtures', 'generated');
 const fx = (...names) => names.map((n) => join(FIX, n));
@@ -101,6 +102,6 @@ test('seletores de arquivo: galeria filtra imagens, "Arquivos" aceita CR3', asyn
 
 test('tela Sobre mostra versão e diagnóstico do aparelho', async ({ page }) => {
   await page.goto('#/sobre');
-  await expect(page.getByTestId('app-version')).toHaveText('0.2.0');
+  await expect(page.getByTestId('app-version')).toHaveText(APP_VERSION);
   await expect(page.getByTestId('viewport')).toContainText('densidade 2');
 });
