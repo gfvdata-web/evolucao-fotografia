@@ -140,9 +140,13 @@ export const FOTOS = [
   },
   {
     codigo: 'T08', titulo: 'Tele 300 mm, tripé, f/8, disparo com o dedo (sem temporizador)', serie: 'tele',
-    id: { programa: 3, abertura: 8, iso: 400, lente: 'RF75-300' },
-    // Capturada em 205 mm: o zoom ficou na posição da T05. Comparar com a T05, não com a T02.
+    id: { programa: 3, abertura: 8, iso: 400, focal: 300 },
     confere: { disparo: 'foto única', observacao: 'ISO 400 só para diferenciar da T02' },
+  },
+  {
+    codigo: 'T08b', titulo: 'Tele 205 mm, tripé, f/8, disparo com o dedo e mão apoiada (comparar com T05)', serie: 'tele', opcional: true,
+    id: { programa: 3, abertura: 8, iso: 400, focal: 205 },
+    confere: { disparo: 'foto única', observacao: 'primeira T08: o zoom ficou na posição da T05' },
   },
   {
     codigo: 'T09', titulo: 'Tele 300 mm, tripé, f/8, temporizador 10 s (vibração assentada)', serie: 'tele',
