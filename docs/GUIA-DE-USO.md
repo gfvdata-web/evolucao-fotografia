@@ -160,7 +160,7 @@ Na primeira conexão, o Google mostra uma tela de permissão com o nome do app; 
 
 ## No computador (importador Python)
 
-Chega na **v0.5**. Instalação no Windows (Python, ExifTool via `winget install
+Chega na **v0.6**. Instalação no Windows (Python, ExifTool via `winget install
 OliverBetz.ExifTool`, dependências) e uso serão descritos aqui.
 
 ## Amostras de calibração

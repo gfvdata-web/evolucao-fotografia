@@ -6,7 +6,7 @@ Completa as decisões 0005 (login com token de 1 h) e 0006 (envio com o app aber
 
 ## Contexto
 
-O tablet e, na v0.5, o PC precisam ver as mesmas sessões, avaliações e arquivos, sem servidor.
+O tablet e, na v0.6, o PC precisam ver as mesmas sessões, avaliações e arquivos, sem servidor.
 O Drive é o único lugar compartilhado. Restrições:
 
 - escopo `drive.file`: o app só vê o que ele mesmo criou;
@@ -60,5 +60,5 @@ O Drive é o único lugar compartilhado. Restrições:
 
 - Duas mudanças na mesma foto em aparelhos diferentes, entre duas sincronizações: vale a
   última, e a outra se perde (só aquela foto). Aceitável para um usuário só.
-- O PC (v0.5) segue o mesmo formato: lê e grava `sessao.json` e respeita as lápides.
+- O PC (importador, v0.6) segue o mesmo formato: lê e grava `sessao.json` e respeita as lápides.
 - Reprocessar fotos antigas a partir dos originais no Drive (V2) usa os `drive_assets`.

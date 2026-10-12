@@ -6,9 +6,9 @@
 | [../README.md](../README.md) | Apresentação curta do projeto e link do site |
 | [ARQUITETURA.md](ARQUITETURA.md) | Como o site funciona: fluxo de entrada, leitura de metadados, CR3, armazenamento, publicação |
 | [MODELO-DE-DADOS.md](MODELO-DE-DADOS.md) | Formato do registro da foto, identidade, captura, IndexedDB, Drive (v0.4), migrações |
-| [ROADMAP.md](ROADMAP.md) | V1 por entrega (v0.1 a v1.0), V2 e ideias |
-| [GUIA-DE-USO.md](GUIA-DE-USO.md) | Para o Guilherme: uso no tablet, Google Cloud (v0.4), importador no PC (v0.5) |
-| [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md) | Protocolo das fotos reais de calibração (séries F e T) e como entregá-las |
+| [ROADMAP.md](ROADMAP.md) | V1 por entrega (v0.1 a v1.0), V2, V3 (IA) e ideias |
+| [GUIA-DE-USO.md](GUIA-DE-USO.md) | Para o Guilherme: uso no tablet, Google Cloud (v0.4), importador no PC (v0.6) |
+| [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md) | Protocolo das fotos reais de calibração (1ª rodada: séries F e T; Rodada 2: equipamento e mão) e como entregá-las |
 | [CALIBRACAO-RESULTADOS.md](CALIBRACAO-RESULTADOS.md) | Resultados da 1ª rodada com fotos reais: valores da EOS RP para o normalizador e métricas da v0.2 nas amostras |
 | [guia-fotos/Guia-fotos-calibracao.pdf](guia-fotos/Guia-fotos-calibracao.pdf) | O mesmo protocolo em versão para imprimir ou levar no celular (fonte: `guia.html`) |
 | [CHANGELOG.md](CHANGELOG.md) | O que mudou em cada versão |
@@ -22,3 +22,4 @@
 | [decisoes/0010-sincronizacao-drive.md](decisoes/0010-sincronizacao-drive.md) | Drive: um sessao.json por sessão, junção pelo mais novo, lápides, GPS, originais retomáveis, limite de espaço |
 | [decisoes/0009-sessoes-e-avaliacao.md](decisoes/0009-sessoes-e-avaliacao.md) | Sessões sugeridas por dia, vínculo na foto, avaliação por toque com avanço automático |
 | [decisoes/0008-versao-principal-e-campo-de-visao.md](decisoes/0008-versao-principal-e-campo-de-visao.md) | Qual versão mede nitidez e ruído; mesma parte da cena em versões com campos diferentes (16:9, recorte, CR3) |
+| [decisoes/0011-diagnostico-com-orientacao.md](decisoes/0011-diagnostico-com-orientacao.md) | O site passa a orientar (com o porquê); cenas com arrastar e soltar; motor de diagnóstico sem IA; IA fica para a V3 |

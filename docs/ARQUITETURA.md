@@ -10,7 +10,7 @@ Tablet / PC (navegador)
  ├─ IndexedDB: fotos, sessões, arquivos originais, prévias, metadados completos
  ├─ Service worker (sw.js): o app instalado abre sem internet
  └─ Cliente Drive (REST) + token GIS ⇄ Google Drive /EvolucaoFotografia (v0.4)
-PC Windows (v0.5): importador Python → pacote .efsessao → mesmo botão de envio
+PC Windows (v0.6): importador Python → pacote .efsessao → mesmo botão de envio
 GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo passar.
 ```
 
