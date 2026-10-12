@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Guia da série T (RF 75-300)</title>
+<style>
+  @page { size: A4; margin: 14mm 13mm 14mm 13mm; }
+  :root { --tinta: #1d232b; --suave: #5b6673; --linha: #d5dbe2; --fundo: #f3f5f8; --acento: #1f5fa8; --alerta: #a3471b; --ok: #2e7d4f; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--tinta); font-size: 10.5pt; line-height: 1.4; margin: 0; }
+  h1 { font-size: 21pt; margin: 0 0 2mm; letter-spacing: -0.3px; }
+  h2 { font-size: 13.5pt; margin: 0 0 3mm; color: var(--acento); border-bottom: 1.5px solid var(--acento); padding-bottom: 1.5mm; }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm; }
+  p { margin: 0 0 2mm; }
+  .sub { color: var(--suave); font-size: 11pt; margin-bottom: 6mm; }
+  .regras { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-bottom: 5mm; }
+  .regra { background: var(--fundo); border-radius: 2mm; padding: 3mm 3.5mm; }
+  .regra b { display: block; margin-bottom: 1mm; }
+  table { border-collapse: collapse; width: 100%; }
+  .base td { padding: 1.4mm 2.5mm; border-bottom: 1px solid var(--linha); }
+  .base td:first-child { color: var(--suave); width: 42%; }
+  .base td:last-child { font-weight: 600; }
+  .lista td, .lista th { padding: 1.3mm 2mm; border-bottom: 1px solid var(--linha); text-align: left; vertical-align: top; }
+  .lista th { font-size: 9pt; color: var(--suave); font-weight: 600; }
+  .caixa { display: inline-block; width: 3.6mm; height: 3.6mm; border: 1.3px solid var(--tinta); border-radius: 0.6mm; vertical-align: -0.6mm; }
+  .sessao { break-before: page; }
+  .sessao-intro { color: var(--suave); margin-bottom: 4mm; }
+  .card { border: 1.3px solid var(--linha); border-radius: 2.5mm; padding: 3.5mm 4mm 3mm; margin-bottom: 4mm; break-inside: avoid; }
+  .card-topo { display: flex; align-items: baseline; gap: 3mm; margin-bottom: 2.5mm; }
+  .codigo { background: var(--acento); color: #fff; font-weight: 700; border-radius: 1.5mm; padding: 0.6mm 2.2mm; font-size: 11pt; }
+  .titulo { font-weight: 700; font-size: 12pt; flex: 1; }
+  .feito { color: var(--suave); font-size: 9pt; white-space: nowrap; }
+  .ajustes { display: flex; flex-wrap: wrap; gap: 1.8mm; margin-bottom: 2.5mm; }
+  .chip { background: var(--fundo); border-radius: 1.5mm; padding: 1mm 2.4mm; font-size: 10pt; }
+  .chip small { display: block; color: var(--suave); font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.4px; }
+  .chip b { font-size: 11pt; }
+  .chip.extra { background: #e7eef8; }
+  .linhas { display: grid; grid-template-columns: 24mm 1fr; gap: 1.2mm 3mm; }
+  .linhas dt { color: var(--suave); font-weight: 600; font-size: 9.5pt; }
+  .linhas dd { margin: 0; }
+  .exp-ok { color: var(--ok); font-weight: 600; }
+  .exp-atencao { color: var(--alerta); font-weight: 600; }
+  .depois { margin-top: 2mm; font-size: 9.5pt; background: #fbf3e9; border-radius: 1.5mm; padding: 1.3mm 2.5mm; }
+  .entrega td { padding: 1.8mm 2.5mm; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  .entrega td:first-child { font-family: Consolas, monospace; font-weight: 600; white-space: nowrap; width: 34mm; }
+  .aviso { border-left: 3px solid var(--alerta); background: #fbf0ea; padding: 2.5mm 3.5mm; margin: 4mm 0; border-radius: 0 1.5mm 1.5mm 0; }
+  .base td { padding: 1mm 2.5mm; }
+  .regra { padding: 2.2mm 3mm; font-size: 10pt; }
+  .lista td, .lista th { padding: 1mm 2mm; }
+</style>
+</head>
+<body>
+
+<h1>Série T · RF 75-300 no tripé</h1>
+<div class="sub">EvolucaoFotografia · Canon EOS RP · 8 fotos pela janela, mesmo alvo distante</div>
+
+<div class="regras">
+  <div class="regra"><b>O objetivo</b>Descobrir o que tira nitidez da 75-300. Cada foto muda uma coisa só: abertura, focal, vidro, apoio ou forma de disparar.</div>
+  <div class="regra"><b>O alvo</b>Algo distante com detalhe fino: antena, placa, telhas, prédio com janelas. O <b>mesmo alvo e o mesmo ponto de AF</b> em todas as fotos.</div>
+  <div class="regra"><b>A luz</b>Faça a série inteira em poucos minutos, para a luz não mudar. Evite olhar por cima de telhados quentes ao sol do meio-dia: o ar quente ondula a imagem.</div>
+  <div class="regra"><b>Vento e tripé</b>Se estiver ventando, espere uma pausa antes de disparar. Depois de apertar o botão, não toque no tripé até a foto sair.</div>
+</div>
+
+<h2>Configuração base da série <span style="font-weight:400;font-size:10pt;color:var(--suave)">(nomes da câmera entre parênteses)</span></h2>
+<table class="base">
+  <tr><td>Lente</td><td>RF 75-300 em 300 mm (zoom todo)</td></tr>
+  <tr><td>Apoio · janela</td><td>Tripé · janela aberta</td></tr>
+  <tr><td>Modo</td><td>Av</td></tr>
+  <tr><td>ISO</td><td>100 (ISO speed)</td></tr>
+  <tr><td>Compensação</td><td>0 (Exposure comp.)</td></tr>
+  <tr><td>Modo drive</td><td>Temporizador 2 s (Self-timer: 2 sec)</td></tr>
+  <tr><td>Foco</td><td>One-Shot (One Shot AF) · AF de 1 ponto (1-point AF) sobre um detalhe do alvo</td></tr>
+  <tr><td>Qualidade · proporção · estilo</td><td>RAW + L · Full-frame · Standard</td></tr>
+  <tr><td>Medição · balanço de branco</td><td>Evaluative metering · AWB</td></tr>
+</table>
+
+<h2 style="margin-top:4mm">Lista de conferência</h2>
+<p>Na ordem sugerida: primeiro todas as fotos no tripé e, por último, a da mão livre.</p>
+<table class="lista">
+  <tr><th></th><th>Foto</th><th>Focal</th><th>O que muda</th></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T01</b> Abertura máxima</td><td>300</td><td>f/5.6</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T02</b> Referência</td><td>300</td><td>f/8</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T03</b> Mais fechada</td><td>300</td><td>f/11</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T04</b> Bem fechada</td><td>300</td><td>f/16</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T05</b> Focal menor</td><td>200</td><td>200 mm, f/8</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T06</b> Através do vidro</td><td>300</td><td>janela fechada, f/8, ISO 200</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T08</b> Disparo com o dedo</td><td>300</td><td>sem temporizador, f/8, ISO 400</td></tr>
+  <tr><td><span class="caixa"></span></td><td><b>T07</b> Mão livre</td><td>300</td><td>sem tripé, Tv 1/640</td></tr>
+</table>
+
+<section class="sessao">
+<h2>As fotos no tripé</h2>
+<p class="sessao-intro">Monte o tripé na janela aberta, faça o zoom até 300 mm e coloque o ponto de AF sobre um detalhe do alvo. Da T01 à T04 só muda a abertura: não mexa no enquadramento.</p>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T01</span><span class="titulo">Abertura máxima</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/5.6</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Tripé · janela aberta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Gire o diafragma até o menor número possível (f/5.6 em 300 mm). Pressione até a metade para focar no alvo, aperte até o fim e solte a câmera: o temporizador dispara em 2 s.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span> Em Av ela escolhe o tempo. Não use compensação.</dd>
+    <dt>O que mostra</dt><dd>Quanto a lente perde de nitidez totalmente aberta.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> não mexa no enquadramento. Só a abertura muda até a T04.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T02</span><span class="titulo">Referência da série</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/8</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Tripé · janela aberta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Igual à T01, só que em f/8.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span></dd>
+    <dt>O que mostra</dt><dd>É a base de comparação: as outras fotos T são comparadas com esta.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T03</span><span class="titulo">Mais fechada</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/11</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Tripé · janela aberta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Igual à T01, só que em f/11.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span> O tempo fica mais longo, o que é normal no tripé.</dd>
+    <dt>O que mostra</dt><dd>Se fechar o diafragma melhora a nitidez dessa lente.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T04</span><span class="titulo">Bem fechada (difração)</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/16</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Tripé · janela aberta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Igual à T01, só que em f/16. O tempo pode ficar bem mais longo: espere o vento parar e não encoste no tripé.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span></dd>
+    <dt>O que mostra</dt><dd>A partir de qual abertura a nitidez começa a cair de novo (difração).</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T05</span><span class="titulo">Focal menor: 200 mm</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>200 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/8</b></span>
+    <span class="chip"><small>ISO</small><b>100</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Tripé · janela aberta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Gire o anel de zoom até a marca 200. O alvo fica menor no quadro: se precisar, mova o ponto de AF para o mesmo detalhe do alvo e foque de novo.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span></dd>
+    <dt>O que mostra</dt><dd>Se vale mais fotografar em 200 mm e recortar depois do que usar 300 mm.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> volte o zoom para 300 mm e o ponto de AF para o detalhe do alvo.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T06</span><span class="titulo">Através do vidro</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/8</b></span>
+    <span class="chip"><small>ISO</small><b>200</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip extra"><small>Janela</small><b>Fechada</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Feche a janela e fotografe o mesmo alvo através do vidro, do jeito que você faria normalmente: lente perto do vidro, mas sem encostar. Não precisa limpar o vidro.</dd>
+    <dt>ISO 200</dt><dd>Só serve para o conferidor diferenciar esta foto da T02. A diferença de ruído entre ISO 100 e 200 é desprezível.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span></dd>
+    <dt>O que mostra</dt><dd>Quanto o vidro da janela tira de nitidez e contraste.</dd>
+  </dl>
+  <div class="depois"><b>Depois:</b> abra a janela de novo.</div>
+</div>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T08</span><span class="titulo">Tripé, disparo com o dedo</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Av</b></span>
+    <span class="chip"><small>Abertura</small><b>f/8</b></span>
+    <span class="chip"><small>ISO</small><b>400</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Single shooting</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Tripé · janela aberta</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Sem temporizador. Aperte o botão com o dedo do jeito que você faz no dia a dia, sem cuidado extra.</dd>
+    <dt>ISO 400</dt><dd>Só serve para o conferidor diferenciar esta foto da T02.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span></dd>
+    <dt>O que mostra</dt><dd>Se o toque no botão balança o conjunto em 300 mm, mesmo no tripé.</dd>
+  </dl>
+</div>
+</section>
+
+<section class="sessao">
+<h2>Por último: a mão livre</h2>
+
+<div class="card">
+  <div class="card-topo"><span class="codigo">T07</span><span class="titulo">Mão livre, 1/640</span><span class="feito"><span class="caixa"></span> feita</span></div>
+  <div class="ajustes">
+    <span class="chip"><small>Focal</small><b>300 mm</b></span>
+    <span class="chip"><small>Modo</small><b>Tv</b></span>
+    <span class="chip"><small>Tempo</small><b>1/640</b></span>
+    <span class="chip"><small>ISO</small><b>Auto</b></span>
+    <span class="chip extra"><small>Drive mode</small><b>Single shooting</b></span>
+    <span class="chip extra"><small>Apoio</small><b>Sem tripé</b></span>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Tire a câmera do tripé. Mesmo alvo e mesmo ponto de AF, com a janela aberta, segurando do jeito normal e sem apoiar a câmera na janela.</dd>
+    <dt>Exposição</dt><dd><span class="exp-ok">A câmera resolve.</span> Ela sobe o ISO sozinha.</dd>
+    <dt>O que mostra</dt><dd>Comparada com a T02, se a perda de nitidez vem da lente ou da mão.</dd>
+  </dl>
+</div>
+
+<h2 style="margin-top:7mm">Ao terminar</h2>
+<p>Volte a câmera para a sua configuração normal: modo drive <b>Single shooting</b>, ISO e modo como você costuma usar, e High ISO speed NR em <b>Low</b>.</p>
+
+<h2 style="margin-top:6mm">Entrega</h2>
+<p>As fotos T vão junto com as da série F, nas mesmas pastas de <b>amostras\</b>: CR3 e JPG do cartão em <b>cartao\</b> e o JPG do Camera Connect em <b>tablet\</b>. Não precisa separar: o conferidor reconhece a série T pelos ajustes.</p>
+</section>
+
+</body>
+</html>
