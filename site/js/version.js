@@ -1,2 +1,2 @@
 // Single place for the app version shown in the UI and written into stored data.
-export const APP_VERSION = '0.4.1';
+export const APP_VERSION = '0.5.0';

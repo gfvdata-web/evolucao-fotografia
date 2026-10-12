@@ -82,7 +82,8 @@ test('migração 2 → 3: foto da v0.2 ganha sessão e avaliação vazias', () =
 
 test('migração 1 → 3 em sequência mantém o que já existia', () => {
   const v1 = { schema_version: 1, id: 'a', session_id: null, rating: null, variants: [{ key: 'jpeg-web' }] };
-  const out = migrate(v1);
+  // Up to schema 4: from 5 on, every variant also gets the full capture shape (test below).
+  const out = migrate(v1, undefined, 4);
   assert.deepEqual(out.variants, [{ tag_count: null, analysis: null, key: 'jpeg-web' }]);
   assert.equal(out.rating, null);
 });
@@ -117,4 +118,26 @@ test('migração de sessão 3 → 4 só acompanha a versão', async () => {
 
 test('migrate: falha clara quando falta uma etapa', () => {
   assert.throws(() => migrate({ schema_version: 0 }, {}, 1), /Falta a migração da versão 0/);
+});
+
+test('migração 4 → 5: captura ganha abertura máxima, luz do fotômetro e distância de foco, sem inventar valor', () => {
+  const old = emptyCapture();
+  delete old.lens.max_aperture; delete old.exposure.measured_ev; delete old.focus.distance;
+  old.lens.model = 'RF50mm F1.8 STM'; old.exposure.iso = 400;
+  const v4 = { schema_version: 4, id: 'a', capture: old, variants: [{ key: 'jpeg-web', capture: structuredClone(old) }] };
+  const out = migrate(v4);
+  assert.equal(out.schema_version, 5);
+  for (const c of [out.capture, out.variants[0].capture]) {
+    assert.equal(c.lens.model, 'RF50mm F1.8 STM');
+    assert.equal(c.exposure.iso, 400);
+    assert.equal(c.lens.max_aperture, null);
+    assert.equal(c.exposure.measured_ev, null);
+    assert.equal(c.focus.distance, null);
+  }
+});
+
+test('migração de sessão 4 → 5 só acompanha a versão', async () => {
+  const { SESSION_MIGRATIONS } = await import('../../site/js/core/migrations.js');
+  const s = { schema_version: 4, id: 'ses-1', name: 'Parque' };
+  assert.deepEqual(migrate(s, SESSION_MIGRATIONS), { ...s, schema_version: 5 });
 });

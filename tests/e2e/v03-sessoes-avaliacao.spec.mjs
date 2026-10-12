@@ -42,7 +42,7 @@ test('envio sugere sessões por dia; avaliação por toque avança sozinha e fic
   await page.getByTestId('start-rating').click();
   await expect(page.getByTestId('rate-position')).toHaveText('Foto 1 de 2');
   await expect(page.getByTestId('rate-info')).toContainText('IMG_0010.JPG'); // capture order: 08:00 first
-  await expect(page.getByTestId('rate-scene-light')).toContainText(/Luz da cena \(pela exposição\): EV −?\d+,\d/);
+  await expect(page.getByTestId('rate-scene-light')).toContainText(/Luz da cena: EV −?\d+,\d/); // v0.5.0: same light as the photo sheet's diagnosis
   await page.getByTestId('rate-sharpness-4').click();
   await expect(page.getByTestId('rate-sharpness-4')).toHaveAttribute('aria-pressed', 'true');
   await page.getByTestId('rate-place-outdoor').click();

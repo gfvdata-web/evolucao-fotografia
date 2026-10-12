@@ -2,6 +2,40 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.5.0] — 2026-10-12
+
+Diagnóstico de uma foto com orientação (decisões 0011 e 0013). Primeira parte da v0.5; as cenas
+vêm na v0.5.1.
+
+### Adicionado
+- Cartão **Diagnóstico** no topo da ficha: veredito (Boa, Aceitável, Com problema, Sem dados para
+  julgar), o que aconteceu e **o que fazer na próxima captura**. Cada achado mostra o número que
+  o gerou e, em "Por quê", de onde vem (física da exposição, calibração da EOS RP, regra geral
+  à espera da Rodada 2, pixels desta foto, sua avaliação) e o grau de certeza.
+- Achados: tremido (velocidade × 1/focal, confirmado pelo desfoque no foco), assunto em
+  movimento (com Servo AF), foco fora do ponto de AF (com profundidade de campo pela distância
+  de foco da RF 50), mole sem velocidade lenta, RF 75-300 na abertura máxima, difração, ISO alto
+  (e redução de ruído Forte), altas luzes estouradas, sombras empastadas, foto escura,
+  reduzida ou recomprimida no caminho e tamanho menor escolhido na câmera.
+- **O que dava para fazer com esta luz**: a combinação à mão sem tremido e a combinação com
+  apoio, calculadas pela luz da cena, pela abertura máxima no zoom usado e pela lente.
+- Luz da cena pelo **fotômetro da câmera** (`MeasuredEV`), sem a compensação; também na tela
+  Avaliar.
+- **O que faltou para diagnosticar**: campo não lido ou medida que não deu para fazer nunca
+  vira orientação (regra 5).
+- Veredito de cada foto na grade de fotos.
+- Medidas novas por foto: desfoque (Crété-Roffet) no recorte do foco e em 12 trechos a 100%,
+  histograma com estouro e pretos, assinatura 8×8 (para as cenas da v0.5.1).
+- Leitura da abertura máxima no zoom, da luz do fotômetro e da distância de foco (MakerNote
+  Canon).
+- Limites calibrados nas 26 amostras reais (`docs/CALIBRACAO-RESULTADOS.md`).
+
+### Mudado
+- Esquema de dados 5 (campos novos da captura) e métricas versão 2: cada foto é medida de novo
+  uma vez, a partir do original guardado no aparelho.
+- A tela Avaliar mostra "Luz da cena: EV …" com a mesma origem da ficha (antes: "Luz da cena
+  (pela exposição)").
+
 ## [0.4.1] — 2026-10-12
 
 ### Corrigido

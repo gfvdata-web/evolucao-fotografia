@@ -83,7 +83,57 @@ Medidas pelo próprio site com `node tests/amostras/metricas.mjs`, que envia as 
 
 **Risco de tremido:** os valores batem com o roteiro (F04 6,25×, F06 3×, T04 10×). O app não sabe se havia tripé, então as fotos de tripé (F01, T02–T04) também aparecem com risco. Isso é esperado: o indicador mede a velocidade, não o resultado.
 
+## Diagnóstico da v0.5.0 nas amostras
+
+Medido em 2026-10-12 com `node tests/amostras/metricas.mjs` (que agora também roda o diagnóstico
+de cada foto), sobre os 26 JPG do cartão. Os limites do motor (`LIMITS` em `core/diagnosis.js`)
+saíram destes números. Decisão 0013.
+
+**Luz da cena.** O fotômetro da câmera (`Canon:MeasuredEV`) bateu com a luz calculada pela
+exposição em todas as fotos (diferença de até 0,25 EV), inclusive no modo M. Na F10, com
+compensação −1, a exposição dá 8,7 e o fotômetro 7,9: ele mede a cena, sem a compensação. Por
+isso o motor usa o fotômetro primeiro.
+
+**Desfoque no recorte do foco** (Crété-Roffet; 0 = nítido, 1 = sem detalhe):
+
+| Situação | Fotos | Desfoque |
+|---|---|---|
+| Tripé, foco certo | F01, T05, T08 | 0,26–0,27 |
+| À mão, sem tremido | F05, F07 | 0,37–0,38 |
+| Tripé, 300 mm, f/8 a f/16 | T02–T04 | 0,40–0,43 |
+| Tremidas | F04 (1/8 a 50 mm), F06 (1/100 a 300 mm) | 0,54–0,56 |
+| RF 75-300 aberta a 300 mm | T01 | 0,52 |
+| ISO 12800 (com e sem redução de ruído) | F08, F09 | 0,17 (o ruído parece detalhe) |
+
+- Limites: até **0,40** nítida, até **0,47** um pouco mole, acima disso mole.
+- A diferença entre os eixos (direção do borrão) **não** separou tremido de foco: a maior
+  diferença foi na F02, sem tremido. Fica calculada, mas fora do diagnóstico.
+- Recortes com pouco detalhe (rajada F03 em ambiente interno, variação 0,6–1,1) ainda deram
+  valores coerentes a partir de **0,9**; abaixo disso a ficha diz que não deu para julgar.
+
+**Trechos a 100% (foco errado × tremido).** Nas fotos bem focadas da série T, um trecho com mais
+contraste que o alvo distante mediu até 0,14 a menos de desfoque que o ponto de AF (T02: 0,40 ×
+0,26). Na F06, tremida, 0,17 a menos. Por isso "foco fora do ponto" exige **0,22** a menos, num
+trecho com detalhe de pelo menos 1,2. A 1ª rodada não tem foco errado de verdade: o bloco D da
+Rodada 2 vai calibrar essa margem.
+
+**Resultado do diagnóstico:**
+
+| Foto | O que se sabe | Diagnóstico |
+|---|---|---|
+| F04, F06 | tremidas à mão | Provável tremido (certeza alta) |
+| F11 | 1/25 a 50 mm, à mão | Provável tremido |
+| F01 | 1/15 no tripé | Boa; "velocidade lenta, mas a foto ficou nítida: houve apoio" |
+| F02, F05, F10, F12, F13, T02, T03, T05, T08 | de controle | Boa |
+| T01 | tripé, f/5,6 a 300 mm | RF 75-300 na abertura máxima (feche para f/8) |
+| T04 | tripé, f/16, 1/30 | Possível tremido leve (o app não sabe do tripé e diz isso) + difração |
+| T07 | à mão, 1/640 a 300 mm | Mole sem velocidade lenta (causa não identificada, certeza baixa) |
+| F08, F09 | ISO 12800 | ISO alto; na F08, o efeito da redução de ruído Forte |
+| F06, F07 | céu no quadro | Altas luzes estouradas (14% e 6%) |
+| F03 (7 quadros) | rajada interna | 4 boas, 1 um pouco mole, 2 com pouco detalhe para julgar |
+
 ## Próximos passos
 
 - Fazer a **T09** (temporizador 10 s), a **T08 em 300 mm** e, se possível, a **T06** (através do vidro). Depois rodar o conferidor e `metricas.mjs` de novo para comparar T02 × T08 × T09 em 300 mm.
 - Com as avaliações da v0.3 (nítida / tremida / fora de foco...), transformar a nitidez relativa em faixas por cena e lente.
+- **Rodada 2**: trocar as regras gerais do diagnóstico pelos números do equipamento e da mão do Guilherme (blocos M e Z: tremido; I: ISO; A: abertura da RF 50; D: margem do foco errado; E: compensação do céu). Ver decisão 0013.

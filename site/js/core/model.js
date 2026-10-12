@@ -5,7 +5,7 @@
 // Each variant keeps the metadata read from that exact file, so later versions
 // can compare stages (camera → transfer → app) and find where quality was lost.
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 /** Fields the analysis needs. Order = display order of the "missing" list. */
 export const EXPECTED_FIELDS = [
@@ -29,11 +29,15 @@ export function emptyCapture() {
   return {
     datetime_original: null,
     camera: { make: null, model: null, serial: null, firmware: null },
-    lens: { model: null, focal_length_mm: null },
+    // max_aperture: widest f-number at the focal length used (Canon MakerNote).
+    lens: { model: null, focal_length_mm: null, max_aperture: null },
+    // measured_ev: scene light read by the camera meter, EV at ISO 100 (Canon
+    // MeasuredEV); unlike the exposure used, it ignores the compensation.
     exposure: {
-      program: null, shutter_s: null, aperture: null, iso: null, ev_comp: null, metering: null,
+      program: null, shutter_s: null, aperture: null, iso: null, ev_comp: null, metering: null, measured_ev: null,
     },
-    focus: { af_mode: null, af_area_mode: null, af_point: null },
+    // distance: {near_m, far_m, far_infinite} focus distance range (Canon; RF 50 yes, RF 75-300 no).
+    focus: { af_mode: null, af_area_mode: null, af_point: null, distance: null },
     drive_mode: null,
     picture_style: null,
     noise_reduction: { high_iso: null, long_exposure: null },

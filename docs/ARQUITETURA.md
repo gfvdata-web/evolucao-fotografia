@@ -57,6 +57,28 @@ GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo pas
    nitidez (variância do Laplaciano), ruído (estimador de Immerkær), compressão e comparação
    entre versões. Valores descrevem, não aconselham. `METRICS_VERSION` vai em cada análise;
    ao mudar um cálculo, a versão sobe e as fotos são recalculadas.
+7. **Desde a v0.5.0** (`METRICS_VERSION` 2): o recorte do foco também mede o **desfoque**
+   (Crété-Roffet, `blurEffect`) e, só na versão principal, a foto inteira: **histograma** com
+   estouro e pretos (`histogramStats`) e **assinatura** 8×8 (`signature`) numa cópia de 600 px,
+   e **12 trechos de 256 px a 100%** numa grade 4 × 3 (desfoque e detalhe de cada um), em
+   `analysis.whole`.
+
+## Diagnóstico com orientação (v0.5.0)
+
+Tudo puro, em `core/`, e calculado na hora a partir do registro (nada é guardado; decisão 0013):
+
+- `core/exposure.js`: EV a ISO 100, ISO e velocidade que expõem uma cena, escalas de 1/3 de
+  ponto da EOS RP, profundidade de campo e disco de difração.
+- `core/lens-profiles.js`: RF 50 e RF 75-300 (sem estabilização), abertura máxima por focal
+  (o arquivo vence a tabela: `Canon:MaxAperture`) e faixa mais nítida, com a origem de cada
+  número (calibração ou regra geral).
+- `core/diagnosis.js`: `sceneLightOf` (fotômetro da câmera → exposição + compensação → brilho
+  no modo M), `focusAssessment` (recorte do foco × trechos), `possibleSettings` (combinação à
+  mão e com apoio para a luz da cena) e `diagnosePhoto`: veredito, achados com número, origem
+  (`sources`) e certeza, orientação para a próxima captura e o que faltou (regra 5). Limites em
+  `LIMITS`, com a amostra que justifica cada um.
+- Telas: `ui/diagnosis-card.js` monta o cartão **Diagnóstico** no topo da ficha; a grade mostra
+  o veredito (`diagnosisChip`); a tela Avaliar usa a mesma luz da cena.
 
 ## Leitura de metadados
 
@@ -106,8 +128,8 @@ a análise roda. Eventos: `changed` (uma foto) e `sessions` em `photoEvents`.
 A tela de avaliação é montada uma vez e só troca a imagem e repinta os controles
 (`ui/rating-controls.js`); o endereço muda com `history.replaceState`, sem recriar a tela.
 Desde a v0.3.1 a avaliação é nitidez 1–5 + problema principal (sintoma) + onde/luz/assunto
-(decisão 0012); a tela mostra a luz da cena pela exposição (`sceneLight`, `core/indicators.js`),
-calculada na hora a partir dos metadados.
+(decisão 0012); a tela mostra a luz da cena, calculada na hora a partir dos metadados (desde a
+v0.5.0, a mesma do diagnóstico: `sceneLightOf`, `core/diagnosis.js`).
 
 ## Google Drive (v0.4)
 

@@ -20,6 +20,8 @@ export const EXPECTED = {
   exifWidth: 6240,
   exifHeight: 4160,
   gps: { lat: -19.9167, lon: -43.9345 },
+  measuredEv: 9.5,
+  focusDistance: { near: 2.4, far: 2.81 },
   af: { imageWidth: 6240, imageHeight: 4160, width: 312, height: 312, x: -1560, y: 1040 },
 };
 
@@ -90,6 +92,15 @@ export function canonMakerNoteEntries(o = {}) {
   cameraSettings[20] = s.easyMode ? 0 : 3; // CanonExposureMode: Easy (A+, SCN...) or Aperture-priority AE
   cameraSettings[22] = 61182; // LensType: Canon RF lens
   cameraSettings[23] = 50; cameraSettings[24] = 50; cameraSettings[25] = 1;
+  cameraSettings[26] = 54; // MaxAperture: Canon EV 54/32 → f/1.8
+  cameraSettings[27] = 288; // MinAperture: f/22.6
+
+  // ShotInfo: MeasuredEV (val/32 + 5) and focus distance (cm).
+  const shotInfo = new Array(34).fill(0);
+  shotInfo[0] = 68;
+  shotInfo[3] = Math.round((EXPECTED.measuredEv - 5) * 32);
+  shotInfo[19] = EXPECTED.focusDistance.far * 100;
+  shotInfo[20] = EXPECTED.focusDistance.near * 100;
 
   // Like the EOS RP: the lists have NumAFPoints slots (143 there, 4 here) but
   // only ValidAFPoints (1 with 1-point AF) are real; the rest are zeros.
@@ -111,6 +122,7 @@ export function canonMakerNoteEntries(o = {}) {
 
   return [
     sshort(0x0001, cameraSettings),
+    sshort(0x0004, shotInfo),
     long(0x0010, 0x80000433), // CanonModelID (EOS RP)
     sshort(0x0026, afInfo2),
     ascii(0x0095, EXPECTED.lens),
@@ -140,4 +152,6 @@ export const SHOTS = {
   chain: { datetime: '2026:10:11 09:00:00', subsec: '20', exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 },
   // Scene Intelligent Auto (A+): EXIF says Program AE, only the MakerNote tells it apart from P.
   auto: { datetime: '2026:10:11 10:00:00', subsec: '30', easyMode: 59 },
+  // v0.5.0: blown sky (pixels in generate.mjs, skyJpeg), S2 like IMG_0010.
+  sky: { datetime: '2026:10:11 11:00:00', subsec: '40', exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 },
 };

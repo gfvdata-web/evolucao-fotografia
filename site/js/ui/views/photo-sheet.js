@@ -14,6 +14,8 @@ import { FIELDS, MISSING_HINTS, fieldLabel, translate } from '../../core/glossar
 import { MAKERNOTE_FIELDS, getPath } from '../../core/model.js';
 import { afAreasOnPreview, describeAfPosition } from '../../core/af-geometry.js';
 import { buildIndicators, chainOrder, needsAnalysis } from '../../core/indicators.js';
+import { diagnosePhoto } from '../../core/diagnosis.js';
+import { diagnosisCard } from '../diagnosis-card.js';
 import {
   formatAperture, formatBytes, formatDateTime, formatEv, formatFocal, formatGps, formatIso,
   formatPixels, formatShutter, formatDecimal,
@@ -111,8 +113,8 @@ function indicatorsBlock(photo, ind, labels) {
       ind.jpeg.per_variant.map((j) => h('li', {}, h('strong', {}, `${labels.get(j.key)}: `),
         `qualidade estimada ${j.quality_estimate ?? '?'}`, j.sampling ? ` · cor ${j.sampling}` : '',
         j.process ? ` · ${PROCESS[j.process] || j.process}` : ''))) : null),
-    h('p', { class: 'small muted' }, 'Indicadores descrevem a foto; não são recomendações. Nitidez e ruído são valores relativos, ',
-      'calibrados com o tempo pelas suas avaliações. Qualidade JPEG é estimada pelas tabelas de compressão (escala libjpeg).'));
+    h('p', { class: 'small muted' }, 'Os indicadores são os números da foto; o Diagnóstico, acima, usa esses números para orientar. ',
+      'Nitidez e ruído são valores relativos, calibrados com o tempo pelas suas avaliações. Qualidade JPEG é estimada pelas tabelas de compressão (escala libjpeg).'));
 }
 
 function chainBlock(ind, labels) {
@@ -373,6 +375,7 @@ export function photoSheetView(root, { id }) {
       h('div', { class: 'sheet' },
         h('div', { class: 'sheet-media' }, fig, cropsBlock(photo, nextBag, state, labels, onPick, onReset)),
         h('div', { class: 'sheet-info' },
+          diagnosisCard(diagnosePhoto(photo)),
           ratingBlock(photo, sessions),
           indicatorsBlock(photo, ind, labels),
           chainBlock(ind, labels),

@@ -46,8 +46,8 @@ site/                       ← publicado no Pages (sem build; módulos ES)
   js/app.js                 roteador por hash (#/enviar, #/sessoes, #/sessao/<id>, #/avaliar/...,
                             #/fotos, #/foto/<id>, #/sobre)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
-                            e campos de visão, perfis de câmera, indicadores, métricas de pixels, qualidade JPEG,
-                            sessões e avaliação
+                            e campos de visão, perfis de câmera e de lente, indicadores, métricas de pixels,
+                            qualidade JPEG, sessões e avaliação, física da exposição e diagnóstico (v0.5)
   js/metadata/              exifr (rápido) + ExifTool-WASM em Web Worker (completo) → normalize.js
   js/media/                 worker de pixels (prévia, recortes a 100% e métricas)
   js/drive/                 login Google (auth.js, token GIS) e REST do Drive (api.js)
@@ -136,8 +136,10 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 pelo sintoma, onde/luz/assunto e luz da cena calculada pela exposição; decisão 0012), sobre os
 recortes e indicadores da v0.2. Esquema de dados 4. **v0.4.1**: Google Drive (Client ID em
 `site/js/config.js`, projeto "Evolucao Fotografia" em teste, decisão 0010), sincronização entre
-aparelhos, PWA e backup `.efbackup`. Próximo: v0.5 (cenas e diagnóstico com orientação, decisão
-0011). Ver `docs/ROADMAP.md`.
+aparelhos, PWA e backup `.efbackup`. **v0.5.0**: diagnóstico de uma foto com orientação (cartão
+na ficha, veredito na grade; `core/diagnosis.js`, limites em `LIMITS` calibrados nas amostras;
+decisões 0011 e 0013). Esquema de dados 5, métricas versão 2. Próximo: v0.5.1 (cenas na sessão,
+arrastar e soltar, diagnóstico por cena). Ver `docs/ROADMAP.md`.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

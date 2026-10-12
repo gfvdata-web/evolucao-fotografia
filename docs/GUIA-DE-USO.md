@@ -65,12 +65,32 @@ A ficha da foto mostra a avaliação, a sessão (dá para trocar ali) e o botão
 
 ### Lista de fotos
 Aba **Fotos**. Etiquetas aparecem só nos casos mais claros: **reduzida no caminho**,
-**risco de tremido** e **metadados removidos**. A nitidez e o problema dados por você aparecem
+**risco de tremido** e **metadados removidos**. Desde a v0.5.0, cada foto também mostra o
+**veredito do diagnóstico**: verde "Boa", ou o problema principal (por exemplo "Provável
+tremido") em laranja ou vermelho. A nitidez e o problema dados por você aparecem
 num selo à parte; a sessão mostra a nitidez média e quantas fotos tiveram cada problema. O topo mostra quantas já foram avaliadas.
 
 ### Ver a ficha
 Aba **Fotos** → toque numa foto. Assim que a foto chega, o app calcula sozinho os recortes e
 os indicadores ("Calculando recortes e indicadores…" leva alguns segundos por foto).
+
+**Diagnóstico** (v0.5.0), o primeiro cartão: diz se a foto está boa, o que aconteceu e o que
+fazer na próxima captura.
+- **Veredito**: Boa · Aceitável · Com problema · Sem dados para julgar. Se você já avaliou a
+  foto, vale a sua avaliação.
+- **Luz da cena** em EV, medida pelo fotômetro da câmera (de 15 = sol forte a menos de 5 =
+  noite).
+- Cada **achado** traz o número que o gerou e, em **Na próxima**, o ajuste. Toque em **Por quê**
+  para ver de onde vem (física da exposição, calibração com as suas amostras, regra geral à
+  espera da Rodada 2, pixels desta foto, sua avaliação) e o grau de certeza.
+- **O que dava para fazer com esta luz**: o que você usou, a combinação à mão sem tremido e a
+  combinação com apoio ou tripé (ISO mais baixo, assunto parado).
+- **O que faltou para diagnosticar**: o que a câmera não gravou ou o app não conseguiu medir.
+  Nada disso é adivinhado.
+- O app não sabe se havia tripé: com velocidade lenta e a foto nítida, ele diz que houve apoio;
+  com a foto mole, ele avisa "se havia tripé, desconsidere".
+- Fotos enviadas antes da v0.5.0 são medidas de novo ao abrir a ficha (uma vez), se o original
+  estiver neste aparelho.
 - **Quadro amarelo** na imagem: a área onde a câmera registrou o foco (AF). Os quadros
   coloridos mostram de onde saíram os recortes: **foco** e **área uniforme** (usada para medir
   o ruído).

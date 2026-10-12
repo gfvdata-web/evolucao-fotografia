@@ -79,34 +79,46 @@ Cada entrega pode ser testada no tablet.
   Guilherme no computador em 12/10/2026 (v0.4.1). A rever no uso real: decisões
   0006 (envio com o app aberto) e 0010.
 
-### ⏳ v0.5 — Cenas e diagnóstico com orientação
+### 🔨 v0.5 — Cenas e diagnóstico com orientação
 Pedido do Guilherme (2026-10-12): mandar uma foto, ou uma sessão, e o site dizer se está boa
 ou ruim, o que aconteceu e o que fazer na próxima captura. Sem IA: física da exposição, perfil
-do equipamento e pixels. Ver decisão 0011.
-- **Cenas dentro da sessão**, separadas sozinhas (intervalo entre disparos, troca de lente ou
-  salto de zoom, semelhança das prévias) e reajustadas por **arrastar e soltar** no tablet
-  (segurar a foto e soltar em outra cena ou num espaço vazio), com "mover para…" como
-  alternativa.
-- **Motor de diagnóstico** (`core/`, puro), que funciona com **uma foto só**:
-  - luz da cena calculada pela exposição (abertura, velocidade, ISO e compensação), corrigida
-    pelo brilho real da foto;
-  - perfil das lentes: abertura máxima, faixa mais nítida e perda por difração (RF 50 e
-    RF 75-300, nenhuma estabilizada);
+do equipamento e pixels. Ver decisões 0011 e 0013.
+
+Entregue em duas partes (decisão 0013): **v0.5.0** = diagnóstico de uma foto (motor, pixels,
+histograma, lentes, orientação na ficha); **v0.5.1** = cenas (separação, arrastar e soltar,
+diagnóstico por cena e variação dos ajustes), que usa o diagnóstico de cada foto.
+
+- ✅ **v0.5.0 — Motor de diagnóstico** (`core/`, puro), que funciona com **uma foto só**:
+  - luz da cena: a medida pelo **fotômetro da câmera** (`Canon:MeasuredEV`, que não muda com a
+    compensação: conferido nas 26 amostras) e, sem ela, a calculada pela exposição (abertura,
+    velocidade, ISO e compensação), corrigida pelo brilho real da foto no modo M;
+  - perfil das lentes: abertura máxima no zoom usado (lida do arquivo), faixa mais nítida e
+    perda por difração (RF 50 e RF 75-300, nenhuma estabilizada); profundidade de campo pela
+    distância de foco que a RF 50 grava;
   - "o que era possível com essa luz": combinações de velocidade, abertura e ISO que evitariam
     o problema, pesando tremido × ruído × profundidade de campo;
-  - foco errado × tremido × ruído, separados pelos pixels (nitidez no ponto de AF × no resto
-    da foto) e pelos metadados;
+  - foco errado × tremido × ruído, separados pelos pixels (desfoque no ponto de AF × em 12
+    trechos a 100% do resto da foto, métrica de Crété-Roffet calibrada nas amostras) e pelos
+    metadados;
   - **histograma** e altas luzes estouradas (céu), sombras empastadas.
-- **Orientação com o porquê**: cada orientação mostra o número que a gerou, de onde vem (física,
-  calibração da EOS RP, comparação na cena, suas avaliações) e o grau de certeza. Campo não lido
-  não gera orientação: a ficha diz o que faltou (regra 5).
-- **Diagnóstico por cena**: o que deu errado em cada cena e o ajuste principal; comparação
-  entre as fotos da cena (a mais nítida × as piores e o que mudou entre elas) como reforço.
-- **Quanto as configurações variaram** na cena e na sessão: quais ajustes mudaram e entre quais
-  valores; aviso quando dois ajustes mudaram ao mesmo tempo entre fotos parecidas.
-- Pré-requisito: **Rodada 2 de amostras** (`docs/AMOSTRAS-CALIBRACAO.md`), que mede ruído por
-  ISO, o limite de tremido da mão do Guilherme, a abertura da RF 50, foco errado e altas luzes.
-  Pode ser feita a qualquer momento, antes da v0.5 começar.
+- **Orientação com o porquê** (v0.5.0): cada orientação mostra o número que a gerou, de onde vem
+  (física, calibração da EOS RP, regra geral à espera da Rodada 2, sua avaliação) e o grau de
+  certeza. Campo não lido não gera orientação: a ficha diz o que faltou (regra 5). A ficha da
+  foto ganha o cartão **Diagnóstico** no topo; a grade de fotos, o veredito de cada foto.
+  Entregue em 12/10/2026, com os limites calibrados nas 26 amostras da 1ª rodada (decisão 0013).
+- ⏳ **v0.5.1 — Cenas dentro da sessão**, separadas sozinhas (intervalo entre disparos, troca de
+  lente ou salto de zoom, semelhança das prévias: a "assinatura" 8×8 já é calculada na v0.5.0) e
+  reajustadas por **arrastar e soltar** no tablet (segurar a foto e soltar em outra cena ou num
+  espaço vazio), com "mover para…" como alternativa.
+- ⏳ **Diagnóstico por cena** (v0.5.1): o que deu errado em cada cena e o ajuste principal;
+  comparação entre as fotos da cena (a mais nítida × as piores e o que mudou entre elas) como
+  reforço.
+- ⏳ **Quanto as configurações variaram** na cena e na sessão (v0.5.1): quais ajustes mudaram e
+  entre quais valores; aviso quando dois ajustes mudaram ao mesmo tempo entre fotos parecidas.
+- **Rodada 2 de amostras** (`docs/AMOSTRAS-CALIBRACAO.md`), que mede ruído por ISO, o limite
+  de tremido da mão do Guilherme, a abertura da RF 50, foco errado e altas luzes. Ainda não
+  feita quando a v0.5 começou: o motor usa regras gerais nesses pontos e diz isso em cada
+  orientação. Quando chegar, os limites ficam em `core/diagnosis.js` (`LIMITS`).
 
 ### ⏳ v0.6 — Importador Python (Windows)
 - `importador/`: ExifTool (metadados completos), rawpy/LibRaw (renderização neutra do RAW, sem

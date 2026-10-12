@@ -6,7 +6,9 @@
 import { profileFor, matchSizes } from './camera-profiles.js';
 import { MAKERNOTE_FIELDS } from './model.js';
 
-export const METRICS_VERSION = 1;
+// 2 (v0.5.0): blur of the focus crop, histogram, signature and 100% tiles of
+// the primary version; the capture gains max aperture, meter EV and focus distance.
+export const METRICS_VERSION = 2;
 
 /**
  * Provisional thresholds, all in one place. They are references, not

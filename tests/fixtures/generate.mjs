@@ -31,6 +31,13 @@ export function patternPixels(width, height) {
   return data;
 }
 
+/** v0.5.0: the pattern with the top 40% pure white (a blown sky, for the histogram). */
+export function skyJpeg(width, height, quality = 92) {
+  const data = patternPixels(width, height);
+  for (let i = 0; i < width * Math.round(height * 0.4) * 4; i += 4) { data[i] = 255; data[i + 1] = 255; data[i + 2] = 255; }
+  return new Uint8Array(jpegJs.encode({ data, width, height }, quality).data);
+}
+
 /** Procedural test pattern: gradient + checkerboard + flat area, so decoders have real edges. */
 export function patternJpeg(width, height, quality = 90) {
   return new Uint8Array(jpegJs.encode({ data: patternPixels(width, height), width, height }, quality).data);
@@ -59,6 +66,8 @@ export function generateAll() {
     'tablet/IMG_0011.JPG': insertExif(patternJpeg(1200, 800, 70), buildTiff(noMakerNoteTree(SHOTS.chain))),
     // Shot in A+ (Scene Intelligent Auto).
     'IMG_0012.JPG': insertExif(base, buildTiff(fullTree(SHOTS.auto))),
+    // v0.5.0: blown sky at 1/250 s, 50 mm, meter EV 9.5 (diagnosis: highlights).
+    'IMG_0020_ceu.JPG': insertExif(skyJpeg(2400, 1600), buildTiff(fullTree(SHOTS.sky))),
   };
   for (const [name, bytes] of Object.entries(files)) writeFileSync(join(OUT, name), bytes);
   return Object.keys(files).map((n) => join(OUT, n));

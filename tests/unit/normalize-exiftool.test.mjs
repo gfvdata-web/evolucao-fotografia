@@ -90,3 +90,17 @@ test('A+ (Cena Inteligente Auto) não vira Programa: o MakerNote separa os dois'
   const av = fromExifTool(await read('IMG_0001.JPG'));
   assert.equal(av.exposure.program, 'Aperture-priority AE');
 });
+
+test('v0.5.0: abertura máxima no zoom, luz do fotômetro e distância de foco (MakerNote Canon)', async () => {
+  const c = fromExifTool(await read('IMG_0001.JPG'));
+  assert.ok(approx(c.lens.max_aperture, 1.8, 0.05));
+  assert.equal(c.exposure.measured_ev, EXPECTED.measuredEv);
+  assert.deepEqual(c.focus.distance, { near_m: EXPECTED.focusDistance.near, far_m: EXPECTED.focusDistance.far, far_infinite: false });
+});
+
+test('v0.5.0: sem MakerNote, os três campos ficam não lidos (null), sem valor inventado', async () => {
+  const c = fromExifTool(await read('IMG_0002_sem_makernote.JPG'));
+  assert.equal(c.lens.max_aperture, null);
+  assert.equal(c.exposure.measured_ev, null);
+  assert.equal(c.focus.distance, null);
+});

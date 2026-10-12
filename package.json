@@ -1,6 +1,6 @@
 {
   "name": "evolucao-fotografia",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "private": true,
   "description": "Análise da qualidade de captura das fotos (Canon EOS RP) direto no navegador.",
   "type": "module",

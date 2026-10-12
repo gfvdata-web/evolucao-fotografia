@@ -5,6 +5,8 @@
 export const PROFILES = {
   'Canon EOS RP': {
     native: { width: 6240, height: 4160 },
+    // 35.9 mm sensor width / 6240 px (diffraction in core/diagnosis.js).
+    pixel_pitch_um: 5.75,
     crop_factor_crop_mode: 1.6,
     sizes: [
       { label: 'L 3:2', width: 6240, height: 4160, full: true, aspect: '3:2' },

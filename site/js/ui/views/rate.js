@@ -17,7 +17,8 @@ import { scheduleAnalysis, AF_CROP_PX } from '../../pipeline/analyze.js';
 import { ratingControls } from '../rating-controls.js';
 import { isComplete, isRated, previousContext, ratingSummary } from '../../core/rating.js';
 import { byCapture, sessionPhotos } from '../../core/sessions.js';
-import { buildIndicators, needsAnalysis, primaryVariant, sceneLight } from '../../core/indicators.js';
+import { buildIndicators, needsAnalysis, primaryVariant } from '../../core/indicators.js';
+import { sceneLightOf } from '../../core/diagnosis.js';
 import { formatAperture, formatDateTime, formatFocal, formatIso, formatShutter } from '../../core/format.js';
 
 const ADVANCE_KEY = 'ef.rate.advance';
@@ -129,7 +130,7 @@ export function rateView(root, { scope, photoId = null }) {
     const settings = [formatFocal(c.lens.focal_length_mm), formatAperture(c.exposure.aperture),
       formatShutter(c.exposure.shutter_s), formatIso(c.exposure.iso)].filter(Boolean).join(' · ');
     const shake = buildIndicators(photo).shake;
-    const light = sceneLight(c);
+    const light = sceneLightOf(photo); // camera meter when recorded, else the exposure used
     mount(info,
       h('strong', {}, photo.variants[0]?.file.name || photo.id), ' ',
       h('span', { class: 'muted' }, formatDateTime(c.datetime_original) || 'sem data de captura'),

@@ -40,5 +40,5 @@ export const makePreview = (file, kind, orientation = 1) => request('preview', {
  * Full-resolution analysis: JPEG header, 100% crops (PNG) and their metrics.
  * Rects are normalized on the displayed image; uniformRect null = automatic search.
  */
-export const analyzeImage = (file, kind, orientation, { afRect, uniformRect, uniformPx }) =>
-  request('analyze', { file, kind, orientation, afRect, uniformRect, uniformPx });
+export const analyzeImage = (file, kind, orientation, { afRect, uniformRect, uniformPx, full = false }) =>
+  request('analyze', { file, kind, orientation, afRect, uniformRect, uniformPx, full });

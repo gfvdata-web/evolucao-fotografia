@@ -6,6 +6,16 @@ import { formatDateTime, formatShutter, formatAperture, formatIso, formatFocal }
 import { buildIndicators } from '../../core/indicators.js';
 import { RATING_LABELS } from '../../core/glossary.js';
 import { isRated, ratingSummary } from '../../core/rating.js';
+import { diagnosePhoto, diagnosisChip } from '../../core/diagnosis.js';
+
+const VERDICT_STATUS = { good: 'ok', usable: 'attention', problem: 'alert', unknown: 'unknown' };
+
+/** Verdict of the diagnosis (v0.5.0): "Boa", or the main finding when not good. */
+function diagnosisChipEl(photo) {
+  const d = diagnosePhoto(photo);
+  if (d.verdict === 'unknown') return null;
+  return h('span', { class: `chip st-${VERDICT_STATUS[d.verdict]}`, 'data-testid': 'diag-chip', 'data-verdict': d.verdict }, diagnosisChip(d));
+}
 
 /** Short flags shown on the grid, only for the clearest problems. */
 function flags(photo) {
@@ -58,7 +68,7 @@ export async function photoCard(photo, bag, opts = {}) {
       settings ? h('div', { class: 'small' }, settings) : null,
       state ? h('div', { class: 'small warn-text' }, state) : null,
       opts.extra || null,
-      h('div', { class: 'photo-chips' }, ratingChip(photo)),
+      h('div', { class: 'photo-chips' }, ratingChip(photo), diagnosisChipEl(photo)),
       h('div', { class: 'photo-chips', 'data-testid': 'photo-flags' },
         flags(photo).map(([st, text]) => h('span', { class: `chip st-${st}` }, text)))));
 }

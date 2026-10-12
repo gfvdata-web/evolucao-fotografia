@@ -4,7 +4,7 @@
 // To change the model: bump SCHEMA_VERSION in model.js, add a function here
 // keyed by the version it upgrades FROM, add a unit test with an old document,
 // and describe the change in docs/MODELO-DE-DADOS.md.
-import { SCHEMA_VERSION } from './model.js';
+import { SCHEMA_VERSION, mergeCaptures } from './model.js';
 
 /** @type {Record<number, (doc: object) => object>} from version N to N+1 */
 export const MIGRATIONS = {
@@ -25,7 +25,18 @@ export const MIGRATIONS = {
   // 3 → 4 (v0.3.1): rating by symptom (decision 0012). Only what has exactly
   // the same meaning is carried over; the rest becomes "not marked" (rule 5).
   3: (doc) => ({ ...doc, rating: ratingV3toV4(doc.rating) }),
+  // 4 → 5 (v0.5.0): the capture gains lens.max_aperture, exposure.measured_ev
+  // and focus.distance. They stay null ("not read") until the next analysis
+  // re-reads the stored ExifTool output; nothing is guessed (rule 5).
+  4: (doc) => ({
+    ...doc,
+    capture: withCaptureShape(doc.capture),
+    variants: (doc.variants || []).map((v) => ({ ...v, capture: withCaptureShape(v.capture) })),
+  }),
 };
+
+/** Capture in the current shape: known values kept, new fields null. */
+const withCaptureShape = (capture) => mergeCaptures([capture || {}]);
 
 const V3_CATEGORY = { sharp: 'none', noise: 'grain', shake: 'motion_blur', pixelated_upload: 'blocky', other: 'other' };
 const V3_LIGHT = {
@@ -61,6 +72,8 @@ export function ratingV3toV4(old) {
 export const SESSION_MIGRATIONS = {
   // 3 → 4: nothing changed in sessions; the version follows the photos.
   3: (doc) => ({ ...doc }),
+  // 4 → 5: nothing changed in sessions either.
+  4: (doc) => ({ ...doc }),
 };
 
 export function migrate(doc, migrations = MIGRATIONS, target = SCHEMA_VERSION) {

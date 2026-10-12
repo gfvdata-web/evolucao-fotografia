@@ -101,8 +101,10 @@ async function lerBanco() {
   const db = await new Promise((ok, erro) => { const r = indexedDB.open('evolucao-fotografia'); r.onsuccess = () => ok(r.result); r.onerror = erro; });
   const pegar = (loja, chave) => new Promise((ok) => { const r = db.transaction(loja).objectStore(loja).get(chave); r.onsuccess = () => ok(r.result); });
   const fotos = await new Promise((ok) => { const r = db.transaction('photos').objectStore('photos').getAll(); r.onsuccess = () => ok(r.result); });
+  const { diagnosePhoto } = await import('/js/core/diagnosis.js');
   const comoDataUrl = (blob) => new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(blob); });
   for (const f of fotos) {
+    f.diagnostico = diagnosePhoto(f);
     f.recortes = {};
     for (const v of f.variants) {
       for (const qual of ['af', 'uniform']) {
@@ -138,8 +140,29 @@ function resumo(foto, ref, nome) {
     nitidez: ind.sharpness.value ?? null, ruido: ind.noise.value ?? null, brilho_uniforme: ind.noise.mean_luma ?? null,
     cadeia: ind.chain?.status ?? null, cadeia_achados: ind.chain?.steps.flatMap((s) => s.findings.map((x) => x.text)) ?? [],
     versoes,
+    // v0.5.0: desfoque (Crété-Roffet), trechos a 100%, histograma e diagnóstico.
+    ...diagnosticoResumo(foto),
   };
 }
+
+function diagnosticoResumo(foto) {
+  const a = foto.variants.find((v) => v.key === foto.indicators?.primary_variant)?.analysis;
+  const d = foto.diagnostico;
+  return {
+    desfoque_foco: a?.af?.blur?.blur ?? null,
+    detalhe_foco: a?.af?.blur?.detail ?? null,
+    trechos: (a?.whole?.tiles || []).map((t) => ({ col: t.col, row: t.row, desfoque: t.blur?.blur ?? null, detalhe: t.blur?.detail ?? null })),
+    estouro: a?.whole?.histogram?.clip_high ?? null,
+    pretos: a?.whole?.histogram?.clip_low ?? null,
+    brilho_mediano: a?.whole?.histogram?.p50 ?? null,
+    luz_ev: d.light.ev, luz_fonte: d.light.source,
+    veredito: d.verdict, manchete: d.headline,
+    achados: d.findings.map((f) => `${f.key}:${f.severity}/${f.certainty}`),
+    mao: d.possible ? `${tempoTxt(d.possible.hand.shutter)} f/${d.possible.hand.aperture} ISO ${d.possible.hand.iso}` : null,
+  };
+}
+
+function tempoTxt(t) { return t == null ? '—' : t >= 1 ? `${t} s` : `1/${Math.round(1 / t)}`; }
 
 function markdown(linhas) {
   const f1 = (x, d = 1) => (x == null ? '—' : x.toFixed(d).replace('.', ','));
@@ -152,6 +175,16 @@ function markdown(linhas) {
     const jpg = l.versoes.find((v) => v.chave.startsWith('jpeg'));
     const cr3 = l.versoes.find((v) => v.chave.startsWith('cr3'));
     L.push(`| ${l.codigo} | ${l.arquivo} | ${l.modo} | ${tempo(l.tempo_s)} | ${l.abertura} | ${l.iso} | ${l.focal_mm} | ${l.af} (${l.areas_af}/${l.em_foco}) | ${l.recorte_foco} | ${l.tremido} (${f1(l.tremido_razao, 2)}) | ${f1(l.nitidez, 0)} | ${f1(l.ruido, 2)} (${f1(l.brilho_uniforme, 0)}) | ${jpg ? `q${jpg.qualidade_jpeg} ${jpg.amostragem} nit. ${f1(jpg.nitidez, 0)}` : '—'} | ${cr3 ? `${cr3.pixels} q${cr3.qualidade_jpeg} nit. ${f1(cr3.nitidez, 0)}` : '—'} |`);
+  }
+  L.push('', '## Diagnóstico (v0.5.0)', '',
+    'Desfoque de Crété-Roffet (0 = nítido; 1 = sem detalhe). Trechos: os 12 trechos a 100% (menor e maior desfoque, só os com detalhe).', '',
+    '| Código | Tempo | f/ | ISO | mm | Desfoque foco (detalhe) | Trechos min–máx | Estouro | Pretos | Luz EV | Veredito | Manchete | Achados | À mão |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+  for (const l of linhas) {
+    const tr = l.trechos.filter((t) => t.detalhe >= 1.2 && t.desfoque != null).map((t) => t.desfoque);
+    L.push(`| ${l.codigo} | ${tempo(l.tempo_s)} | ${l.abertura} | ${l.iso} | ${l.focal_mm} | ${f1(l.desfoque_foco, 2)} (${f1(l.detalhe_foco, 2)}) | `
+      + `${tr.length ? `${f1(Math.min(...tr), 2)}–${f1(Math.max(...tr), 2)}` : '—'} | ${l.estouro == null ? '—' : `${f1(l.estouro * 100, 1)}%`} | `
+      + `${l.pretos == null ? '—' : `${f1(l.pretos * 100, 1)}%`} | ${f1(l.luz_ev, 1)} | ${l.veredito} | ${l.manchete} | ${l.achados.join(', ')} | ${l.mao ?? '—'} |`);
   }
   const achados = linhas.filter((l) => l.cadeia_achados.length);
   L.push('', '## Comparação entre versões (JPG do cartão × JPEG embutido no CR3)', '');

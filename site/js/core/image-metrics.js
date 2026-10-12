@@ -59,6 +59,120 @@ export function noiseSigma(lum, width, height) {
 }
 
 /**
+ * Blur estimate of Crété-Roffet et al. (2007, "The blur effect: perception and
+ * estimation with a new no-reference perceptual blur metric"): blurs the image
+ * again with a 9-tap average along each axis and measures how much of the
+ * neighbour variation survives. A sharp image loses a lot (value near 0), an
+ * already blurred one loses little (near 1). Much less scene dependent than the
+ * Laplacian variance, and computed per axis: a blur that is much stronger along
+ * one axis (motion) shows up as a gap between `x` and `y`. A diagonal motion
+ * blurs both axes and is not told apart from defocus.
+ *
+ * `detail` = mean absolute difference between neighbours (levels 0..255): below
+ * ~1 the area is flat (sky, wall) and the blur value means nothing.
+ * @returns {{blur:number, x:number, y:number, detail:number}|null}
+ */
+export function blurEffect(lum, width, height) {
+  const R = 4; // 9 taps
+  if (width < 2 * R + 3 || height < 2 * R + 3) return null;
+  // Box blur along x and along y (edges clamped).
+  const bx = new Float32Array(lum.length);
+  const by = new Float32Array(lum.length);
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      let s = 0;
+      for (let k = -R; k <= R; k++) s += lum[row + Math.min(width - 1, Math.max(0, x + k))];
+      bx[row + x] = s / (2 * R + 1);
+    }
+  }
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      let s = 0;
+      for (let k = -R; k <= R; k++) s += lum[Math.min(height - 1, Math.max(0, y + k)) * width + x];
+      by[y * width + x] = s / (2 * R + 1);
+    }
+  }
+  let sFx = 0; let sVx = 0; let sFy = 0; let sVy = 0; let n = 0;
+  for (let y = R + 1; y < height - R; y++) {
+    const row = y * width;
+    for (let x = R + 1; x < width - R; x++) {
+      const i = row + x;
+      const dFx = Math.abs(lum[i] - lum[i - 1]);
+      const dBx = Math.abs(bx[i] - bx[i - 1]);
+      const dFy = Math.abs(lum[i] - lum[i - width]);
+      const dBy = Math.abs(by[i] - by[i - width]);
+      sFx += dFx; sVx += Math.max(0, dFx - dBx);
+      sFy += dFy; sVy += Math.max(0, dFy - dBy);
+      n++;
+    }
+  }
+  const bX = sFx > 0 ? (sFx - sVx) / sFx : 1;
+  const bY = sFy > 0 ? (sFy - sVy) / sFy : 1;
+  return { blur: Math.max(bX, bY), x: bX, y: bY, detail: (sFx + sFy) / (2 * n) };
+}
+
+/**
+ * Luminance histogram and clipping of a (downscaled) RGBA image.
+ * `clip_high` = share of pixels with some channel at 250 or more (blown in at
+ * least one colour: a bright sky goes first in blue or red); `clip_low` =
+ * luminance at 5 or less (black shadows). `p05`/`p50`/`p95` = luminance percentiles.
+ * @returns {{bins:number[], mean:number, p05:number, p50:number, p95:number, clip_high:number, clip_low:number}}
+ */
+export function histogramStats(rgba, width, height, nBins = 64) {
+  const counts = new Array(256).fill(0);
+  let high = 0; let low = 0; let sum = 0;
+  const n = width * height;
+  for (let i = 0, p = 0; i < n; i++, p += 4) {
+    const r = rgba[p]; const g = rgba[p + 1]; const b = rgba[p + 2];
+    const y = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+    counts[y]++;
+    sum += y;
+    if (r >= 250 || g >= 250 || b >= 250) high++;
+    if (y <= 5) low++;
+  }
+  const pct = (q) => {
+    const target = q * n;
+    let acc = 0;
+    for (let v = 0; v < 256; v++) { acc += counts[v]; if (acc >= target) return v; }
+    return 255;
+  };
+  const bins = new Array(nBins).fill(0);
+  for (let v = 0; v < 256; v++) bins[Math.floor((v * nBins) / 256)] += counts[v];
+  return {
+    bins: bins.map((c) => Math.round((c / (n || 1)) * 10000) / 10000),
+    mean: n ? sum / n : 0,
+    p05: pct(0.05), p50: pct(0.5), p95: pct(0.95),
+    clip_high: n ? high / n : 0,
+    clip_low: n ? low / n : 0,
+  };
+}
+
+/**
+ * Small fingerprint of a photo for comparing shots of the same scene: mean
+ * luminance of an 8×8 grid and the mean colour. Input = downscaled RGBA.
+ * @returns {{grid:number[], rgb:number[]}}
+ */
+export function signature(rgba, width, height, cells = 8) {
+  const grid = new Array(cells * cells).fill(0);
+  const cnt = new Array(cells * cells).fill(0);
+  const rgb = [0, 0, 0];
+  for (let y = 0; y < height; y++) {
+    const cy = Math.min(cells - 1, Math.floor((y * cells) / height));
+    for (let x = 0; x < width; x++) {
+      const p = (y * width + x) * 4;
+      const cx = Math.min(cells - 1, Math.floor((x * cells) / width));
+      const k = cy * cells + cx;
+      grid[k] += 0.299 * rgba[p] + 0.587 * rgba[p + 1] + 0.114 * rgba[p + 2];
+      cnt[k]++;
+      rgb[0] += rgba[p]; rgb[1] += rgba[p + 1]; rgb[2] += rgba[p + 2];
+    }
+  }
+  const n = width * height || 1;
+  return { grid: grid.map((s, k) => Math.round(cnt[k] ? s / cnt[k] : 0)), rgb: rgb.map((s) => Math.round(s / n)) };
+}
+
+/**
  * Finds the most uniform square block of `block` px in a (downscaled) image:
  * lowest mean absolute gradient among mid-tone blocks, ignoring a border.
  * Near-white areas are skipped: in the EOS RP samples the JPEG tone curve

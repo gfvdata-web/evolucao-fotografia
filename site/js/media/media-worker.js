@@ -2,12 +2,15 @@
 // Everything that touches full-resolution pixels runs here, off the UI thread.
 import { embeddedJpegBlob } from '../metadata/cr3.js';
 import { displayToSource } from '../core/af-geometry.js';
-import { luminance, laplacianVariance, noiseSigma, mean, findUniformBlock } from '../core/image-metrics.js';
+import {
+  luminance, laplacianVariance, noiseSigma, mean, findUniformBlock, blurEffect, histogramStats, signature,
+} from '../core/image-metrics.js';
 import { jpegSummary } from '../core/jpeg-quality.js';
 
 const PREVIEW_LONG_EDGE = 2048;
 const PREVIEW_QUALITY = 0.85;
-const SEARCH_LONG_EDGE = 600; // downscaled copy used to find the uniform area
+const SEARCH_LONG_EDGE = 600; // downscaled copy: uniform-area search, histogram, signature
+const TILE_PX = 256; // 100% tiles spread over the photo (sharpness elsewhere than the focus)
 const HEADER_BYTES = 256 * 1024;
 
 /**
@@ -84,17 +87,50 @@ async function cropAndMeasure(img, rect) {
     laplacian_var: laplacianVariance(lum, dw, dh),
     sigma: noiseSigma(lum, dw, dh),
     mean_luma: mean(lum),
+    blur: blurEffect(lum, dw, dh),
     blob: await canvas.convertToBlob({ type: 'image/png' }),
   };
 }
 
-/** Finds the most uniform area; returns a normalized display rect of ~sizePx at full resolution. */
-function autoUniformRect(img, sizePx) {
+/** Downscaled copy of the whole photo (display orientation) as RGBA. */
+function smallCopy(img) {
   const scale = Math.min(1, SEARCH_LONG_EDGE / Math.max(img.width, img.height));
   const sw = Math.max(1, Math.round(img.width * scale));
   const sh = Math.max(1, Math.round(img.height * scale));
   const { ctx } = drawOriented(img, sw, sh);
-  const lum = luminance(ctx.getImageData(0, 0, sw, sh).data, sw, sh);
+  return { scale, sw, sh, rgba: ctx.getImageData(0, 0, sw, sh).data };
+}
+
+/**
+ * Grid of 100% tiles (4×3 in landscape, 3×4 in portrait), one in the centre of
+ * each cell: blur and detail where the focus crop is not, to tell "missed the
+ * focus" (sharp elsewhere) from "soft everywhere" (shake, lens, haze).
+ */
+function measureTiles(img) {
+  const landscape = img.width >= img.height;
+  const cols = landscape ? 4 : 3;
+  const rows = landscape ? 3 : 4;
+  const tw = Math.min(TILE_PX, img.width) / img.width;
+  const th = Math.min(TILE_PX, img.height) / img.height;
+  const out = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const rect = { x: (c + 0.5) / cols - tw / 2, y: (r + 0.5) / rows - th / 2, w: tw, h: th };
+      const src = sourceRect(rect, img);
+      const sideways = img.turn === 6 || img.turn === 8;
+      const [dw, dh] = sideways ? [src.h, src.w] : [src.w, src.h];
+      const { ctx } = drawOriented(img, dw, dh, src);
+      const lum = luminance(ctx.getImageData(0, 0, dw, dh).data, dw, dh);
+      out.push({ rect, col: c, row: r, blur: blurEffect(lum, dw, dh), laplacian_var: laplacianVariance(lum, dw, dh), mean_luma: mean(lum) });
+    }
+  }
+  return out;
+}
+
+/** Finds the most uniform area; returns a normalized display rect of ~sizePx at full resolution. */
+function autoUniformRect(small, sizePx) {
+  const { scale, sw, sh } = small;
+  const lum = luminance(small.rgba, sw, sh);
   const found = findUniformBlock(lum, sw, sh, Math.max(4, sizePx * scale));
   if (!found) return null;
   return { x: found.x / sw, y: found.y / sh, w: found.size / sw, h: found.size / sh };
@@ -105,16 +141,23 @@ function autoUniformRect(img, sizePx) {
  * @param {{x,y,w,h}} p.afRect normalized display rect of the focus crop
  * @param {{x,y,w,h}|null} p.uniformRect fixed rect, or null to search automatically
  * @param {number} p.uniformPx crop size used by the automatic search
+ * @param {boolean} p.full also measure the whole photo (histogram, signature, tiles): primary version only
  */
-async function analyze({ file, kind, orientation, afRect, uniformRect, uniformPx }) {
+async function analyze({ file, kind, orientation, afRect, uniformRect, uniformPx, full = false }) {
   const img = await decode(file, kind, orientation);
   try {
     const head = new Uint8Array(await img.source.slice(0, HEADER_BYTES).arrayBuffer());
     const jpeg = jpegSummary(head);
-    const uRect = uniformRect || autoUniformRect(img, uniformPx);
+    const small = !uniformRect || full ? smallCopy(img) : null;
+    const uRect = uniformRect || autoUniformRect(small, uniformPx);
     const af = await cropAndMeasure(img, afRect);
     const uniform = uRect ? await cropAndMeasure(img, uRect) : null;
-    return { width: img.width, height: img.height, jpeg, af, uniform, uniformAuto: !uniformRect };
+    const whole = full ? {
+      histogram: histogramStats(small.rgba, small.sw, small.sh),
+      signature: signature(small.rgba, small.sw, small.sh),
+      tiles: measureTiles(img),
+    } : null;
+    return { width: img.width, height: img.height, jpeg, af, uniform, uniformAuto: !uniformRect, whole };
   } finally {
     img.bitmap.close();
   }

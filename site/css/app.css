@@ -321,3 +321,20 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
   border: 2px solid var(--warn); background: var(--surface); display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
 }
 @media (max-width: 1432px) { .app-alert { margin-left: var(--gutter); margin-right: var(--gutter); } }
+
+/* v0.5.0 — Diagnóstico */
+.diag-headline { font-size: 1.15rem; font-weight: 700; margin: 4px 0 6px; }
+.diag-findings { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 10px; }
+.diag-finding { border-left: 4px solid var(--border); padding: 6px 0 6px 10px; }
+.diag-finding.sev-alert { border-left-color: var(--danger); }
+.diag-finding.sev-attention { border-left-color: var(--warn); }
+.diag-finding.sev-info { border-left-color: var(--accent); }
+.diag-finding-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.diag-text, .diag-advice { margin: 6px 0; }
+.diag-advice { background: var(--surface-2); padding: 8px 10px; border-radius: 8px; }
+.diag-why summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; color: var(--accent); }
+.diag-notes .diag-finding { opacity: 0.92; }
+.diag-table { width: 100%; border-collapse: collapse; }
+.diag-table th, .diag-table td { text-align: left; padding: 6px 8px 6px 0; vertical-align: top; border-top: 1px solid var(--border); }
+.diag-table th { font-weight: 400; color: var(--muted); width: 40%; }
+.diag-missing h4, .diag-possible h4 { margin: 12px 0 4px; }

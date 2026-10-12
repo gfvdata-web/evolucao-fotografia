@@ -157,6 +157,20 @@ function exposureProgram(L) {
   return L.text('ExposureProgram', 'ExifIFD') ?? L.text('CanonExposureMode', 'Canon');
 }
 
+/**
+ * Focus distance range written by Canon (FocusDistanceLower/Upper, metres).
+ * The RF 50 writes it; the RF 75-300 does not. The far end may be "inf".
+ */
+function focusDistance(L) {
+  const near = L.num('FocusDistanceLower', 'Canon');
+  const farEntry = L.raw('FocusDistanceUpper', 'Canon');
+  if (near === null || !farEntry) return null;
+  const infinite = /inf/i.test(String(farEntry.num ?? farEntry.val));
+  const far = infinite ? null : L.num('FocusDistanceUpper', 'Canon');
+  if (!(near > 0) || (!infinite && !(far >= near))) return null;
+  return { near_m: near, far_m: far, far_infinite: infinite };
+}
+
 export function fromExifTool(json) {
   const c = emptyCapture();
   if (!json) return c;
@@ -173,7 +187,10 @@ export function fromExifTool(json) {
   c.camera.firmware = L.text('FirmwareVersion', 'Canon') ?? L.text('Software', 'IFD0');
   c.lens.model = L.text('LensModel', 'ExifIFD') ?? L.text('LensModel', 'Canon');
   c.lens.focal_length_mm = L.num('FocalLength', 'ExifIFD');
+  c.lens.max_aperture = L.num('MaxAperture', 'Canon');
   c.exposure.program = exposureProgram(L);
+  c.exposure.measured_ev = L.num('MeasuredEV', 'Canon');
+  c.focus.distance = focusDistance(L);
   c.exposure.shutter_s = L.num('ExposureTime', 'ExifIFD');
   c.exposure.aperture = L.num('FNumber', 'ExifIFD');
   c.exposure.iso = L.num('ISO', 'ExifIFD');

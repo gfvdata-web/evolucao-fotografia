@@ -92,6 +92,7 @@ async function run(photoId, force) {
     try {
       const r = await analyzeImage(file, v.kind, v.capture.image.orientation || record.capture.image.orientation || 1, {
         afRect: fromPrimary(focus.rect, v), uniformRect: fromPrimary(uniform?.rect, v), uniformPx: UNIFORM_CROP_PX,
+        full: v === primary,
       });
       if (!uniform && r.uniform && v === primary) uniform = { rect: r.uniform.rect, source: 'auto' };
       results.set(v.key, r);
@@ -116,7 +117,9 @@ async function run(photoId, force) {
         v.analysis = { metrics_version: METRICS_VERSION, analyzed_at: now, error: r.error };
         continue;
       }
-      const strip = (c) => (c ? { rect: c.rect, px: c.px, laplacian_var: c.laplacian_var, sigma: c.sigma, mean_luma: c.mean_luma } : null);
+      const strip = (c) => (c ? {
+        rect: c.rect, px: c.px, laplacian_var: c.laplacian_var, sigma: c.sigma, mean_luma: c.mean_luma, blur: c.blur ?? null,
+      } : null);
       v.analysis = {
         metrics_version: METRICS_VERSION,
         analyzed_at: now,
@@ -124,6 +127,8 @@ async function run(photoId, force) {
         jpeg: r.jpeg,
         af: r.af ? { ...strip(r.af), source: focus.source } : null,
         uniform: r.uniform ? { ...strip(r.uniform), source: uniform?.source || 'auto' } : null,
+        // Whole photo (primary version only): histogram, 8×8 signature, 100% tiles.
+        whole: r.whole || null,
       };
       if (r.af) blobs.push({ key: repo.blobKey.crop(fresh.id, v.key, 'af'), blob: r.af.blob });
       if (r.uniform) blobs.push({ key: repo.blobKey.crop(fresh.id, v.key, 'uniform'), blob: r.uniform.blob });

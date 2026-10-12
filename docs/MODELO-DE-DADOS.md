@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Versão atual do esquema: **4** (`SCHEMA_VERSION` em `site/js/core/model.js`).
+Versão atual do esquema: **5** (`SCHEMA_VERSION` em `site/js/core/model.js`).
 Todo documento guardado leva `schema_version` e é migrado na leitura (`core/migrations.js`).
 Chaves em inglês, `snake_case`.
 
@@ -8,7 +8,7 @@ Chaves em inglês, `snake_case`.
 
 ```jsonc
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "id": "012345678901-20261010T143012.45-IMG_0001",   // estável; nunca muda depois de criado
   "match_key": "20261010T143012.45-IMG_0001",          // sem a série: pareia versões do disparo
   "session_id": "ses-20261010-k3x9ab",                 // v0.3; null = sem sessão
@@ -41,8 +41,8 @@ Uma foto conta como **avaliada** quando tem `sharpness` **e** `problem` (`core/r
 `problem` é o sintoma visto ao ampliar, não a causa: mole por inteiro, foco no lugar errado,
 arrastada, granulada, quadriculada ao ampliar (decisão 0012). Os valores são guardados em inglês
 e traduzidos na tela (`RATING_LABELS` em `core/glossary.js`). Avaliação toda vazia volta a
-`null`. A luz da cena calculada pela exposição (`sceneLight` em `core/indicators.js`) não é
-guardada: sai dos metadados na hora.
+`null`. A luz da cena (`sceneLightOf`) e todo o diagnóstico (`diagnosePhoto`, ambos em
+`core/diagnosis.js`, v0.5.0) não são guardados: saem do registro na hora (decisão 0013).
 
 `crop_choice` e `crops.*.rect` são normalizados (0–1) **no quadro da prévia**
 (`preview.from_variant`), já na orientação de exibição. `source`: `manual` (toque),
@@ -69,12 +69,18 @@ guardada: sai dos metadados na hora.
   "missing": [ ... ],
   "tag_count": 277,                // campos de metadados que o ExifTool achou no arquivo
   "analysis": {                    // pixels (v0.2); null até a análise rodar
-    "metrics_version": 1,
+    "metrics_version": 2,
     "analyzed_at": "...",
     "decoded": { "width": 6240, "height": 4160 },
     "jpeg": { "quality_estimate": 97, "sampling": "4:2:2", ... },
-    "af":      { "rect": {...}, "px": { "w": 512, "h": 512 }, "laplacian_var": 139, "sigma": 0.3, "mean_luma": 120, "source": "makernote" },
-    "uniform": { "rect": {...}, "px": { "w": 256, "h": 256 }, "laplacian_var": 2, "sigma": 0.25, "mean_luma": 151, "source": "auto" }
+    "af":      { "rect": {...}, "px": { "w": 512, "h": 512 }, "laplacian_var": 139, "sigma": 0.3, "mean_luma": 120, "source": "makernote",
+                 "blur": { "blur": 0.26, "x": 0.24, "y": 0.26, "detail": 1.72 } },   // v0.5.0 (Crété-Roffet)
+    "uniform": { "rect": {...}, "px": { "w": 256, "h": 256 }, "laplacian_var": 2, "sigma": 0.25, "mean_luma": 151, "source": "auto", "blur": {...} },
+    "whole": {                     // v0.5.0, só na versão principal; null nas outras
+      "histogram": { "bins": [64 frações], "mean": 118, "p05": 20, "p50": 112, "p95": 230, "clip_high": 0.004, "clip_low": 0.0 },
+      "signature": { "grid": [64 brilhos 0–255], "rgb": [120, 118, 110] },   // para separar cenas (v0.5.1)
+      "tiles": [ { "rect": {...}, "col": 0, "row": 0, "blur": { "blur", "x", "y", "detail" }, "laplacian_var": 80, "mean_luma": 130 } ]  // 12 trechos 256 px a 100%
+    }
   },                               // ou { metrics_version, analyzed_at, error }
   "error": null
 }
@@ -97,6 +103,9 @@ guardadas.
 | `datetime_original` | `2026-10-10T14:30:12.45-03:00` | EXIF |
 | `camera.{make, model, serial, firmware}` | `Canon`, `Canon EOS RP` | EXIF / Canon |
 | `lens.{model, focal_length_mm}` | `RF50mm F1.8 STM`, `50` | EXIF |
+| `lens.max_aperture` (v0.5.0) | `5.66` (abertura máxima no zoom usado) | Canon `MaxAperture` |
+| `exposure.measured_ev` (v0.5.0) | `12.125` (luz medida pelo fotômetro, EV a ISO 100; não muda com a compensação) | Canon `MeasuredEV` |
+| `focus.distance` (v0.5.0) | `{near_m: 1.09, far_m: 1.2, far_infinite: false}` ou `null` (a RF 75-300 não grava) | Canon `FocusDistanceLower/Upper` |
 | `exposure.program` | `Aperture-priority AE` | EXIF |
 | `exposure.{shutter_s, aperture, iso, ev_comp}` | `0.004`, `1.8`, `400`, `-0.333` | EXIF |
 | `exposure.metering` | `Evaluative` | Canon / EXIF |
@@ -126,7 +135,7 @@ posições, e com AF em 1 ponto as outras 142 são zeros.
 
 ```jsonc
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "id": "ses-20261010-k3x9ab",        // ses-<AAAAMMDD | semdata>-<6 caracteres aleatórios>
   "name": "Sessão de 10/10/2026",     // vazio volta a este padrão
   "date": "2026-10-10",               // ou null
@@ -140,13 +149,13 @@ O vínculo fica só na foto (`session_id`); a sessão não lista as fotos. `expe
 `iso`, `shutter`, `aperture`, `focal_length`, `lens`, `af_mode`, `af_area`, `drive_mode` (lidos
 da foto, e a sessão mostra o valor de cada uma), `transfer` e `other` (só a descrição). Sessões
 usam o mesmo `SCHEMA_VERSION`, com migrações próprias (`SESSION_MIGRATIONS`); a versão 3 é a
-primeira e a 4 não mudou o formato. Ver decisão 0009.
+primeira, e a 4 e a 5 não mudaram o formato. Ver decisão 0009.
 
 ## Indicadores (`indicators`, calculados em `core/indicators.js`)
 
 ```jsonc
 {
-  "metrics_version": 1, "computed_at": "...", "primary_variant": "jpeg-web",
+  "metrics_version": 2, "computed_at": "...", "primary_variant": "jpeg-web",
   "resolution": { "status", "text", "per_variant": [{ "key", "kind": "native|camera_size|crop_mode|path_reduced|no_profile", ... }] },
   "metadata":   { "status", "text", "per_variant": [ ... ] },
   "shake":      { "status", "text", "ratio": 3.33, "shutter_s", "focal_mm", "equivalent_focal_mm", "reference_s" },
@@ -193,14 +202,14 @@ Subpastas: `ef_kind=sub`, `ef_sub=<nome>`. Arquivos de foto: `ef_kind=asset`, `e
 ```jsonc
 // sessao.json
 {
-  "schema_version": 4, "kind": "efsessao", "app_version": "0.4.0", "written_at": "...",
+  "schema_version": 5, "kind": "efsessao", "app_version": "0.5.0", "written_at": "...",
   "session": { /* documento da sessão */ } ,          // null em _sem_sessao
   "photos": [ { /* registro da foto */ ,
                "drive_assets": { "preview": { "id": "...", "sig": "jpeg-web", "size": 123 }, ... } } ],
   "deleted_photos": [ { "id": "...", "at": "..." } ]  // lápides: o outro aparelho apaga também
 }
 // indice.json
-{ "schema_version": 4, "kind": "efindice", "sessions": [ {id, name, date, updated_at} ],
+{ "schema_version": 5, "kind": "efindice", "sessions": [ {id, name, date, updated_at} ],
   "deleted_sessions": [ { "id", "at" } ] }
 // config.json
 { "schema_version": 1, "kind": "efconfig", "updated_at": "...", "settings": { /* abaixo */ } }
@@ -237,3 +246,4 @@ Drive. Sem ZIP64: até 4 GB.
 | 2 → 3 (v0.3) | Garante `session_id` e `rating` (já existiam, sempre `null`). O banco local passa da versão 1 para a 2 (store `sessions` e índice `session_id`). |
 | 3 → 4 (v0.3.1) | Avaliação por sintoma (decisão 0012). Passa só o que tem o mesmo sentido: `sharp`→`none`, `noise`→`grain`, `shake`→`motion_blur`, `pixelated_upload`→`blocky`, `other`; `harsh_sun`→fora + forte, `shade`/`overcast`→fora, `indoor`→dentro; assunto e nota. `out_of_focus`, `score` e `night` viram "não marcado". `sharpness` fica `null`, então a foto volta a "não avaliada". Sessões: só a versão. |
 | — (v0.4) | Registros sem mudança (esquema 4). O banco local passa para a versão 3 (store `sync`). |
+| 4 → 5 (v0.5.0) | A captura (da foto e de cada variante) ganha `lens.max_aperture`, `exposure.measured_ev` e `focus.distance`, todos `null` até a próxima análise reler o JSON do ExifTool guardado. `METRICS_VERSION` 2: desfoque, histograma, assinatura e trechos, recalculados a partir dos originais do aparelho. Sessões: só a versão. |
