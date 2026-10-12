@@ -75,7 +75,8 @@ Cada entrega pode ser testada no tablet.
   sincronização entre dois aparelhos, histórico, lixeira, GPS removido (JPEG e CR3), limite
   de espaço (do app e da conta Google), backup `.efbackup`, PWA com uso sem internet.
   Client ID criado pelo Guilherme (app "em teste", ele como usuário de teste) e conferido com o
-  Google nas origens `gfvdata-web.github.io` e `localhost:8765`. A rever no uso real: decisões
+  Google nas origens `gfvdata-web.github.io` e `localhost:8765`. Primeira sincronização real feita pelo
+  Guilherme no computador em 12/10/2026 (v0.4.1). A rever no uso real: decisões
   0006 (envio com o app aberto) e 0010.
 
 ### ⏳ v0.5 — Cenas e diagnóstico com orientação
