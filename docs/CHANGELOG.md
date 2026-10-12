@@ -2,6 +2,28 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [Não publicado] — v0.4 em desenvolvimento (ramo `v0.4`)
+
+Google Drive, sincronização, app instalável e backup.
+
+### Adicionado
+- Aba **Drive**: conectar ao Google Drive (escopo `drive.file`), estado da sincronização,
+  espaço usado, configurações, backup e instalação. Selo de sincronização no topo.
+- Sincronização com o app aberto: traz do Drive o que mudou (outro aparelho) e envia o que
+  está pendente; pastas por sessão, `sessao.json` com histórico, `indice.json` e `config.json`;
+  fotos movidas, removidas (lixeira do Drive) e sessões excluídas chegam aos outros aparelhos.
+- Login de 1 hora renovado no próximo toque; "Reconectar" quando não der.
+- Originais enviados em partes de 8 MB, retomando de onde pararam; tela acesa durante o envio.
+- Configurações: guardar JPEG, CR3 e localização; versões no histórico; limite de espaço
+  (padrão 100 GB), que segura só os originais.
+- Localização (GPS) removida de JPEG, CR3, metadados e registros antes de ir para o Drive.
+- Backup `.efbackup` (exportar e importar, juntando com o que já está no app).
+- App instalável (PWA) com uso sem internet e armazenamento protegido.
+- Guia do Google Cloud para criar o Client ID.
+
+### Modelo de dados
+- Banco local versão 3 (store `sync`); configurações em `meta`. Registros sem mudança.
+
 ## [0.3.0] — 2026-10-12
 
 Avaliação e sessões.

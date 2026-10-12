@@ -56,7 +56,7 @@ export function aboutView(root) {
   mount(root,
     h('section', { class: 'card' }, h('h2', {}, 'Sobre este app'),
       h('p', {}, 'Evolução Fotografia analisa a qualidade da captura das suas fotos antes da edição. ',
-        'Nesta versão, tudo fica guardado só neste aparelho.'),
+        'As fotos ficam neste aparelho e, com o Google Drive conectado (aba Drive), também numa pasta sua no Drive.'),
       body),
     h('section', { class: 'card' },
       h('h3', {}, 'Recalcular indicadores'),

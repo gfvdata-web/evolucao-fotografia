@@ -45,7 +45,7 @@ export const getBlob = (key) => idb.get('blobs', key);
 export const getRawMetadata = (photoId, variantKey) => idb.get('raw_metadata', `${photoId}/${variantKey}`);
 
 export async function deletePhoto(id) {
-  await idb.write([{ store: 'photos', delete: id }]);
+  await idb.write([{ store: 'photos', delete: id }, { store: 'sync', delete: `photo/${id}` }]);
   await idb.deletePrefix('blobs', `${id}/`);
   await idb.deletePrefix('raw_metadata', `${id}/`);
 }

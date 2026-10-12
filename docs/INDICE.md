@@ -19,5 +19,6 @@
 | [decisoes/0005-login-google-token.md](decisoes/0005-login-google-token.md) | Token de 1 h do Google sem servidor e como contornar |
 | [decisoes/0006-envio-com-app-aberto.md](decisoes/0006-envio-com-app-aberto.md) | Envio ao Drive com o app aberto (rever no uso real) |
 | [decisoes/0007-testes.md](decisoes/0007-testes.md) | node:test, Playwright, fixtures sintéticas, amostras locais |
+| [decisoes/0010-sincronizacao-drive.md](decisoes/0010-sincronizacao-drive.md) | Drive: um sessao.json por sessão, junção pelo mais novo, lápides, GPS, originais retomáveis, limite de espaço |
 | [decisoes/0009-sessoes-e-avaliacao.md](decisoes/0009-sessoes-e-avaliacao.md) | Sessões sugeridas por dia, vínculo na foto, avaliação por toque com avanço automático |
 | [decisoes/0008-versao-principal-e-campo-de-visao.md](decisoes/0008-versao-principal-e-campo-de-visao.md) | Qual versão mede nitidez e ruído; mesma parte da cena em versões com campos diferentes (16:9, recorte, CR3) |

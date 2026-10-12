@@ -159,25 +159,70 @@ JPEG embutido no CR3, que é mais comprimido. Mudou um cálculo ou um limite? Su
 
 ## IndexedDB
 
-Banco `evolucao-fotografia`, versão 2: stores `photos` (índice `session_id` desde a versão 2), `blobs`, `raw_metadata`, `meta` e `sessions` (versão 2)
+Banco `evolucao-fotografia`, versão 3: stores `photos` (índice `session_id` desde a versão 2), `blobs`, `raw_metadata`, `meta` (configurações), `sessions` (versão 2) e `sync` (versão 3: o que já foi para o Drive, lápides e envios em andamento; ver `storage/sync-repo.js`)
 (detalhes em ARQUITETURA.md). Os recortes a 100% ficam em `blobs`, como PNG, na chave
 `<id>/crop/<variante>/<af|uniform>`. O JSON completo do ExifTool fica em `raw_metadata`, fora do
 registro, para manter a lista leve.
 
-## Google Drive (planejado para a v0.4)
+## Google Drive (v0.4)
+
+Detalhes e alternativas: decisão 0010. Código: `core/drive-layout.js` (o quê e onde) e
+`pipeline/sync.js` (quando).
 
 ```
-EvolucaoFotografia/
-├── indice.json          { schema_version, updated_at, sessions: [{id, name, date, folder_id, photo_count, ...}] }
-├── config.json          preferências comuns a tablet e PC
-└── <AAAA-MM-DD>_<nome>_<id curto>/
-    ├── sessao.json      { schema_version, session: {..., experiment}, photos: [ ... ] }
-    ├── _historico/      últimas N versões datadas de sessao.json
-    ├── originais/       JPEG / CR3 (configurável)
-    ├── previas/  recortes/  metadados/<id>.json
+EvolucaoFotografia/                       appProperties ef_kind=root
+├── indice.json                           ef_kind=indice
+├── config.json                           ef_kind=config
+├── _sem_sessao/                          fotos sem sessão (mesma estrutura de uma sessão)
+└── <AAAA-MM-DD>_<nome>_<id curto>/       ef_kind=session, ef_session=<id da sessão | none>
+    ├── sessao.json                       ef_kind=sessao
+    ├── _historico/sessao_<data>.json     ef_kind=historico (últimas N, padrão 10)
+    ├── originais/<nome>__<variante>.<ext>        JPEG (padrão sim) / CR3 (padrão não)
+    ├── previas/<id da foto>.jpg
+    ├── recortes/<id>__<variante>__<af|uniform>.png
+    └── metadados/<id>__<variante>.json   JSON completo do ExifTool
 ```
-Cada arquivo leva `appProperties` (tipo e sessão), para recuperar a estrutura se o índice se
-perder. Conflitos tablet × PC: junção foto a foto, vence o `updated_at` mais recente.
+Subpastas: `ef_kind=sub`, `ef_sub=<nome>`. Arquivos de foto: `ef_kind=asset`, `ef_photo`,
+`ef_asset` (`preview`, `crop/<variante>/<af|uniform>`, `metadata/<variante>`,
+`original/<variante>`).
+
+```jsonc
+// sessao.json
+{
+  "schema_version": 3, "kind": "efsessao", "app_version": "0.4.0", "written_at": "...",
+  "session": { /* documento da sessão */ } ,          // null em _sem_sessao
+  "photos": [ { /* registro da foto */ ,
+               "drive_assets": { "preview": { "id": "...", "sig": "jpeg-web", "size": 123 }, ... } } ],
+  "deleted_photos": [ { "id": "...", "at": "..." } ]  // lápides: o outro aparelho apaga também
+}
+// indice.json
+{ "schema_version": 3, "kind": "efindice", "sessions": [ {id, name, date, updated_at} ],
+  "deleted_sessions": [ { "id", "at" } ] }
+// config.json
+{ "schema_version": 1, "kind": "efconfig", "updated_at": "...", "settings": { /* abaixo */ } }
+```
+
+Com "Guardar a localização" desligado, `capture.gps` vai `null` (na foto e em cada variante),
+as tags `GPS*` saem do JSON do ExifTool e os originais vão com o bloco de GPS zerado. Junção
+entre aparelhos: por foto, sessão e configurações, vence o `updated_at` mais novo.
+
+## Configurações (`meta` → `settings`; no Drive, `config.json`)
+
+| Campo | Padrão | O que faz |
+|---|---|---|
+| `keep_jpeg` | `true` | envia os JPEG originais |
+| `keep_cr3` | `false` | envia os CR3 originais |
+| `keep_gps` | `false` | mantém a localização no que vai para o Drive |
+| `history_versions` | `10` | cópias de `sessao.json` em `_historico/` |
+| `drive_limit_gb` | `100` | acima disso, os originais ficam esperando |
+| `updated_at` | — | quando mudaram (junção tablet × PC) |
+
+## Backup local (`.efbackup`, v0.4)
+
+ZIP sem compressão (`core/zip.js`): `backup.json` (`kind: "efbackup"`, `format_version: 1`,
+`settings`, `sessions`, `photos`, `raw_metadata` por `"<id>/<variante>"`) e `blobs/<chave
+codificada>` (prévias, recortes e, se pedido, originais). Importar junta com a mesma regra do
+Drive. Sem ZIP64: até 4 GB.
 
 ## Migrações
 
@@ -186,3 +231,4 @@ perder. Conflitos tablet × PC: junção foto a foto, vence o `updated_at` mais 
 | 0 → 1 | Marca documentos sem versão como versão 1 (modelo da etapa). |
 | 1 → 2 (v0.2) | Acrescenta `crop_choice` (automático), `crops: null` e, em cada variante, `tag_count: null` e `analysis: null`. Os indicadores são calculados quando a foto é aberta ou pelo botão da aba Sobre. |
 | 2 → 3 (v0.3) | Garante `session_id` e `rating` (já existiam, sempre `null`). O banco local passa da versão 1 para a 2 (store `sessions` e índice `session_id`). |
+| — (v0.4) | Registros sem mudança (esquema 3). O banco local passa para a versão 3 (store `sync`). |

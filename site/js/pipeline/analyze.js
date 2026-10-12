@@ -99,6 +99,9 @@ async function run(photoId, force) {
       results.set(v.key, { error: e.message });
     }
   }
+  // No original on this device (photo that came from the Drive or a backup
+  // without originals): keep the analysis made where the photo was sent.
+  if (!results.size) return;
 
   const now = new Date().toISOString();
   await withLock(lockKeyOf(record), async () => {

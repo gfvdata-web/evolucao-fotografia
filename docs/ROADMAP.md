@@ -49,7 +49,7 @@ Cada entrega pode ser testada no tablet.
   a categoria, "luz e assunto iguais à anterior" e foco a 100%; mover fotos entre sessões;
   avaliação e sessão na ficha. Decisão 0009.
 
-### 🔨 v0.4 — Google Drive, sincronização, PWA e backup
+### 🔨 v0.4 — Google Drive, sincronização, PWA e backup (pronta no ramo `v0.4`; falta o Client ID)
 - Login Google (Google Identity Services, modelo de token) com escopo `drive.file`.
   Token de 1 h sem renovação automática garantida: renovação silenciosa no próximo toque,
   botão "Reconectar" se falhar, fila pausa e retoma. Ver decisão 0005.
@@ -64,6 +64,10 @@ Cada entrega pode ser testada no tablet.
   passar do limite. Preparar o fluxo futuro de "não guardar originais para sempre" (ver ideias).
 - PWA instalável no Android, `navigator.storage.persist()`, exportar/importar backup.
 - Guia passo a passo da configuração do Google Cloud no GUIA-DE-USO.
+- Feito e testado com um Drive simulado (decisão 0010): conexão e renovação no toque,
+  sincronização entre dois aparelhos, histórico, lixeira, GPS removido (JPEG e CR3), limite
+  de espaço, backup `.efbackup`, PWA com uso sem internet. Falta: Client ID do Google Cloud
+  do Guilherme e o primeiro uso com o Drive de verdade.
 
 ### ⏳ v0.5 — Importador Python (Windows)
 - `importador/`: ExifTool (metadados completos), rawpy/LibRaw (renderização neutra do RAW, sem

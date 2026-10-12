@@ -6,8 +6,9 @@ Endereço: **https://gfvdata-web.github.io/evolucao-fotografia/**
 
 ### Primeira vez
 1. Abra o endereço no **Chrome** do tablet (também funciona no Samsung Internet).
-2. Dica: menu ⋮ → **Adicionar à tela inicial** para abrir como app. (Na v0.4 ele vira um app
-   instalável completo, que funciona sem internet.)
+2. Instale como app: aba **Drive** → **Instalar como app**, ou menu ⋮ → **Instalar app** /
+   **Adicionar à tela inicial**. Instalado, ele abre sem a barra do navegador e funciona sem
+   internet (o Drive precisa de internet, claro).
 3. Na primeira foto, o app baixa o leitor completo de metadados (~7 MB). Só acontece uma vez
    por aparelho; prefira estar no Wi-Fi.
 
@@ -98,9 +99,64 @@ métricas**. Fotos enviadas antes da v0.2, ou de quando um cálculo mudou numa a
 são analisadas ao abrir a ficha ou todas de uma vez pelo botão **Recalcular desatualizadas**. Se algo estranho acontecer, tire
 um print desta tela.
 
+### Google Drive (v0.4)
+Aba **Drive** → **Conectar ao Google Drive** e escolha a conta. O app cria a pasta
+**EvolucaoFotografia** no seu Drive e só enxerga o que está nela.
+- A sincronização roda sozinha com o app aberto, inclusive enquanto você avalia. O selo no
+  topo mostra **Sincronizado**, **N pendentes**, **Enviando…** ou **Reconectar ao Drive**.
+- O login do Google vale 1 hora. Depois disso, o próximo toque em qualquer lugar do app renova
+  sozinho (pode piscar uma janela). Se não der, toque em **Reconectar** na aba Drive.
+- Sem internet, tudo continua funcionando; as mudanças ficam pendentes e vão depois.
+- **O que guardar no Drive**: JPEG originais (padrão sim), CR3 originais (padrão não, ~30 MB
+  cada) e localização (padrão não: o GPS é apagado dos arquivos antes de subir). Prévias,
+  recortes, avaliações e metadados vão sempre.
+- **Limite de espaço** (padrão 100 GB): perto dele aparece um aviso; ao passar, os originais
+  ficam esperando e o resto continua indo.
+- **Remover foto** (na ficha) tira a foto do app e manda os arquivos dela para a **lixeira do
+  Drive** (dá para recuperar por 30 dias). Excluir uma sessão manda a pasta para a lixeira e
+  as fotos vão para `_sem_sessao`.
+- No PC, abrindo o mesmo endereço e conectando a mesma conta, aparecem as mesmas sessões e
+  avaliações (as fotos vêm com prévia e recortes).
+
+### Backup neste aparelho (v0.4)
+Aba **Drive** → **Exportar backup** gera um arquivo `.efbackup` (avaliações, sessões,
+metadados, prévias e recortes; marque **Incluir os arquivos originais** para levar as fotos).
+**Importar backup** junta o arquivo com o que já está no app: em cada foto vale a versão mais
+recente, então importar um backup antigo não desfaz avaliações novas.
+
 ## Configuração do Google Cloud
 
-Chega na **v0.4** (Drive e sincronização). O passo a passo será escrito aqui.
+Uma vez só, no computador. Cria o "Client ID", que identifica o app para o Google. Ele é
+público (vai no código do site); a **chave secreta não é usada** e não deve ser enviada a
+ninguém.
+
+1. Abra https://console.cloud.google.com/ com a conta do Google cujo Drive vai guardar as fotos.
+2. No seletor de projetos (topo) → **Novo projeto** → nome `Evolucao Fotografia` → **Criar**.
+   Confira que o projeto novo está selecionado.
+3. Menu ☰ → **APIs e serviços** → **Biblioteca** → procure **Google Drive API** → **Ativar**.
+4. Menu ☰ → **Google Auth Platform** (ou **APIs e serviços → Tela de permissão OAuth**) →
+   **Começar**:
+   - Nome do app: `Evolução Fotografia`; e-mail de suporte: o seu;
+   - Público: **Externo**;
+   - Dados de contato: o seu e-mail → aceite a política → **Criar**.
+5. **Acesso a dados** → **Adicionar ou remover escopos** → marque
+   `.../auth/drive.file` ("Ver, editar, criar e excluir apenas os arquivos do Google Drive que
+   você usa com este app") → **Atualizar** → **Salvar**.
+6. **Público-alvo** → **Publicar app** → confirmar. Como o escopo `drive.file` não é sensível,
+   o Google não exige verificação. (Alternativa: deixar "Em teste" e adicionar o seu e-mail em
+   **Usuários de teste**.)
+7. **Clientes** → **Criar cliente** → tipo **Aplicativo da Web** → nome `Site` →
+   **Origens JavaScript autorizadas** → adicione:
+   - `https://gfvdata-web.github.io`
+   - `http://localhost:8765` (para testes no computador)
+
+   Não precisa de "URIs de redirecionamento". → **Criar**.
+8. Copie o **ID do cliente** (termina em `.apps.googleusercontent.com`) e mande para o Claude,
+   que o coloca em `site/js/config.js`. Ignore a "chave secreta do cliente".
+
+Na primeira conexão, o Google mostra uma tela de permissão com o nome do app; se aparecer
+"O Google não verificou este app", toque em **Avançado → Acessar Evolução Fotografia**
+(acontece com apps pessoais publicados sem verificação).
 
 ## No computador (importador Python)
 

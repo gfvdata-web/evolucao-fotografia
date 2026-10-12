@@ -2,7 +2,8 @@
 // portrait and landscape. The site is served by scripts/serve.mjs.
 import { defineConfig } from '@playwright/test';
 
-const PORT = 8790;
+// E2E_PORT lets two checkouts (e.g. a git worktree) run their tests at the same time.
+const PORT = Number(process.env.E2E_PORT || 8790);
 const tablet = {
   browserName: 'chromium',
   hasTouch: true,
@@ -20,7 +21,8 @@ export default defineConfig({
   workers: 2,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
-  use: { baseURL: `http://localhost:${PORT}/`, trace: 'retain-on-failure' },
+  // Service workers off by default: the PWA spec turns them on where it needs them.
+  use: { baseURL: `http://localhost:${PORT}/`, trace: 'retain-on-failure', serviceWorkers: 'block' },
   projects: [
     { name: 'tablet-retrato', use: { ...tablet, viewport: { width: 876, height: 1400 } } },
     { name: 'tablet-paisagem', use: { ...tablet, viewport: { width: 1400, height: 876 } } },

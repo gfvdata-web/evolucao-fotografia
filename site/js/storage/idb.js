@@ -6,8 +6,9 @@
 //   raw_metadata  full ExifTool JSON per variant, key "<photoId>/<variantKey>"
 //   meta          app key/value (settings, counters)
 //   sessions      session documents (keyPath "id"), v2
+//   sync          Drive state, v3: "photo/<id>", "session/<id>", "folders", "tombstones", "upload/<key>"
 export const DB_NAME = 'evolucao-fotografia';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 function upgrade(db, oldVersion, tx) {
   if (oldVersion < 1) {
@@ -22,6 +23,7 @@ function upgrade(db, oldVersion, tx) {
     tx.objectStore('photos').createIndex('session_id', 'session_id', { unique: false });
     db.createObjectStore('sessions', { keyPath: 'id' });
   }
+  if (oldVersion < 3) db.createObjectStore('sync');
 }
 
 let dbPromise = null;

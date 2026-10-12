@@ -39,7 +39,8 @@ tablet e dá direção.
 
 ```
 site/                       ← publicado no Pages (sem build; módulos ES)
-  index.html, css/, icons/
+  index.html, css/, icons/, manifest.webmanifest, sw.js (PWA, uso sem internet)
+  js/config.js              Client ID público do Google (vazio = Drive "não configurado")
   js/app.js                 roteador por hash (#/enviar, #/sessoes, #/sessao/<id>, #/avaliar/...,
                             #/fotos, #/foto/<id>, #/sobre)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
@@ -47,16 +48,18 @@ site/                       ← publicado no Pages (sem build; módulos ES)
                             sessões e avaliação
   js/metadata/              exifr (rápido) + ExifTool-WASM em Web Worker (completo) → normalize.js
   js/media/                 worker de pixels (prévia, recortes a 100% e métricas)
-  js/storage/               IndexedDB (idb.js) e repositórios de fotos e sessões
+  js/drive/                 login Google (auth.js, token GIS) e REST do Drive (api.js)
+  js/storage/               IndexedDB (idb.js) e repositórios de fotos, sessões e estado do Drive
   js/pipeline/              ingestão de arquivos, fila de envio, análise de pixels (analyze.js) e
-                            sessões/avaliações (organize.js)
+                            sessões/avaliações (organize.js), Drive (sync.js) e backup (backup.js)
   js/ui/                    dom.js (sempre textContent, nunca innerHTML) e telas
   vendor/                   GERADO por `npm run vendor` (não versionado)
 tests/unit/                 node:test (puro + ExifTool real sobre fixtures)
 tests/e2e/                  Playwright, viewport de tablet retrato e paisagem
 tests/fixtures/             gerador de JPEG/CR3 sintéticos com EXIF e MakerNote Canon
+tests/lib/fake-drive.mjs    Drive falso em memória (unitários e ponta a ponta; nada vai ao Google)
 tests/amostras/             conferência das amostras reais (roda só localmente)
-scripts/                    vendor.mjs, serve.mjs
+scripts/                    vendor.mjs, serve.mjs, icons.mjs (PNG dos ícones a partir do SVG)
 importador/                 script Python (v0.5)
 docs/                       catálogo em docs/INDICE.md
 ```
@@ -84,7 +87,7 @@ npm run vendor         # copia exifr e ExifTool-WASM para site/vendor/
 npm run serve          # http://localhost:8765/  (file:// não funciona: módulos ES + wasm)
 npm test               # vendor → fixtures → unitários → ponta a ponta (tudo)
 npm run test:unit      # só unitários
-npm run test:e2e       # só Playwright
+npm run test:e2e       # só Playwright (E2E_PORT=8791 para rodar em paralelo com outra cópia)
 node tests/amostras/conferir.mjs   # relatório das amostras reais em amostras/ (local)
 node tests/amostras/metricas.mjs   # métricas do site sobre as amostras + recortes (local, após o conferir)
 ```
@@ -127,9 +130,11 @@ fixtures, pacotes `.efsessao`, backups `.efbackup` ou credenciais (o `.gitignore
 
 ## Estado atual
 
-**v0.3.0**: sessões sugeridas por dia e avaliação por toque, sobre os recortes e indicadores da
-v0.2; dados só no navegador. Próximo: v0.4 (Google Drive, sincronização, PWA e backup). Ver
-`docs/ROADMAP.md`.
+**v0.3.0** publicada: sessões sugeridas por dia e avaliação por toque, sobre os recortes e
+indicadores da v0.2. **v0.4** (Drive, sincronização, PWA, backup) pronta no ramo `v0.4`, testada
+com um Drive simulado; espera o Client ID do Google Cloud do Guilherme (guia em
+`docs/GUIA-DE-USO.md`) para o primeiro uso real e a publicação. Ver `docs/ROADMAP.md` e a
+decisão 0010.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

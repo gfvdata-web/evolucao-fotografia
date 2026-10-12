@@ -3,10 +3,10 @@
 // (where quality was lost), settings in plain language, what could not be
 // read and the raw metadata.
 import { h, mount, UrlBag, serialized, attachSwipe } from '../dom.js';
-import { getPhoto, listPhotos, getBlob, blobKey, getRawMetadata, deletePhoto } from '../../storage/photos-repo.js';
+import { getPhoto, listPhotos, getBlob, blobKey, getRawMetadata } from '../../storage/photos-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
 import { listSessions } from '../../storage/sessions-repo.js';
-import { assignPhotos } from '../../pipeline/organize.js';
+import { assignPhotos, removePhoto } from '../../pipeline/organize.js';
 import { RATING_LABELS } from '../../core/glossary.js';
 import { formatDate } from '../../core/sessions.js';
 import { scheduleAnalysis, setCropChoice, AF_CROP_PX, UNIFORM_CROP_PX } from '../../pipeline/analyze.js';
@@ -385,11 +385,12 @@ export function photoSheetView(root, { id }) {
             h('button', {
               class: 'btn btn-danger', type: 'button', 'data-testid': 'delete-photo',
               onclick: async () => {
-                if (!confirm('Remover esta foto deste aparelho? (os arquivos originais no seu cartão/tablet não são afetados)')) return;
-                await deletePhoto(photo.id);
+                if (!confirm('Remover esta foto do app? Ela sai deste aparelho e, se o Drive estiver conectado, vai para a lixeira do Drive. '
+                  + 'Os arquivos no cartão e na galeria do tablet não são afetados.')) return;
+                await removePhoto(photo.id);
                 location.hash = '#/fotos';
               },
-            }, 'Remover do aparelho')))));
+            }, 'Remover foto')))));
     bag.revokeAll();
     bag = nextBag;
   });

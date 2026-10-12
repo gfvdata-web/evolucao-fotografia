@@ -8,7 +8,8 @@ Tablet / PC (navegador)
  ├─ Worker de metadados: ExifTool-WASM (MakerNotes, CR3)        ← exifr no thread principal (rápido)
  ├─ Worker de mídia: decodifica, gera prévia, recortes a 100% e métricas de pixels
  ├─ IndexedDB: fotos, sessões, arquivos originais, prévias, metadados completos
- └─ (v0.4) Cliente Drive + token GIS ⇄ Google Drive /EvolucaoFotografia
+ ├─ Service worker (sw.js): o app instalado abre sem internet
+ └─ Cliente Drive (REST) + token GIS ⇄ Google Drive /EvolucaoFotografia (v0.4)
 PC Windows (v0.5): importador Python → pacote .efsessao → mesmo botão de envio
 GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo passar.
 ```
@@ -78,15 +79,16 @@ GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo pas
 Esse JPEG é processado pela câmera (mesmo caminho do JPEG gravado), portanto **não substitui** a
 renderização neutra do RAW, que fica com o importador Python.
 
-## Armazenamento local (IndexedDB `evolucao-fotografia`, versão 2)
+## Armazenamento local (IndexedDB `evolucao-fotografia`, versão 3)
 
 | Store | Chave | Conteúdo |
 |---|---|---|
 | `photos` | `id` | registro da foto (ver MODELO-DE-DADOS); índices `match_key`, `added_at`, `session_id` |
 | `sessions` | `id` | sessão (v0.3) |
+| `sync` | texto | estado do Drive (v0.4): `photo/<id>`, `session/<id>`, `folders`, `tombstones`, `trash`, `upload/<foto>/<arquivo>` |
 | `blobs` | `<id>/original/<variante>`, `<id>/preview`, `<id>/crop/<variante>/<af\|uniform>` | arquivo original, prévia e recortes a 100% (PNG) |
 | `raw_metadata` | `<id>/<variante>` | JSON completo do ExifTool |
-| `meta` | texto | reservado (configurações) |
+| `meta` | texto | `settings` (configurações, v0.4) |
 
 Toda leitura de registro passa por `migrate()`.
 
@@ -99,9 +101,25 @@ a análise roda. Eventos: `changed` (uma foto) e `sessions` em `photoEvents`.
 A tela de avaliação é montada uma vez e só troca a imagem e repinta os controles
 (`ui/rating-controls.js`); o endereço muda com `history.replaceState`, sem recriar a tela.
 
+## Google Drive (v0.4)
+
+- `config.js`: Client ID público do Google (vazio = Drive "não configurado").
+- `drive/auth.js`: Google Identity Services, modelo de token (decisão 0005). Token só na
+  memória; `renewOnGesture` renova no próximo toque (o navegador bloqueia janelas sem toque).
+- `drive/api.js`: REST do Drive v3 com `fetch` injetável (testes usam `tests/lib/fake-drive.mjs`):
+  listar por `appProperties`, pastas, envio multipart (até 5 MB) e "resumable" em partes de
+  8 MB com retomada, mover, copiar, lixeira, baixar.
+- `pipeline/sync.js`: traz → envia (decisão 0010). Gatilhos: mudanças locais (2 s depois),
+  conexão, volta da internet, "Sincronizar agora". Wake Lock durante a execução.
+  `core/drive-layout.js` decide o que vai e onde; `core/gps-strip.js` tira o GPS de uma cópia.
+- `pipeline/backup.js`: `.efbackup` (ZIP de `core/zip.js`), exportar e importar com junção.
+- `pwa.js` + `sw.js` + `manifest.webmanifest`: instalação, armazenamento protegido e cache
+  (código: rede primeiro, cópia guardada sem internet; ExifTool e ícones: cópia primeiro).
+  Os ícones PNG saem de `icons/icon.svg` por `node scripts/icons.mjs`.
+
 ## Telas
 
-`#/enviar` (padrão), `#/sessoes`, `#/sessao/<id>`, `#/avaliar/<escopo>[/<fotoId>]` (escopo = id
+`#/enviar` (padrão), `#/drive` (Drive, configurações, backup, instalação), `#/sessoes`, `#/sessao/<id>`, `#/avaliar/<escopo>[/<fotoId>]` (escopo = id
 da sessão, `sem-sessao` ou `todas`), `#/fotos`, `#/foto/<id>` (ficha; setas, teclado e
 deslize), `#/sobre`.
 Texto vindo de arquivos sempre entra via `textContent` (`ui/dom.js`).
