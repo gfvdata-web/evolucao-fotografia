@@ -129,7 +129,7 @@ if (!capturas.size) {
 }
 
 // Identifica cada captura pelo melhor arquivo de referência (cartão primeiro).
-const ordemRef = ['cartao/JPG', 'cartao/CR3', 'tablet-original/JPG', 'tablet/JPG', 'tablet-raw/CR3'];
+const ordemRef = ['cartao/JPG', 'cartao/CR3', 'tablet-original/JPG', 'tablet/JPG', 'tablet-reduzido/JPG', 'tablet-raw/CR3'];
 const lista = [...capturas.values()].map((c) => {
   c.ref = ordemRef.map((k) => c.versoes[k]).find(Boolean) ?? Object.values(c.versoes)[0];
   c.temRaw = Boolean(c.versoes['cartao/CR3'] || c.versoes['tablet-raw/CR3']);

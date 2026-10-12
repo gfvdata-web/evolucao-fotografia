@@ -147,6 +147,7 @@ export const FOTOS = [
 export const PASTAS = {
   cartao: 'copiadas do cartão pelo leitor (CR3 + JPG, nomes originais)',
   tablet: 'JPG do Camera Connect, com a configuração que você usa sempre',
-  'tablet-original': 'JPG do Camera Connect com "não redimensionar" (F01, F06, F10)',
+  'tablet-original': 'JPG do Camera Connect com "Tam. original" (F01, F06, F10), se o habitual for outro',
+  'tablet-reduzido': 'JPG do Camera Connect com "Reduzido" (F01, F06, F10)',
   'tablet-raw': 'CR3 transferido pelo Camera Connect (opcional, só F01)',
 };

@@ -82,7 +82,8 @@ Coloque tudo nestas pastas dentro de `EvolucaoFotografia\amostras\`, **sem renom
 |---|---|
 | `cartao\` | Do **cartão, pelo leitor**: o CR3 **e** o JPG de todas as fotos. |
 | `tablet\` | Do **Camera Connect**, o JPG de todas as fotos, transferido **do jeito que você sempre faz** (sem mudar a configuração do app). |
-| `tablet-original\` | Só F01, F06 e F10, transferidas de novo com a opção de **não redimensionar** do Camera Connect. Se o app já está assim, deixe a pasta vazia. |
+| `tablet-original\` | Só se o seu habitual **não** for "Tam. original": F01, F06 e F10 transferidas de novo com **Tam. original**. |
+| `tablet-reduzido\` | F01, F06 e F10 transferidas de novo com **Reduzido** (opção "Tamanho do formato JPEG salvo" do Camera Connect), para medir quanto o app reduz. |
 | `tablet-raw\` *(opcional)* | O CR3 da F01 transferido pelo Camera Connect. |
 
 O JPG do cartão é o original da câmera: comparado ao do tablet, mostra o que o caminho altera.
