@@ -8,6 +8,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões
 - Grade, sessões e cenas mostram uma **miniatura de ~400 px** (feita a partir da prévia, só no
   aparelho: não vai ao Drive nem ao backup) e carregam as imagens só quando chegam perto da tela.
 - **Desempenho deste aparelho** na aba Sobre: tempo médio de leitura, prévia e análise por foto.
+- **Acessibilidade**: auditoria automática (axe-core) em todas as telas, nos dois temas, em retrato e
+  paisagem; o progresso do envio, o selo do Drive e o avanço da avaliação são anunciados pelo leitor de tela.
+
+### Alterado
+- Tema claro com verdes, amarelos e azul do foco mais escuros, bordas de botões e campos mais
+  visíveis e botões pequenos com 48 px de altura (contraste e alvo de toque).
 
 ## [0.6.0] — 2026-10-13
 

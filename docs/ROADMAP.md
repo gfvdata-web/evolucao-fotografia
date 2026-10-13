@@ -159,7 +159,7 @@ você marcou" no Painel). Fecha a V1.
   2048 px de cada foto), grade montada aos poucos, "Desempenho deste aparelho" no Sobre (tempo
   de leitura, prévia e análise por foto). Metas a confirmar no Tab S9+: 500 fotos na grade sem
   travar, ~3 s por foto analisada, sessão de 300 fotos sem a aba fechar.
-- **Acessibilidade**: auditoria axe-core nos testes em todas as telas (dois temas, retrato e
+- ✅ **Acessibilidade**: auditoria axe-core nos testes em todas as telas (dois temas, retrato e
   paisagem), foco visível, nomes nos botões de ícone, contraste, fonte do sistema em 200%,
   `aria-live` no envio, na sincronização e na avaliação.
 - **Samsung Internet**: botão "Conferir compatibilidade" no Sobre (cada recurso usado pelo app,
