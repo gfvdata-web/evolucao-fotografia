@@ -168,24 +168,56 @@ você marcou" no Painel). Fecha a V1.
   diagnóstico; avaliadas × não avaliadas; filtro por sessão e período; cada número abre a grade
   filtrada. Tabela "o site disse × você marcou" (veredito × nitidez). Sem cruzamentos (V2).
 - Rever as decisões 0006 e 0010 com o uso real. A Rodada 2 não bloqueia a v1.0.
-- Roadmap da V2 detalhado em entregas, com quantas avaliações cada estatística precisa.
+- ✅ Roadmap da V2 detalhado em entregas, com quantas avaliações cada estatística precisa.
 - **Critério para fechar a V1** (tag `v1.0.0`): tudo do roadmap com teste, `npm test` verde,
   amostras conferidas, importador testado com um cartão real, GUIA completo e conferência no
   Chrome e no Samsung Internet do tablet relatada pelo Guilherme.
 
-## V2 — padrões e experimentos (preparada, não implementada)
-- Painel de padrões cruzando avaliações e indicadores com ISO, velocidade, distância focal,
-  lente, abertura e luz (ex.: % de fotos com ruído por faixa de ISO; % de tremidas por
-  velocidade × distância focal; desempenho por lente).
-- Guia de experimentos mensais, com roteiro e comparação de resultados (usa o campo
-  `experiment` da sessão, que já existe na v0.3).
-- Reprocessamento de sessões antigas com métricas novas a partir dos originais no Drive
-  (`metrics_version` em cada foto identifica o que está desatualizado; comando
-  "reprocessar sessão / todas" previsto no modelo).
-- **Orientações ajustadas pelas avaliações**: a nitidez relativa vira "nítida / não nítida" pelo
-  olho do Guilherme (limite abaixo do qual ele marca tremida ou fora de foco), e os limites do
-  motor de diagnóstico (ruído aceitável por ISO, velocidade mínima por distância focal) passam
-  a ser os dele. Estatística sobre as avaliações, sem treinar modelo.
+## V2 — padrões e experimentos (detalhada na v1.0, não implementada)
+Os quatro itens da V2 em entregas, na ordem em que um depende do outro. Cada número da V2 mostra
+quantas fotos o sustentam (regra 4); abaixo do mínimo, a tela diz "poucas fotos (n)" e não dá
+porcentagem. Os mínimos abaixo são o ponto de partida, a confirmar com o Guilherme ao começar
+cada entrega.
+
+### ⏳ v2.0 — Reprocessamento
+- Comando "reprocessar sessão / todas" (previsto no modelo): refaz recortes, indicadores e
+  diagnóstico das fotos com `metrics_version` menor que o atual, a partir dos originais no
+  aparelho ou baixados do Drive; fila com progresso, retomada e o que não deu para refazer
+  (original ausente) aparece como tal.
+- Aviso na grade e no Painel: "N fotos com medidas antigas".
+- Dados necessários: nenhum. Vem primeiro porque as estatísticas seguintes só valem com todas
+  as fotos medidas pela mesma versão.
+
+### ⏳ v2.1 — Painel de padrões
+- Cruzamentos das avaliações (nitidez, problema principal) e do veredito com: faixa de ISO,
+  margem de velocidade (velocidade × 1/distância focal: ≥ 2×, 1–2×, < 1×), lente, abertura,
+  luz (onde / luz percebida / EV medido) e assunto parado × em movimento.
+- Ex.: % de fotos granuladas por faixa de ISO; % de arrastadas por margem de velocidade;
+  nitidez média por lente e por abertura.
+- Cada porcentagem com o intervalo de incerteza (Wilson) e o n; clique abre a grade filtrada
+  (filtros da v1.0).
+- Dados necessários: **≥ 10 fotos avaliadas por faixa** para mostrar a porcentagem; com
+  ~100 fotos avaliadas em luzes variadas os primeiros padrões aparecem.
+
+### ⏳ v2.2 — Experimentos mensais
+- Guia com roteiros prontos (um parâmetro por vez: ISO, velocidade, abertura, modo de AF,
+  redução de ruído), usando o campo `experiment` da sessão; o roteiro diz o que fixar, o que
+  variar e quantas fotos tirar.
+- Resultado do experimento: comparação por valor do parâmetro (nitidez marcada, desfoque
+  medido, ruído), com aviso quando outro ajuste mudou junto (variação da v0.5.1).
+- Dados necessários: **≥ 5 fotos por valor**, na mesma cena.
+
+### ⏳ v2.3 — Orientações ajustadas pelas avaliações
+- Limite de nitidez pessoal: o desfoque do recorte do AF (`blur_sharp`, `blur_soft`) passa a
+  ser o ponto que separa as fotos que o Guilherme marca nítidas (4–5) das moles (1–2).
+  Precisa de **≥ 30 fotos com nitidez marcada, ≥ 10 de cada lado**.
+- Ruído aceitável por ISO (`iso_ok`, `iso_high`): a faixa de ISO em que ele passa a marcar
+  "granulada". Precisa de **≥ 10 avaliadas por faixa de ISO**.
+- Margem de velocidade da mão dele (`shake_margin`): a partir de quando aparecem "arrastadas".
+  Precisa de **≥ 20 fotos à mão com margem < 2×**.
+- Estatística sobre as avaliações, sem treinar modelo. Cada orientação passa a dizer "pela sua
+  avaliação (n fotos)"; abaixo do mínimo continua "regra geral" (e a Rodada 2, se chegar antes,
+  substitui a regra geral).
 
 ## V3 — IA (a discutir)
 O que a física e os pixels não resolvem: entender o assunto (pessoa, pássaro, paisagem, céu no
