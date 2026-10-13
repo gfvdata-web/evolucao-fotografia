@@ -51,3 +51,12 @@ test('a removed essential feature (OffscreenCanvas) fails and the summary says s
   await expect(page.getByTestId('compat-image_bitmap')).toHaveAttribute('data-state', 'fail');
   await expect(page.getByTestId('compat-summary')).toContainText('essencial');
 });
+
+test('without an essential feature the app warns at once, on any screen', async ({ page }) => {
+  await page.goto('#/fotos');
+  await expect(page.getByTestId('compat-banner')).toHaveCount(0);
+  await page.addInitScript(() => { delete window.OffscreenCanvas; });
+  await page.reload();
+  await expect(page.getByTestId('compat-banner')).toContainText('OffscreenCanvas');
+  await expect(page.getByTestId('compat-banner').getByRole('link', { name: /Conferir compatibilidade/ })).toHaveAttribute('href', '#/sobre');
+});

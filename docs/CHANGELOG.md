@@ -11,6 +11,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões
 - **Acessibilidade**: auditoria automática (axe-core) em todas as telas, nos dois temas, em retrato e
   paisagem; o progresso do envio, o selo do Drive e o avanço da avaliação são anunciados pelo leitor de tela.
 
+- **Conferir compatibilidade** na aba Sobre: testa cada recurso que o app usa (15) e diz o que
+  falha e o que fazer; sem um recurso essencial, o app avisa no topo de qualquer tela.
+- **Painel (beta)**: fotos por nitidez, problema principal e veredito, avaliadas × não avaliadas,
+  filtro por sessão e período e a tabela "o site disse × você marcou"; cada número abre a grade
+  filtrada. O veredito do Painel é calculado sem a sua nota, para a comparação fazer sentido.
+
 ### Alterado
 - Tema claro com verdes, amarelos e azul do foco mais escuros, bordas de botões e campos mais
   visíveis e botões pequenos com 48 px de altura (contraste e alvo de toque).

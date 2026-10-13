@@ -162,9 +162,9 @@ você marcou" no Painel). Fecha a V1.
 - ✅ **Acessibilidade**: auditoria axe-core nos testes em todas as telas (dois temas, retrato e
   paisagem), foco visível, nomes nos botões de ícone, contraste, fonte do sistema em 200%,
   `aria-live` no envio, na sincronização e na avaliação.
-- **Samsung Internet**: botão "Conferir compatibilidade" no Sobre (cada recurso usado pelo app,
+- ✅ **Samsung Internet**: botão "Conferir compatibilidade" no Sobre (cada recurso usado pelo app,
   ok/falha), alternativa ou aviso para o que falhar, roteiro curto de conferência no GUIA.
-- **Painel (beta)** mínimo: fotos por nitidez, por problema principal e por veredito do
+- ✅ **Painel (beta)** mínimo: fotos por nitidez, por problema principal e por veredito do
   diagnóstico; avaliadas × não avaliadas; filtro por sessão e período; cada número abre a grade
   filtrada. Tabela "o site disse × você marcou" (veredito × nitidez). Sem cruzamentos (V2).
 - Rever as decisões 0006 e 0010 com o uso real. A Rodada 2 não bloqueia a v1.0.

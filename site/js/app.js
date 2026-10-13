@@ -88,6 +88,19 @@ updateEvents.addEventListener('change', () => {
       `Este aparelho está com a ${APP_VERSION}. Atualize para manter a sincronização com os outros aparelhos. `];
   showAlert('update', h('span', { 'data-testid': 'update-banner', 'data-reason': updateState.reason }, text, reload));
 });
+// Browser without what the app cannot work without (decision 0016, item 3): say so at once.
+// The full check, with what each feature is for, is "Conferir compatibilidade" in Sobre.
+const missing = [
+  !('indexedDB' in self) && 'banco de dados local (IndexedDB)',
+  typeof Worker === 'undefined' && 'processamento em segundo plano (Web Worker)',
+  typeof WebAssembly === 'undefined' && 'WebAssembly (leitura completa dos metadados)',
+  typeof OffscreenCanvas === 'undefined' && 'desenho fora da tela (OffscreenCanvas: prévias e recortes)',
+].filter(Boolean);
+if (missing.length) {
+  showAlert('compat', h('span', { 'data-testid': 'compat-banner' },
+    h('strong', {}, 'Este navegador não tem o que o app precisa: '), `${missing.join(', ')}. `,
+    'Use o Chrome atualizado ou veja os detalhes em ', h('a', { href: '#/sobre' }, 'Sobre → Conferir compatibilidade'), '.'));
+}
 window.addEventListener('hashchange', route);
 route();
 
