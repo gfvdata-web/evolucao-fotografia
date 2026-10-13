@@ -62,3 +62,10 @@ O Drive é o único lugar compartilhado. Restrições:
   última, e a outra se perde (só aquela foto). Aceitável para um usuário só.
 - O PC (importador, v0.6) segue o mesmo formato: lê e grava `sessao.json` e respeita as lápides.
 - Reprocessar fotos antigas a partir dos originais no Drive (V2) usa os `drive_assets`.
+
+## Revisão na v1.0 (13/10/2026)
+
+Uso real até aqui: uma sincronização no computador (12/10/2026), sem conflito relatado. A
+miniatura da v1.0 não vai ao Drive (refeita da prévia em cada aparelho), então o formato não
+mudou. A revisão completa (dois aparelhos de verdade, conflitos) fica para o fechamento da tag
+`v1.0.0`, com o relato do Guilherme.

@@ -2,7 +2,10 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
-## [Não lançado] — v1.0 em andamento
+## [1.0.0] — 2026-10-13
+
+Polimento e Painel (beta), decisão 0016. A tag `v1.0.0` sai depois da conferência no tablet e
+do importador com um cartão real.
 
 ### Adicionado
 - Grade, sessões e cenas mostram uma **miniatura de ~400 px** (feita a partir da prévia, só no

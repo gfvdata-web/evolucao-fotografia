@@ -48,7 +48,8 @@ site/                       ← publicado no Pages (sem build; módulos ES)
                             #/fotos, #/foto/<id>, #/sobre)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
                             e campos de visão, perfis de câmera e de lente, indicadores, métricas de pixels,
-                            qualidade JPEG, sessões e avaliação, física da exposição e diagnóstico (v0.5)
+                            qualidade JPEG, sessões e avaliação, física da exposição e diagnóstico (v0.5),
+                            Painel e filtro da grade, compatibilidade, contraste e desempenho (v1.0)
   js/metadata/              exifr (rápido) + ExifTool-WASM em Web Worker (completo) → normalize.js
   js/media/                 worker de pixels (prévia, recortes a 100% e métricas)
   js/drive/                 login Google (auth.js, token GIS) e REST do Drive (api.js)
@@ -150,8 +151,12 @@ soltar com o dedo, diagnóstico por cena e variação dos ajustes; `core/scenes.
 `core/scene-diagnosis.js`, `ui/scene-drag.js`; decisão 0014). **v0.6.0**: importador no PC
 (`importador/`, `importar.bat`) e pacote `.efsessao/` em pasta; no site, "Importar pacote do PC",
 versão `raw_neutral` transitória (medida e apagada) e a etapa sensor (`sensorStep`) na ficha;
-decisão 0015. Esquema de dados 7, métricas versão 2. Próximo: v1.0 (polimento e Painel, decisão
-0016). Ver `docs/ROADMAP.md`.
+decisão 0015. Esquema de dados 7, métricas versão 2. **v1.0.0** (código pronto, decisão 0016): miniatura de
+~400 px na grade com montagem aos poucos, "Desempenho deste aparelho" e "Conferir
+compatibilidade" no Sobre, acessibilidade (axe-core em todas as telas), aba **Painel (beta)**
+(`core/dashboard.js`, `core/photo-filter.js`). A tag `v1.0.0` só sai depois que o Guilherme
+testar o importador com um cartão real e conferir o tablet (Chrome e Samsung Internet).
+Próximo: V2 em entregas v2.0–v2.3 (`docs/ROADMAP.md`).
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o
