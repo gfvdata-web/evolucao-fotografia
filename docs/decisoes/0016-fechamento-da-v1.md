@@ -1,7 +1,7 @@
 # 0016 — v1.0: polimento, Painel (beta) e critério para fechar a V1
 
-Data: 2026-10-12 · Situação: **proposta** (preparação da v1.0; nada implementado). Os pontos
-marcados "pede OK" esperam a resposta do Guilherme.
+Data: 2026-10-12 · Situação: **aceita** (v1.0; nada implementado). Proposta em 12/10/2026; o Guilherme
+aceitou as recomendações no mesmo dia (axe-core nos testes; tabela "o site disse × você marcou").
 
 ## Contexto
 
@@ -17,7 +17,7 @@ como medir e quando a V1 está terminada. Pontos já conhecidos:
 - As decisões 0006 (envio com o app aberto) e 0010 (sincronização) pediam revisão depois do uso
   real.
 
-## Decisão (proposta)
+## Decisão
 
 1. **Desempenho no tablet, com números.**
    - Miniatura de ~400 px gerada junto da prévia (blob `<id>/thumb`, refeita para as fotos
@@ -32,7 +32,7 @@ como medir e quando a V1 está terminada. Pontos já conhecidos:
      visíveis (contagem, não tempo, para não ficar instável no CI).
 2. **Acessibilidade.**
    - Auditoria automática com **axe-core** nos testes ponta a ponta, em cada tela, nos dois
-     temas e nas duas orientações (pede OK: dependência nova, só de desenvolvimento; o site não
+     temas e nas duas orientações (aceito: dependência nova, só de desenvolvimento; o site não
      muda).
    - Conferências próprias, sem dependência: alvos de toque ≥ 48 px, foco visível, todo botão
      de ícone com nome, contraste das variáveis de cor de `:root` nos dois temas, página
@@ -50,7 +50,7 @@ como medir e quando a V1 está terminada. Pontos já conhecidos:
      avaliadas × não avaliadas; filtro por sessão e por período;
    - cada número leva à grade de fotos filtrada;
    - sem cruzar com ISO, velocidade, lente etc.: isso é a V2.
-   - Opcional (pede OK): uma tabela "o site disse × você marcou" (veredito × nitidez), que
+   - Aceito: uma tabela "o site disse × você marcou" (veredito × nitidez), que
      mostra onde o diagnóstico discorda do olho dele e prepara os limites da V2.
 5. **Revisões pendentes:** com o uso real até lá, rever as decisões 0006 e 0010 e registrar o
    resultado nelas. A Rodada 2 de amostras **não** bloqueia a v1.0: se chegar antes, os limites

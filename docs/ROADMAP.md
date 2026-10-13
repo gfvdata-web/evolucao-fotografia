@@ -120,9 +120,9 @@ diagnóstico por cena e variação dos ajustes), que usa o diagnóstico de cada 
   feita quando a v0.5 começou: o motor usa regras gerais nesses pontos e diz isso em cada
   orientação. Quando chegar, os limites ficam em `core/diagnosis.js` (`LIMITS`).
 
-### ⏳ v0.6 — Importador Python (Windows)
-Preparada em 12/10/2026 (decisão 0015, **proposta**: pasta ou ZIP e guardar ou não a
-renderização inteira esperam o OK do Guilherme). Começa depois da v0.5.1.
+### 🔨 v0.6 — Importador Python (Windows)
+Preparada em 12/10/2026 (decisão 0015, aceita: pacote em pasta e renderização inteira
+descartada depois de medida).
 
 - **Calibração primeiro**: renderização neutra dos 26 pares de `amostras/cartao/` (tamanho em
   pixels, brilho e geometria nas bordas comparados ao JPEG da câmera) antes de qualquer tela.
@@ -134,7 +134,7 @@ renderização inteira esperam o OK do Guilherme). Começa depois da v0.5.1.
   (`kind: "efpacote"`), originais, JSON do ExifTool e renderização. Uso sem programar:
   `importar.bat` (duplo clique → escolher a pasta do cartão → confirmar → progresso).
 - **No site (PC)**: "Importar pacote do PC" (escolher pasta ou arrastar), sessão sugerida por dia
-  como no envio, variante nova `raw_neutral` (esquema 6) medida pelo mesmo código; a imagem
+  como no envio, variante nova `raw_neutral` (esquema 7) medida pelo mesmo código; a imagem
   inteira é descartada depois de medida e ao Drive vão só recortes e medidas.
 - **Etapa "sensor" na cadeia**: RAW neutro → JPEG da câmera → JPEG do tablet, com o que o
   processamento da câmera mudou (ruído, nitidez, detalhe) e os recortes lado a lado no mesmo
@@ -155,8 +155,8 @@ renderização inteira esperam o OK do Guilherme). Começa depois da v0.5.1.
   da sincronização.
 
 ### ⏳ v1.0 — Polimento + Painel (beta)
-Preparada em 12/10/2026 (decisão 0016, **proposta**: axe-core e a tabela "o site disse × você
-marcou" esperam OK). Fecha a V1.
+Preparada em 12/10/2026 (decisão 0016, aceita: axe-core nos testes e a tabela "o site disse ×
+você marcou" no Painel). Fecha a V1.
 
 - **Desempenho no tablet**: miniatura de ~400 px na grade (hoje a grade carrega a prévia de
   2048 px de cada foto), grade montada aos poucos, "Desempenho deste aparelho" no Sobre (tempo
@@ -169,7 +169,7 @@ marcou" esperam OK). Fecha a V1.
   ok/falha), alternativa ou aviso para o que falhar, roteiro curto de conferência no GUIA.
 - **Painel (beta)** mínimo: fotos por nitidez, por problema principal e por veredito do
   diagnóstico; avaliadas × não avaliadas; filtro por sessão e período; cada número abre a grade
-  filtrada. Sem cruzamentos (V2).
+  filtrada. Tabela "o site disse × você marcou" (veredito × nitidez). Sem cruzamentos (V2).
 - Rever as decisões 0006 e 0010 com o uso real. A Rodada 2 não bloqueia a v1.0.
 - Roadmap da V2 detalhado em entregas, com quantas avaliações cada estatística precisa.
 - **Critério para fechar a V1** (tag `v1.0.0`): tudo do roadmap com teste, `npm test` verde,

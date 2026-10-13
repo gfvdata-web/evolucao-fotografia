@@ -1,7 +1,7 @@
 # 0015 — Importador Python (v0.6): o que ele faz, o pacote e a renderização neutra do RAW
 
-Data: 2026-10-12 · Situação: **proposta** (preparação da v0.6; nada implementado). Os pontos
-marcados "pede OK" esperam a resposta do Guilherme antes de a v0.6 começar.
+Data: 2026-10-12 · Situação: **aceita** (v0.6). Proposta em 12/10/2026; o Guilherme aceitou as
+recomendações no mesmo dia (pacote em pasta; renderização inteira descartada depois de medida).
 
 A numeração pula a 0014, reservada para a v0.5.1 (cenas), em andamento em outra sessão.
 
@@ -21,7 +21,7 @@ tablet basta para o diagnóstico.
 Há 26 pares CR3 + JPG reais em `amostras/cartao/` (1ª rodada), que servem para calibrar a
 renderização.
 
-## Decisão (proposta)
+## Decisão
 
 1. **O importador não calcula indicadores nem fala com o Drive.** Ele entrega arquivos; o site,
    aberto no navegador do PC, importa o pacote, mede tudo com o mesmo código de sempre e sobe ao
@@ -43,7 +43,7 @@ renderização.
 4. **Formato da renderização no pacote: PNG de 8 bits, em tamanho cheio.** O navegador decodifica
    sem perda e o recorte a 100% sai exato. Um JPEG, mesmo em qualidade 100, misturaria a
    compressão na comparação que a renderização existe para fazer.
-5. **Pacote = pasta `<AAAA-MM-DD>_<nome>.efsessao/`** (pede OK), escrita onde o Guilherme
+5. **Pacote = pasta `<AAAA-MM-DD>_<nome>.efsessao/`** (aceito), escrita onde o Guilherme
    escolher (padrão: Área de Trabalho), com `pacote.json` e os arquivos; o site a lê por
    "Importar pacote do PC" (escolher pasta) ou arrastando a pasta para a página. Um pacote por
    dia de fotos; a sessão é sugerida pelo site, como no envio (`core/sessions.js`), sem
@@ -51,7 +51,7 @@ renderização.
    - `pacote.json` usa `kind: "efpacote"` (o `efsessao` já é o tipo do `sessao.json` no Drive),
      `format_version: 1`, `importer_version`, motores (`exiftool`, `libraw`, `rawpy`) e, por
      disparo, os nomes dos arquivos, o JSON do ExifTool e os parâmetros da renderização.
-6. **A renderização inteira não é guardada** (pede OK): no PC, o site mede a variante neutra,
+6. **A renderização inteira não é guardada** (aceito): no PC, o site mede a variante neutra,
    grava os recortes a 100% (PNG, como as outras variantes) e as medidas, e descarta a imagem
    inteira. Ao Drive vão só recortes e medidas (alguns KB por foto, contra 40–70 MB). A imagem
    pode ser refeita a partir do CR3 rodando o importador de novo.
@@ -60,7 +60,7 @@ renderização.
      importe o CR3 de novo para atualizar", em vez de tentar reabrir um arquivo que não existe.
 7. **Modelo de dados:** variante nova `kind: "raw_neutral"`, `source: "importer"`, chave
    `raw_neutral-importer`, `pixels.decoded_from: "libraw"`, `render: {...}` e `transient`.
-   Junta-se à foto pelo mesmo `match_key` do CR3 de origem. Esquema 6, com migração (só a
+   Junta-se à foto pelo mesmo `match_key` do CR3 de origem. Esquema 7 (a v0.5.1 usou o 6), com migração (só a
    versão) e teste com documento antigo.
 8. **Versão principal não muda** (decisão 0008): no empate de pixels, vence o JPEG da câmera. O
    diagnóstico continua medindo o JPEG, que é a foto que o Guilherme usa; a neutra entra na
