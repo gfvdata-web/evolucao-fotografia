@@ -1,0 +1,3 @@
+scripts/check text eol=lf
+.githooks/* text eol=lf
+scripts/* text eol=lf

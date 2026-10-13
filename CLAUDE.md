@@ -90,6 +90,7 @@ npm ci                 # dependências (uma vez)
 npm run vendor         # copia exifr e ExifTool-WASM para site/vendor/
 npm run serve          # http://localhost:8765/  (file:// não funciona: módulos ES + wasm)
 npm test               # vendor → fixtures → unitários → importador (pytest) → ponta a ponta (tudo)
+bash scripts/check   # unitários + importador, sem navegador (hook a cada edição e pre-commit)
 npm run test:unit      # só unitários
 npm run test:py        # só o importador (cria importador/.venv na primeira vez)
 npm run test:e2e       # só Playwright (E2E_PORT=8791 para rodar em paralelo com outra cópia)
@@ -103,7 +104,7 @@ node tests/amostras/sensor.mjs     # etapa sensor medida pelo site nas amostras 
 ## Rotina de cada mudança
 
 1. Algo novo? Atualizar `docs/ROADMAP.md`.
-2. Implementar.
+2. Implementar. Funcionalidade nova ou alterada entra com teste no mesmo commit; o pre-commit roda `scripts/check`.
 3. `npm test` — **só seguir se tudo passar.**
 4. Atualizar os docs afetados e `docs/CHANGELOG.md`; versão em `site/js/version.js` e
    `package.json` quando for entrega.

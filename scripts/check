@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Checagem do repo, sem rede, sem tokens e sem navegador. Silenciosa quando passa; sai com 1 e
+# uma mensagem curta (arquivo / o que quebrou) quando falha.
+#   scripts/check            completo: node --check em site/js, JSON, unitários e pytest do importador
+#   scripts/check <arquivo>  rápido: só o que vale para aquele arquivo (caminho Windows ou relativo)
+# Chamado pelo hook global (~/.claude/hooks/run-check.sh) depois de cada edição e pelo
+# .githooks/pre-commit (completo) antes de cada commit. O Playwright NÃO roda aqui: fica no `npm test`.
+#
+# Cobertura: (unitário = tests/unit, rodado aqui; fluxo de tela = tests/e2e, rodado só pelo npm test)
+#   Envio e metadados (ingestão, exifr/ExifTool, CR3, GPS, normalização)  site/js/metadata, pipeline/ingest.js
+#       unitário: cr3, normalize-exifr, normalize-exiftool, gps-zip-settings, ids, model   e2e: v01-envio-ficha
+#   Recortes e indicadores (métricas de pixels, qualidade JPEG, campos de visão)  site/js/core, media
+#       unitário: image-metrics, indicators, jpeg-quality, campos-de-visao, exposure-lens   e2e: v02-recortes-indicadores
+#   Sessões e avaliação (sessões por dia, nota 1-5, exibição)              core/sessions.js, rating.js
+#       unitário: sessions, rating, display   e2e: v03-sessoes-avaliacao
+#   Drive falso, backup e PWA (sync, backup .efbackup, versão do app)      site/js/drive, pipeline/sync.js, backup.js, sw.js
+#       unitário: drive (com tests/lib/fake-drive.mjs), app-version   e2e: v04-drive-backup-pwa, v05-atualizacao
+#   Diagnóstico de uma foto (limites LIMITS, orientação)                   core/diagnosis.js
+#       unitário: diagnosis   e2e: v05-diagnostico
+#   Cenas na sessão (separação, diagnóstico por cena)                      core/scenes.js, scene-diagnosis.js
+#       unitário: scenes   e2e: v05-cenas
+#   Importador e pacote .efsessao (PC: ExifTool, revelação neutra; site: importar pacote)
+#       pytest: importador/tests (via npm run test:py)   unitário: pacote-importador   e2e: v06-importador
+#   Etapa sensor (sensorStep, versão raw_neutral)                          core, pipeline/analyze.js
+#       unitário: pacote-importador, image-metrics   e2e: v06-importador
+#   (sem teste aqui: telas, toque, retrato/paisagem, Service Worker e Drive de verdade — exigem navegador/rede; e2e roda no npm test)
+
+cd "$(dirname "$0")/.." || exit 1
+export NODE_OPTIONS="--disable-warning=ExperimentalWarning" PYTHONDONTWRITEBYTECODE=1
+alvo="$(printf '%s' "${1:-}" | sed 's#\\#/#g')"; alvo="${alvo#"$(pwd -W 2>/dev/null || pwd)/"}"; alvo="${alvo#"$(pwd)/"}"
+falhas=0
+
+rodar() {  # rodar <rótulo> <comando...>: silencioso se passa; senão mostra o fim da saída
+  local saida
+  saida="$("${@:2}" 2>&1)" || { echo "FALHOU: $1"; printf '%s\n' "$saida" | tail -n 45; falhas=1; }
+}
+checar_js() { for f in "$@"; do out="$(node --check "$f" 2>&1)" || { echo "JS inválido: $f"; printf '%s\n' "$out" | head -5; falhas=1; }; done; }
+checar_json() {
+  for f in "$@"; do
+    out="$(node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$f" 2>&1)" \
+      || { echo "JSON inválido: $f"; printf '%s\n' "$out" | grep -m1 -i error; falhas=1; }
+  done
+}
+checar_py() {
+  for f in "$@"; do
+    out="$(python -B -c 'import sys; compile(open(sys.argv[1],encoding="utf-8").read(), sys.argv[1], "exec")' "$f" 2>&1)" \
+      || { echo "Python inválido: $f"; printf '%s\n' "$out" | tail -2; falhas=1; }
+  done
+}
+preparar() {  # vendor e fixtures são gerados (não versionados)
+  [ -d site/vendor ] || rodar "npm run vendor" npm run --silent vendor
+  [ -d tests/fixtures/generated ] || rodar "npm run fixtures" npm run --silent fixtures
+}
+unitarios() { preparar; rodar "testes unitários" node --test "tests/unit/**/*.test.mjs"; }
+unitario_de() {  # roda só os testes unitários que citam o arquivo (pelo nome)
+  local base; base="$(basename "$1")"
+  mapfile -t ts < <(grep -l -F "/$base" tests/unit/*.test.mjs 2>/dev/null)
+  [ "${#ts[@]}" -gt 0 ] || return 0
+  preparar; rodar "testes de $base" node --test "${ts[@]}"
+}
+
+case "$alvo" in
+  "")
+    mapfile -t js < <(find site/js tests scripts \( -name '*.js' -o -name '*.mjs' \) -not -path '*/vendor/*' -not -path '*/node_modules/*')
+    checar_js "${js[@]}"
+    mapfile -t json < <(ls ./*.json site/*.webmanifest importador/tests/*.json 2>/dev/null); checar_json "${json[@]}"
+    mapfile -t py < <(find importador -name '*.py' -not -path '*/.venv/*'); checar_py "${py[@]}"
+    unitarios
+    rodar "pytest do importador" npm run --silent test:py
+    ;;
+  tests/unit/*.test.mjs)     checar_js "$alvo"; preparar; rodar "$alvo" node --test "$alvo" ;;
+  tests/*.mjs|scripts/*.mjs) checar_js "$alvo" ;;
+  site/js/*.js)              checar_js "$alvo"; unitario_de "$alvo" ;;
+  importador/*.py)           checar_py "$alvo" ;;
+  *.json|*.webmanifest)      checar_json "$alvo" ;;
+  *)                         : ;;
+esac
+exit $falhas
