@@ -25,3 +25,5 @@
 | [decisoes/0011-diagnostico-com-orientacao.md](decisoes/0011-diagnostico-com-orientacao.md) | O site passa a orientar (com o porquê); cenas com arrastar e soltar; motor de diagnóstico sem IA; IA fica para a V3 |
 | [decisoes/0012-avaliacao-por-sintoma.md](decisoes/0012-avaliacao-por-sintoma.md) | Avaliação: nitidez 1–5 em botões (não slider), problema principal pelo sintoma, onde/luz/assunto; luz da cena calculada pela exposição |
 | [decisoes/0013-motor-de-diagnostico.md](decisoes/0013-motor-de-diagnostico.md) | v0.5 em duas entregas; luz pelo fotômetro; desfoque de Crété-Roffet; foco errado pelos trechos a 100%; limites calibrados nas amostras |
+| [decisoes/0015-importador-e-pacote-de-sessao.md](decisoes/0015-importador-e-pacote-de-sessao.md) | Proposta da v0.6: importador só entrega arquivos (sem métricas, sem Drive), renderização neutra do RAW em PNG, pacote em pasta, imagem inteira descartada depois de medida |
+| [decisoes/0016-fechamento-da-v1.md](decisoes/0016-fechamento-da-v1.md) | Proposta da v1.0: miniaturas e desempenho medido no tablet, axe-core, compatibilidade com o Samsung Internet, Painel (beta) e critério para fechar a V1 |

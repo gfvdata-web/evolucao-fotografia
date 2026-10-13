@@ -281,8 +281,17 @@ aparecer "erro 401: invalid_client" ou "origin_mismatch", espere um pouco e tent
    aparece a pasta **EvolucaoFotografia**.
 ## No computador (importador Python)
 
-Chega na **v0.6**. Instalação no Windows (Python, ExifTool via `winget install
-OliverBetz.ExifTool`, dependências) e uso serão descritos aqui.
+Chega na **v0.6** (plano na decisão 0015). Ele lê o cartão no PC e revela o CR3 sem o
+processamento da câmera, para você ver o que a redução de ruído e a nitidez da câmera mudam.
+Para o dia a dia e o diagnóstico, o JPEG L enviado pelo tablet basta.
+
+**Para adiantar (opcional):** instalar o ExifTool no PC. Abra o **Prompt de Comando** e rode:
+
+```bash
+winget install OliverBetz.ExifTool
+```
+
+O Python 3.13 já está instalado. O resto (dependências e o `importar.bat`) vem com a v0.6.
 
 ## Amostras de calibração
 
