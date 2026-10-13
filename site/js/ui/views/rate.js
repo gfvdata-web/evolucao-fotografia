@@ -222,7 +222,7 @@ export function rateView(root, { scope, photoId = null }) {
     mount(root,
       h('nav', { class: 'sheet-nav rate-nav' },
         backLink,
-        h('div', { class: 'rate-where' }, h('strong', { class: 'small' }, data.title), position, progress),
+        h('div', { class: 'rate-where', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }, h('strong', { class: 'small' }, data.title), position, progress),
         h('span', { class: 'sheet-arrows' }, prevBtn, nextBtn)),
       h('div', { class: 'rate-layout' },
         h('div', { class: 'rate-left' },

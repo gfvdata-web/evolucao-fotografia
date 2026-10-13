@@ -246,7 +246,7 @@ function ratingBlock(photo, sessions) {
     h('p', { 'data-testid': 'rating-summary' }, r ? parts.join(' · ') : h('span', { class: 'muted' }, 'Ainda não avaliada.')),
     r?.note ? h('p', { class: 'small' }, r.note) : null,
     h('label', { class: 'form-field' }, h('span', { class: 'form-label' }, 'Sessão'), select),
-    photo.session_id ? h('a', { class: 'small', href: `#/sessao/${photo.session_id}` }, 'Abrir a sessão') : null);
+    photo.session_id ? h('a', { class: 'btn btn-small', href: `#/sessao/${photo.session_id}` }, 'Abrir a sessão') : null);
 }
 
 function settingsTable(capture, reading) {

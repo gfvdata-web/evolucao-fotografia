@@ -1,5 +1,6 @@
 // Small Drive status in the top bar: pending / syncing / synced / reconnect.
-// Hidden while the Drive is not configured or was never connected here.
+// Empty while the Drive is not configured or was never connected here. The container is a
+// polite live region (role=status) that stays in the page, so a change of state is announced.
 import { h, mount } from './dom.js';
 import { auth, authEvents } from '../drive/auth.js';
 import { syncStatus, syncEvents } from '../pipeline/sync.js';
@@ -19,8 +20,7 @@ function view() {
 export function mountSyncBadge(el) {
   const paint = () => {
     const v = view();
-    el.hidden = !v;
-    if (!v) return;
+    if (!v) { mount(el); return; }
     mount(el, h('a', { href: '#/drive', class: `chip st-${v[0]} sync-badge`, 'data-testid': 'sync-badge' }, v[1]));
   };
   paint();

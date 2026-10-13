@@ -98,8 +98,10 @@ function renderQueue(listEl, summaryEl) {
 }
 
 export function uploadView(root) {
-  const listEl = h('ol', { class: 'queue-list', 'aria-live': 'polite' });
-  const summaryEl = h('p', { class: 'muted', 'data-testid': 'queue-summary' });
+  const listEl = h('ol', { class: 'queue-list' });
+  // The summary changes per file (not per percentage), so it is the one polite announcement;
+  // the list is rebuilt on every update and would be read again in full if it were live.
+  const summaryEl = h('p', { class: 'muted', 'data-testid': 'queue-summary', role: 'status', 'aria-live': 'polite' });
   const suggestions = sessionSuggestions({ title: 'Organizar em sessões' });
 
   const drop = h('section', { class: 'card dropzone', 'data-testid': 'dropzone' },
