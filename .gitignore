@@ -47,3 +47,5 @@ importador/saida/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+.claude/worktrees/

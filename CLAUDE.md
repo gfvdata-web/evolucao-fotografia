@@ -90,7 +90,7 @@ npm ci                 # dependências (uma vez)
 npm run vendor         # copia exifr e ExifTool-WASM para site/vendor/
 npm run serve          # http://localhost:8765/  (file:// não funciona: módulos ES + wasm)
 npm test               # vendor → fixtures → unitários → importador (pytest) → ponta a ponta (tudo)
-bash scripts/check   # unitários + importador, sem navegador (hook a cada edição e pre-commit)
+bash scripts/check      # unitários + importador, sem navegador (hook a cada edição e pre-commit)
 npm run test:unit      # só unitários
 npm run test:py        # só o importador (cria importador/.venv na primeira vez)
 npm run test:e2e       # só Playwright (E2E_PORT=8791 para rodar em paralelo com outra cópia)

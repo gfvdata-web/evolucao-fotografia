@@ -49,7 +49,11 @@ checar_py() {
 }
 preparar() {  # vendor e fixtures são gerados (não versionados)
   [ -d site/vendor ] || rodar "npm run vendor" npm run --silent vendor
-  [ -d tests/fixtures/generated ] || rodar "npm run fixtures" npm run --silent fixtures
+  # refaz as fixtures quando faltam ou quando o gerador mudou depois delas
+  if [ ! -f tests/fixtures/generated/anotacoes.txt ] \
+    || [ -n "$(find tests/fixtures -name '*.mjs' -not -path '*/generated/*' -newer tests/fixtures/generated/anotacoes.txt)" ]; then
+    rodar "npm run fixtures" npm run --silent fixtures
+  fi
 }
 unitarios() { preparar; rodar "testes unitários" node --test "tests/unit/**/*.test.mjs"; }
 unitario_de() {  # roda só os testes unitários que citam o arquivo (pelo nome)
