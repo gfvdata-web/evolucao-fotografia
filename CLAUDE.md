@@ -141,7 +141,8 @@ na ficha, veredito na grade; `core/diagnosis.js`, limites em `LIMITS` calibrados
 decisões 0011 e 0013). **v0.5.1**: cenas na sessão (separação automática com motivo, arrastar e
 soltar com o dedo, diagnóstico por cena e variação dos ajustes; `core/scenes.js`,
 `core/scene-diagnosis.js`, `ui/scene-drag.js`; decisão 0014). Esquema de dados 6, métricas
-versão 2. Próximo: v0.6 (importador Python). Ver `docs/ROADMAP.md`.
+versão 2. Próximo: v0.6 (importador) e v1.0 (polimento e Painel), já preparadas como propostas
+nas decisões 0015 e 0016, à espera do OK do Guilherme nos pontos marcados. Ver `docs/ROADMAP.md`.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

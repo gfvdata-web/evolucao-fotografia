@@ -121,13 +121,24 @@ diagnóstico por cena e variação dos ajustes), que usa o diagnóstico de cada 
   orientação. Quando chegar, os limites ficam em `core/diagnosis.js` (`LIMITS`).
 
 ### ⏳ v0.6 — Importador Python (Windows)
-- `importador/`: ExifTool (metadados completos), rawpy/LibRaw (renderização neutra do RAW, sem
-  redução de ruído nem nitidez), prévias, recortes e "pacote de sessão" `.efsessao` (ZIP sem
-  compressão, lido por partes no navegador).
-- O site importa o pacote pelo mesmo botão de envio e sobe ao Drive pelo fluxo normal.
-- Comparação lado a lado: recorte do RAW neutro × recorte do JPEG da câmera (entra na cadeia
-  de etapas como a etapa "sensor").
-- Testes com pytest; guia de instalação no Windows.
+Preparada em 12/10/2026 (decisão 0015, **proposta**: pasta ou ZIP e guardar ou não a
+renderização inteira esperam o OK do Guilherme). Começa depois da v0.5.1.
+
+- **Calibração primeiro**: renderização neutra dos 26 pares de `amostras/cartao/` (tamanho em
+  pixels, brilho e geometria nas bordas comparados ao JPEG da câmera) antes de qualquer tela.
+- `importador/` (Python 3.13): ExifTool nativo com os mesmos argumentos do site
+  (`-json -l -G1`), rawpy/LibRaw para a **renderização neutra do RAW** (AHD, balanço da câmera,
+  sRGB, sem redução de ruído, sem nitidez, sem correção da lente), PNG de 8 bits em tamanho
+  cheio. Não calcula indicadores (regra 6) e não fala com o Drive.
+- **Pacote de sessão** `<AAAA-MM-DD>_<nome>.efsessao/`: uma pasta por dia, com `pacote.json`
+  (`kind: "efpacote"`), originais, JSON do ExifTool e renderização. Uso sem programar:
+  `importar.bat` (duplo clique → escolher a pasta do cartão → confirmar → progresso).
+- **No site (PC)**: "Importar pacote do PC" (escolher pasta ou arrastar), sessão sugerida por dia
+  como no envio, variante nova `raw_neutral` (esquema 6) medida pelo mesmo código; a imagem
+  inteira é descartada depois de medida e ao Drive vão só recortes e medidas.
+- **Etapa "sensor" na cadeia**: RAW neutro → JPEG da câmera → JPEG do tablet, com o que o
+  processamento da câmera mudou (ruído, nitidez, detalhe) e os recortes lado a lado no mesmo
+  trecho da cena.
 - **Pedido do Guilherme (2026-10-12), ler antes de começar a v0.6:** deixar claro **na tela**,
   de forma intuitiva, que enviar o CR3 junto com o JPEG permite ver o que o processamento da
   câmera acrescenta ou tira (redução de ruído, nitidez do Picture Style, otimizador da lente):
@@ -136,11 +147,34 @@ diagnóstico por cena e variação dos ajustes), que usa o diagnóstico de cada 
   propor: aviso no envio e na ficha quando só há JPEG ("envie o CR3 pelo importador para ver a
   foto sem o processamento da câmera"), selo na foto que tem a etapa "sensor", explicação no
   Sobre. Lembrar que o CR3 chega pelo importador no computador, não pelo envio do tablet.
+- Testes: pytest (rawpy simulado; pacote e parâmetros), conferência local sobre
+  `amostras/cartao/`, ponta a ponta `tests/e2e/v06-*.spec.mjs` com um pacote sintético.
+- GUIA-DE-USO: instalação no Windows (ExifTool por `winget`, dependências com um comando) e uso
+  passo a passo. **Para adiantar** (Guilherme): instalar o ExifTool no PC; o Python 3.13 já está.
+- A testar pelo Guilherme no PC: importar um cartão real e abrir a mesma foto no tablet depois
+  da sincronização.
 
 ### ⏳ v1.0 — Polimento + Painel (beta)
-- Acessibilidade, desempenho no tablet, Samsung Internet.
-- Aba "Painel (beta)" mínima: contagem de fotos por avaliação.
-- Roadmap da V2 detalhado.
+Preparada em 12/10/2026 (decisão 0016, **proposta**: axe-core e a tabela "o site disse × você
+marcou" esperam OK). Fecha a V1.
+
+- **Desempenho no tablet**: miniatura de ~400 px na grade (hoje a grade carrega a prévia de
+  2048 px de cada foto), grade montada aos poucos, "Desempenho deste aparelho" no Sobre (tempo
+  de leitura, prévia e análise por foto). Metas a confirmar no Tab S9+: 500 fotos na grade sem
+  travar, ~3 s por foto analisada, sessão de 300 fotos sem a aba fechar.
+- **Acessibilidade**: auditoria axe-core nos testes em todas as telas (dois temas, retrato e
+  paisagem), foco visível, nomes nos botões de ícone, contraste, fonte do sistema em 200%,
+  `aria-live` no envio, na sincronização e na avaliação.
+- **Samsung Internet**: botão "Conferir compatibilidade" no Sobre (cada recurso usado pelo app,
+  ok/falha), alternativa ou aviso para o que falhar, roteiro curto de conferência no GUIA.
+- **Painel (beta)** mínimo: fotos por nitidez, por problema principal e por veredito do
+  diagnóstico; avaliadas × não avaliadas; filtro por sessão e período; cada número abre a grade
+  filtrada. Sem cruzamentos (V2).
+- Rever as decisões 0006 e 0010 com o uso real. A Rodada 2 não bloqueia a v1.0.
+- Roadmap da V2 detalhado em entregas, com quantas avaliações cada estatística precisa.
+- **Critério para fechar a V1** (tag `v1.0.0`): tudo do roadmap com teste, `npm test` verde,
+  amostras conferidas, importador testado com um cartão real, GUIA completo e conferência no
+  Chrome e no Samsung Internet do tablet relatada pelo Guilherme.
 
 ## V2 — padrões e experimentos (preparada, não implementada)
 - Painel de padrões cruzando avaliações e indicadores com ISO, velocidade, distância focal,
