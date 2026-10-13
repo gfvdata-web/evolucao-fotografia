@@ -26,6 +26,7 @@ import { missingFields, refreshRecord } from '../core/model.js';
 import { fromExifTool } from '../metadata/normalize.js';
 import * as repo from '../storage/photos-repo.js';
 import { notifyChanged, withLock, lockKeyOf } from './photo-events.js';
+import { recordTiming } from './perf.js';
 
 export const AF_CROP_PX = 512;
 export const UNIFORM_CROP_PX = 256;
@@ -89,6 +90,7 @@ async function run(photoId, force) {
   // Primary first: it decides the automatic uniform area for the others.
   const ordered = [primary, ...record.variants.filter((v) => v !== primary)];
   const results = new Map();
+  const tAnalysis = performance.now();
   for (const v of ordered) {
     const file = await repo.getBlob(repo.blobKey.original(record.id, v.key));
     if (!file) continue;
@@ -106,6 +108,7 @@ async function run(photoId, force) {
   // No original on this device (photo that came from the Drive or a backup
   // without originals): keep the analysis made where the photo was sent.
   if (!results.size) return;
+  if ([...results.values()].some((r) => !r.error)) recordTiming('analysis', performance.now() - tAnalysis);
 
   const now = new Date().toISOString();
   await withLock(lockKeyOf(record), async () => {

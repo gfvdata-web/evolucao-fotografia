@@ -37,6 +37,12 @@ function request(type, args) {
 export const makePreview = (file, kind, orientation = 1) => request('preview', { file, kind, orientation });
 
 /**
+ * Grid thumbnail (long edge ~400 px, JPEG) from a stored preview blob.
+ * @returns {Promise<{thumbBlob: Blob, thumbWidth: number, thumbHeight: number}>}
+ */
+export const makeThumb = (previewBlob) => request('thumb', { file: previewBlob });
+
+/**
  * Full-resolution analysis: JPEG header, 100% crops (PNG) and their metrics.
  * Rects are normalized on the displayed image; uniformRect null = automatic search.
  */

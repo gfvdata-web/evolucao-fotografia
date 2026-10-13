@@ -1,19 +1,19 @@
 // "Sessões": photos without a session (suggested by capture day) and the
 // list of sessions with how many photos are already rated.
 import { h, mount, UrlBag, serialized } from '../dom.js';
-import { listPhotos, getBlob, blobKey } from '../../storage/photos-repo.js';
+import { listPhotos } from '../../storage/photos-repo.js';
 import { listSessions } from '../../storage/sessions-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
 import { formatDate, sessionPhotos } from '../../core/sessions.js';
 import { ratingSummary } from '../../core/rating.js';
 import { EXPERIMENT_LABELS } from '../../core/glossary.js';
 import { sessionSuggestions } from '../session-suggestions.js';
+import { thumbImage } from './photos.js';
 
 async function sessionCard(session, photos, bag) {
   const { rated, total } = ratingSummary(photos);
-  const cover = photos[0] ? await getBlob(blobKey.preview(photos[0].id)) : null;
   return h('a', { class: 'photo-card session-card', href: `#/sessao/${session.id}`, 'data-testid': 'session-card' },
-    cover ? h('img', { src: bag.url(cover), alt: '', loading: 'lazy' }) : h('div', { class: 'no-preview' }, 'sem fotos'),
+    photos[0]?.preview ? thumbImage(photos[0], bag, '', () => h('div', { class: 'no-preview' }, 'sem prévia')) : h('div', { class: 'no-preview' }, 'sem fotos'),
     h('div', { class: 'photo-card-body' },
       h('div', { class: 'photo-card-title' }, session.name),
       h('div', { class: 'muted small' }, [formatDate(session.date) || 'sem data', session.location].filter(Boolean).join(' · ')),

@@ -9,6 +9,8 @@ import { jpegSummary } from '../core/jpeg-quality.js';
 
 const PREVIEW_LONG_EDGE = 2048;
 const PREVIEW_QUALITY = 0.85;
+const THUMB_LONG_EDGE = 400; // grid thumbnail, derived from the preview
+const THUMB_QUALITY = 0.8;
 const SEARCH_LONG_EDGE = 600; // downscaled copy: uniform-area search, histogram, signature
 const TILE_PX = 256; // 100% tiles spread over the photo (sharpness elsewhere than the focus)
 const HEADER_BYTES = 256 * 1024;
@@ -47,6 +49,24 @@ function drawOriented(img, dw, dh, src = null) {
   return { canvas, ctx };
 }
 
+/** JPEG thumbnail (long edge ~400 px) of an already oriented canvas or bitmap. */
+async function thumbOf(source, sw, sh) {
+  const scale = Math.min(1, THUMB_LONG_EDGE / Math.max(sw, sh));
+  const tw = Math.max(1, Math.round(sw * scale));
+  const th = Math.max(1, Math.round(sh * scale));
+  const canvas = new OffscreenCanvas(tw, th);
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(source, 0, 0, tw, th);
+  return { thumbBlob: await canvas.convertToBlob({ type: 'image/jpeg', quality: THUMB_QUALITY }), thumbWidth: tw, thumbHeight: th };
+}
+
+/** Thumbnail from a stored preview (JPEG already in display orientation). */
+async function thumbFromPreview(blob) {
+  const bitmap = await createImageBitmap(blob);
+  try { return await thumbOf(bitmap, bitmap.width, bitmap.height); } finally { bitmap.close(); }
+}
+
 async function previewOf(file, kind, orientation) {
   const img = await decode(file, kind, orientation);
   const scale = Math.min(1, PREVIEW_LONG_EDGE / Math.max(img.width, img.height));
@@ -55,8 +75,9 @@ async function previewOf(file, kind, orientation) {
   const { canvas } = drawOriented(img, pw, ph);
   img.bitmap.close();
   const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: PREVIEW_QUALITY });
+  const { thumbBlob } = await thumbOf(canvas, pw, ph);
   return {
-    width: img.width, height: img.height, previewBlob: blob, previewWidth: pw, previewHeight: ph,
+    width: img.width, height: img.height, previewBlob: blob, previewWidth: pw, previewHeight: ph, thumbBlob,
     decodedFrom: kind === 'cr3' ? 'cr3-embedded-jpeg' : 'jpeg',
   };
 }
@@ -170,6 +191,7 @@ self.onmessage = (event) => {
     try {
       let data;
       if (type === 'preview') data = await previewOf(args.file, args.kind, args.orientation);
+      else if (type === 'thumb') data = await thumbFromPreview(args.file);
       else if (type === 'analyze') data = await analyze(args);
       else throw new Error(`pedido desconhecido: ${type}`);
       self.postMessage({ id, ok: true, data });

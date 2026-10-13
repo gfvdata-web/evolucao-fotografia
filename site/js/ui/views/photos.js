@@ -1,7 +1,8 @@
 // "Fotos" screen: grid of everything stored on this device.
 import { h, mount, UrlBag, serialized } from '../dom.js';
-import { listPhotos, getBlob, blobKey } from '../../storage/photos-repo.js';
+import { listPhotos } from '../../storage/photos-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
+import { getThumb } from '../../pipeline/thumbs.js';
 import { formatDateTime, formatShutter, formatAperture, formatIso, formatFocal } from '../../core/format.js';
 import { buildIndicators } from '../../core/indicators.js';
 import { RATING_LABELS, variantBadge, variantKindLabel } from '../../core/glossary.js';
@@ -44,12 +45,21 @@ export function ratingChip(photo) {
     `${r.sharpness}/5 · ${RATING_LABELS.problem[r.problem]}`);
 }
 
+const noPreview = () => h('div', { class: 'no-preview' }, 'sem prévia');
+
+/**
+ * Thumbnail (~400 px) filled only when the card nears the screen (v1.0): grids
+ * with hundreds of photos never decode them all. The full preview is for the sheet.
+ */
+export function thumbImage(photo, bag, alt, fallback = noPreview) {
+  return bag.lazyImage(h('img', { alt, 'data-testid': 'thumb', decoding: 'async' }), () => getThumb(photo.id), fallback);
+}
+
 /**
  * Photo card for grids. `opts.href` = link (default: the photo sheet);
  * `opts.onSelect` turns it into a toggle button; `opts.extra` = more lines.
  */
 export async function photoCard(photo, bag, opts = {}) {
-  const preview = await getBlob(blobKey.preview(photo.id));
   const c = photo.capture;
   const settings = [formatFocal(c.lens.focal_length_mm), formatAperture(c.exposure.aperture),
     formatShutter(c.exposure.shutter_s), formatIso(c.exposure.iso)].filter(Boolean).join(' · ');
@@ -60,9 +70,7 @@ export async function photoCard(photo, bag, opts = {}) {
       'data-testid': 'photo-card', onclick: opts.onSelect, onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opts.onSelect(); } } }
     : { class: 'photo-card', href: opts.href || `#/foto/${encodeURIComponent(photo.id)}`, 'data-testid': 'photo-card' };
   return h(opts.onSelect ? 'div' : 'a', attrs,
-    preview
-      ? h('img', { src: bag.url(preview), alt: `Prévia de ${photo.variants[0]?.file.name}`, loading: 'lazy' })
-      : h('div', { class: 'no-preview' }, 'sem prévia'),
+    photo.preview ? thumbImage(photo, bag, `Prévia de ${photo.variants[0]?.file.name}`) : noPreview(),
     h('div', { class: 'photo-card-body' },
       h('div', { class: 'badges' }, photo.variants.map((v) => h('span', {
         class: `badge badge-${v.kind}`, title: variantKindLabel(v.kind), 'data-testid': `badge-${v.kind}`,

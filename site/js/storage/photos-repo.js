@@ -29,6 +29,8 @@ export async function listPhotos() {
 export const blobKey = {
   original: (photoId, variantKey) => `${photoId}/original/${variantKey}`,
   preview: (photoId) => `${photoId}/preview`,
+  /** ~400 px grid thumbnail derived from the preview; local cache only (never synced nor backed up) */
+  thumb: (photoId) => `${photoId}/thumb`,
   /** 100% crop (PNG) of one variant; which = 'af' | 'uniform' */
   crop: (photoId, variantKey, which) => `${photoId}/crop/${variantKey}/${which}`,
 };
@@ -43,6 +45,7 @@ export async function savePhoto(record, { blobs = [], rawMetadata = [], dropBlob
 }
 
 export const getBlob = (key) => idb.get('blobs', key);
+export const putBlob = (key, blob) => idb.write([{ store: 'blobs', key, value: blob }]);
 export const getRawMetadata = (photoId, variantKey) => idb.get('raw_metadata', `${photoId}/${variantKey}`);
 
 export async function deletePhoto(id) {

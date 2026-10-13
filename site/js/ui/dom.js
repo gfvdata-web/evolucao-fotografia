@@ -51,9 +51,46 @@ export function serialized(fn) {
 
 /** Object URLs created for a view; revoked when the view is left. */
 export class UrlBag {
-  constructor() { this.urls = []; }
+  constructor() { this.urls = []; this.observer = null; this.loaders = new Map(); this.dead = false; }
   url(blob) { const u = URL.createObjectURL(blob); this.urls.push(u); return u; }
-  revokeAll() { for (const u of this.urls) URL.revokeObjectURL(u); this.urls = []; }
+
+  /**
+   * Fills `img` only when it comes near the screen: `load()` resolves to a blob
+   * (or null: the image is replaced by `fallback()`). Marks the image with
+   * data-thumb="loading|loaded|none". Object URLs are revoked by revokeAll().
+   */
+  lazyImage(img, load, fallback) {
+    if (typeof IntersectionObserver === 'undefined') { this.fill(img, load, fallback); return img; }
+    this.observer ??= new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        this.observer?.unobserve(e.target);
+        const job = this.loaders.get(e.target);
+        this.loaders.delete(e.target);
+        if (job) this.fill(e.target, job.load, job.fallback);
+      }
+    }, { rootMargin: '600px 0px' });
+    this.loaders.set(img, { load, fallback });
+    this.observer.observe(img);
+    return img;
+  }
+
+  async fill(img, load, fallback) {
+    img.dataset.thumb = 'loading';
+    let blob = null;
+    try { blob = await load(); } catch { blob = null; }
+    if (this.dead) return;
+    if (blob) { img.src = this.url(blob); img.dataset.thumb = 'loaded'; } else { img.dataset.thumb = 'none'; img.replaceWith(fallback()); }
+  }
+
+  revokeAll() {
+    this.dead = true;
+    this.observer?.disconnect();
+    this.observer = null;
+    this.loaders.clear();
+    for (const u of this.urls) URL.revokeObjectURL(u);
+    this.urls = [];
+  }
 }
 
 /** Horizontal swipe on `el` (≥ 60 px, mostly horizontal); `enabled()` can pause it. */

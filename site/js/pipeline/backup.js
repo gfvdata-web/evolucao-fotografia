@@ -26,6 +26,9 @@ async function crcOf(blob) {
   return crc;
 }
 
+/** Thumbnails are a local cache rebuilt from the preview: not worth the backup size. */
+export const isThumbKey = (k) => k.endsWith('/thumb');
+
 async function blobKeys() {
   const db = await idb.openDb();
   return new Promise((resolve, reject) => {
@@ -57,7 +60,7 @@ export async function exportBackup({ includeOriginals = false, onProgress = () =
     exported_at: at, settings: { ...settings, updated_at: settingsAt }, sessions, photos, raw_metadata: raw,
   };
   const ids = new Set(photos.map((p) => p.id));
-  const keys = (await blobKeys()).filter((k) => ids.has(k.split('/')[0]) && (includeOriginals || !k.includes('/original/')));
+  const keys = (await blobKeys()).filter((k) => ids.has(k.split('/')[0]) && (includeOriginals || !k.includes('/original/')) && !isThumbKey(k));
 
   const parts = [];
   const entries = [];

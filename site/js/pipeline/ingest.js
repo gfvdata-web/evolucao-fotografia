@@ -8,6 +8,7 @@ import { readQuickMetadata, QUICK_ENGINE } from '../metadata/quick.js';
 import { readFullMetadata } from '../metadata/exiftool-client.js';
 import { fromExifTool, exifToolVersion, countTags } from '../metadata/normalize.js';
 import { makePreview } from '../media/media-client.js';
+import { recordTiming } from './perf.js';
 import { photoIdentity, provisionalId } from '../core/ids.js';
 import { newPhotoRecord, newVariant, refreshRecord, missingFields } from '../core/model.js';
 import * as repo from '../storage/photos-repo.js';
@@ -79,6 +80,8 @@ export async function ingestFile(file, onStep = () => {}, source = 'web', { full
   if (!kind) return { status: 'unsupported', message: 'não é JPEG nem CR3' };
 
   onStep('lendo dados da foto');
+  const tRead = performance.now();
+  let readMs = 0;
   let capture;
   let fullJson = null;
   let engines = [];
@@ -88,6 +91,7 @@ export async function ingestFile(file, onStep = () => {}, source = 'web', { full
     engines = [exifToolVersion(given)];
   } else if (kind === 'jpeg') {
     capture = (await readQuickMetadata(file)).capture;
+    readMs = performance.now() - tRead;
     engines = [QUICK_ENGINE];
   }
   if (!given && (kind === 'cr3' || !capture?.datetime_original)) {
@@ -96,6 +100,7 @@ export async function ingestFile(file, onStep = () => {}, source = 'web', { full
       fullJson = await readFullMetadata(file);
       capture = fromExifTool(fullJson);
       engines = [...engines, exifToolVersion(fullJson)];
+      readMs = performance.now() - tRead;
     } catch (e) {
       if (kind === 'cr3') return { status: 'error', message: `não foi possível ler o CR3: ${e.message}` };
     }
@@ -108,8 +113,11 @@ export async function ingestFile(file, onStep = () => {}, source = 'web', { full
 
   onStep('gerando prévia');
   let pixels;
+  const tPreview = performance.now();
   try {
     pixels = await makePreview(file, kind, capture.image.orientation);
+    recordTiming('preview', performance.now() - tPreview);
+    if (readMs > 0) recordTiming('metadata', readMs);
   } catch (e) {
     return { status: 'error', message: `não foi possível abrir a imagem: ${e.message}` };
   }
@@ -137,6 +145,7 @@ export async function ingestFile(file, onStep = () => {}, source = 'web', { full
     if (!record.preview) {
       record.preview = { width: pixels.previewWidth, height: pixels.previewHeight, from_variant: variantKey };
       blobs.push({ key: repo.blobKey.preview(record.id), blob: pixels.previewBlob });
+      if (pixels.thumbBlob) blobs.push({ key: repo.blobKey.thumb(record.id), blob: pixels.thumbBlob });
     }
     refreshAll(record);
     await repo.savePhoto(record, {

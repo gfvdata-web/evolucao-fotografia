@@ -9,6 +9,8 @@ import { clearAll } from '../../storage/idb.js';
 import { listPhotos } from '../../storage/photos-repo.js';
 import { analyzeAllStale } from '../../pipeline/analyze.js';
 import { METRICS_VERSION, needsAnalysis } from '../../core/indicators.js';
+import { loadPerf } from '../../pipeline/perf.js';
+import { perfRows } from '../../core/perf.js';
 
 const EXIFTOOL_STATE = {
   idle: 'ainda não usado nesta visita',
@@ -27,7 +29,7 @@ async function diagnostics() {
   let versions = {};
   try { versions = await (await fetch(new URL('../../../vendor/versions.json', import.meta.url))).json(); } catch { /* offline */ }
   const photos = await listPhotos();
-  return { est, persisted, versions, photoCount: photos.length, stale: photos.filter(needsAnalysis).length };
+  return { est, persisted, versions, photoCount: photos.length, stale: photos.filter(needsAnalysis).length, perf: await loadPerf() };
 }
 
 export function aboutView(root) {
@@ -38,10 +40,13 @@ export function aboutView(root) {
   const off = onExifToolStatus(paintExif);
 
   const body = h('dl', { class: 'settings' }, h('p', { class: 'muted' }, 'Carregando…'));
-  diagnostics().then(({ est, persisted, versions, photoCount, stale }) => {
+  diagnostics().then(({ est, persisted, versions, photoCount, stale, perf }) => {
     const portrait = matchMedia('(orientation: portrait)').matches;
     mount(body,
       row('Versão do app', APP_VERSION, 'app-version'),
+      h('div', { class: 'setting-row', 'data-testid': 'device-perf' },
+        h('dt', {}, 'Desempenho deste aparelho'),
+        h('dd', {}, perfRows(perf).map((r) => h('div', { class: 'value', 'data-testid': `perf-${r.kind}` }, `${r.label}: ${r.text}`)))),
       row('Leitores de metadados', Object.entries(versions).map(([k, v]) => `${k} ${v}`).join(' · ') || 'indisponível'),
       h('div', { class: 'setting-row' }, h('dt', {}, 'Leitor completo (ExifTool)'), h('dd', {}, exifEl)),
       row('Fotos neste aparelho', String(photoCount), 'photo-count'),
