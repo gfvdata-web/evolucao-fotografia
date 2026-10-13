@@ -81,14 +81,14 @@ function versionLabels(photo) {
 /** How the importer rendered the RAW, and what is kept of it (v0.6). */
 function renderNote(v) {
   const r = v.render || {};
-  const gain = r.exposure_gain ? formatDecimal(r.exposure_gain, 1) : null;
   return [
     h('div', { class: 'small' }, 'Revelado no computador pelo importador',
       v.engines.length ? ` (${v.engines.join(', ')})` : '',
-      ': sem redução de ruído, sem realce de nitidez, sem correção da lente, sem a curva do estilo de imagem.'),
-    h('div', { class: 'small muted' }, r.brightness_matched_to
-      ? `Brilho igualado ao do ${r.brightness_matched_to} por um ganho único (${gain}×), sem curva.`
-      : 'Sem JPEG da câmera no cartão: brilho sem ajuste.'),
+      ': sem redução de ruído, sem realce de nitidez, sem correção da lente.'),
+    h('div', { class: 'small muted' }, r.tone_matched_to
+      ? `Mesmos tons do ${r.tone_matched_to} (curva tirada do histograma dele): só brilho e contraste, sem mexer em ruído nem detalhe. `
+        + 'Assim a comparação mostra só o que o processamento muda nos detalhes.'
+      : 'Sem JPEG da câmera do mesmo tamanho: tons pela curva sRGB, e a comparação de nitidez e ruído é aproximada.'),
     h('div', { class: 'small muted', 'data-testid': 'raw-transient' },
       'A imagem inteira não fica guardada (cerca de 30 MB): só os recortes a 100% e as medidas.',
       v.analysis && !v.analysis.error && v.analysis.metrics_version !== METRICS_VERSION

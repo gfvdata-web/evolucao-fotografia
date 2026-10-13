@@ -137,7 +137,7 @@ def test_real_render_info_has_the_example_keys(tmp_path):
     from .conftest import FakeRaw, raw_sizes, write_jpeg
 
     info = render_neutral(
-        tmp_path / "x.CR3", tmp_path / "x.png", write_jpeg(tmp_path / "x.JPG"),
+        tmp_path / "x.CR3", tmp_path / "x.png", write_jpeg(tmp_path / "x.JPG", size=(30, 20)),
         imread=lambda _: FakeRaw(raw_sizes()), postprocess=lambda raw: np.full((24, 34, 3), 2000, dtype=np.uint16),
     )
     from pathlib import Path

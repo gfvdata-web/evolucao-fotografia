@@ -26,11 +26,15 @@ export const THRESHOLDS = {
   // Sharpness counts noise as detail: in the EOS RP samples at ISO 12800 the
   // same scene read 13 with noise reduction "Strong" and 236 with it "Off".
   high_iso_sharpness_note: 3200,
-  // Sensor step (v0.6): camera JPEG against the neutral rendering of its RAW,
-  // same 100% crops. Calibrated on the 26 EOS RP samples (docs/CALIBRACAO-RESULTADOS.md).
+  // Sensor step (v0.6): camera JPEG against the neutral rendering of its RAW
+  // (same tone curve), same 100% crops. Calibrated on the 26 EOS RP samples
+  // (docs/CALIBRACAO-RESULTADOS.md): with NR "Low" the camera added +109% to
+  // +179% of detail at ISO 100–400; with NR "Standard" from ISO 250 it removed
+  // 49–98%; changes under 15% were 2 of 26 (−11%, 0%).
   sensor_noise_drop: 0.15, // noise σ in the uniform area lower by more than this = noise reduction
-  sensor_sharpen_rise: 0.15, // Laplacian in the focus crop higher by more than this = sharpening
-  sensor_detail_drop: 0.15, // Laplacian lower by more than this = detail removed
+  sensor_noise_floor: 0.8, // below this σ (0–255) the sensor noise is not visible: no NR finding
+  sensor_sharpen_rise: 0.15, // detail (Laplacian minus noise) higher by more than this = sharpening
+  sensor_detail_drop: 0.15, // detail lower by more than this = detail removed
   sensor_luma_diff: 12, // brightness gap (0–255) above which the comparison is approximate
 };
 
@@ -226,6 +230,16 @@ function variantStats(v) {
 const signedPct = (x) => `${x >= 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%`;
 
 /**
+ * Detail in the focus crop without the noise: the Laplacian variance of pure
+ * white noise of σ is 20σ² (kernel 0 1 0 / 1 −4 1 / 0 1 0), so it is taken
+ * out using the noise measured in the uniform area of the same version.
+ * At high ISO the RAW's number is mostly noise; without this, removing noise
+ * would read as removing detail.
+ */
+export const detailOf = (stats) => (stats.sharpness == null ? null
+  : Math.max(0, stats.sharpness - 20 * (stats.noise_sigma ?? 0) ** 2));
+
+/**
  * Sensor step (v0.6, decision 0015): what the camera's processing did to the
  * RAW, comparing the neutral rendering with the primary JPEG in the same 100%
  * crops. Findings describe the processing (severity info), they are not losses.
@@ -248,7 +262,7 @@ export function sensorStep(photo) {
   const nr = translate('noise_reduction.high_iso', photo.capture?.noise_reduction?.high_iso);
   const style = translate('picture_style', photo.capture?.picture_style);
   const t = THRESHOLDS;
-  if (a.noise_sigma > 0 && b.noise_sigma != null) {
+  if (a.noise_sigma >= t.sensor_noise_floor && b.noise_sigma != null) {
     const change = b.noise_sigma / a.noise_sigma - 1;
     if (change < -t.sensor_noise_drop) {
       findings.push({
@@ -258,19 +272,20 @@ export function sensorStep(photo) {
       });
     }
   }
-  if (a.sharpness > 0 && b.sharpness != null) {
-    const change = b.sharpness / a.sharpness - 1;
+  const da = detailOf(a);
+  const db = detailOf(b);
+  if (da > 0 && db != null) {
+    const change = db / da - 1;
+    const numbers = `detalhe ${Math.round(da)} → ${Math.round(db)} no recorte do foco (${signedPct(change)}, já sem o ruído)`;
     if (change > t.sensor_sharpen_rise) {
       findings.push({
         kind: 'sharpening', severity: 'info', change,
-        text: `Realce de nitidez da câmera: nitidez ${Math.round(a.sharpness)} → ${Math.round(b.sharpness)} no recorte do foco (${signedPct(change)})`
-          + `${style ? `; estilo de imagem ${style}` : ''}.`,
+        text: `Realce de nitidez da câmera: ${numbers}${style ? `; estilo de imagem ${style}` : ''}.`,
       });
     } else if (change < -t.sensor_detail_drop) {
       findings.push({
         kind: 'detail_loss', severity: 'info', change,
-        text: `A câmera apagou detalhe no foco: nitidez ${Math.round(a.sharpness)} → ${Math.round(b.sharpness)} (${signedPct(change)}), efeito provável da redução de ruído`
-          + `${nr ? ` (${nr})` : ''}.`,
+        text: `A câmera apagou detalhe: ${numbers}. Efeito provável da redução de ruído${nr ? ` (${nr})` : ''}.`,
       });
     }
   }
@@ -279,7 +294,8 @@ export function sensorStep(photo) {
   if (lumaGap.some((g) => g > t.sensor_luma_diff)) {
     findings.push({
       kind: 'brightness', severity: 'info',
-      text: `Brilho diferente nos recortes (até ${Math.round(Math.max(...lumaGap))} níveis): a comparação acima é aproximada.`,
+      text: `Brilho diferente nos recortes (até ${Math.round(Math.max(...lumaGap))} níveis), mesmo com a mesma curva de tons: `
+        + 'a câmera ajustou o brilho só nessa região. A comparação acima é aproximada.',
     });
   }
   return { from: neutral.key, to: primary.key, sensor: true, findings };

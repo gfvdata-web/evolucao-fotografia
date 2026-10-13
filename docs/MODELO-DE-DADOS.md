@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Versão atual do esquema: **6** (`SCHEMA_VERSION` em `site/js/core/model.js`).
+Versão atual do esquema: **7** (`SCHEMA_VERSION` em `site/js/core/model.js`).
 Todo documento guardado leva `schema_version` e é migrado na leitura (`core/migrations.js`).
 Chaves em inglês, `snake_case`.
 
@@ -60,10 +60,10 @@ e traduzidos na tela (`RATING_LABELS` em `core/glossary.js`). Avaliação toda v
 ```jsonc
 {
   "key": "jpeg-web",               // <tipo>-<origem>[-n]
-  "kind": "jpeg" | "cr3",
+  "kind": "jpeg" | "cr3" | "raw_neutral",   // raw_neutral: v0.6, ver abaixo
   "source": "web" | "importer",
   "file": { "name", "size", "type", "last_modified" },
-  "pixels": { "width": 6240, "height": 4160, "decoded_from": "jpeg" | "cr3-embedded-jpeg" },
+  "pixels": { "width": 6240, "height": 4160, "decoded_from": "jpeg" | "cr3-embedded-jpeg" | "libraw" },
   "metadata_status": "pending" | "quick" | "complete" | "failed",
   "engines": ["exifr@7.1.3", "exiftool@13.42"],
   "capture": { /* o que ESTE arquivo contém */ },
@@ -96,6 +96,33 @@ sensor inteiro; o JPEG da câmera pode ser 16:9 ou recorte 1,6x). Ver `core/af-g
 A captura de cada variante é refeita a partir do JSON do ExifTool guardado em `raw_metadata`
 toda vez que a foto é analisada. Assim, correções no normalizador também chegam às fotos já
 guardadas.
+
+### RAW sem processamento (`raw_neutral`, v0.6, esquema 7)
+
+O CR3 revelado pelo importador no PC, sem redução de ruído, sem realce de nitidez e sem correção
+da lente, com a curva de tons do JPEG da câmera (decisão 0015). Chave `raw_neutral-importer`,
+`source: "importer"`. Campos a mais:
+
+```jsonc
+{
+  "from_variant": "cr3-importer",   // o CR3 de origem: a captura e o JSON do ExifTool são os dele
+  "transient": true,                // a imagem inteira (PNG, ~27 MB) é medida uma vez e apagada
+  "render": {                       // como o importador revelou (vem do pacote.json)
+    "width": 6240, "height": 4160, "demosaic": "AHD", "white_balance": "camera", "color": "sRGB",
+    "noise_reduction": "none", "sharpening": "none", "lens_correction": "none",
+    "frame": { "x": 12, "y": 12, "width": 6240, "height": 4160 },  // recorte que o CR3 informa
+    "frame_source": "cr3_crop", "flip": 0,
+    "tone_curve": "camera_jpeg",      // ou "srgb" sem JPEG do mesmo tamanho (com "tone_note")
+    "tone_matched_to": "IMG_9362.JPG", // curva tirada do histograma deste JPEG
+    "median_luma": { "neutral": 131, "camera_jpeg": 131 }
+  }
+}
+```
+
+Nunca é a versão principal (o diagnóstico mede o JPEG); vem primeiro na cadeia e é comparada com
+a versão principal na **etapa sensor** (`sensorStep` em `core/indicators.js`). Não gera original
+nem metadados no Drive, só os recortes. Com `transient`, uma versão nova das métricas não pede a
+reanálise dela: a medida antiga fica, e a ficha diz como atualizar (importar o CR3 de novo).
 
 ### Captura (`capture`)
 
@@ -243,6 +270,37 @@ ZIP sem compressão (`core/zip.js`): `backup.json` (`kind: "efbackup"`, `format_
 codificada>` (prévias, recortes e, se pedido, originais). Importar junta com a mesma regra do
 Drive. Sem ZIP64: até 4 GB.
 
+## Pacote do importador (`.efsessao/`, v0.6)
+
+Pasta (não ZIP; uma sessão passa de 4 GB) escrita por `importador/package.py` e lida por
+`core/package-format.js` + `pipeline/import-package.js`. Uma por dia de fotos:
+
+```
+<AAAA-MM-DD>_<nome>.efsessao/
+├── pacote.json                  kind "efpacote", format_version 1
+├── originais/<arquivo do cartão>   JPEG e CR3 sem alteração
+├── metadados/<arquivo>.json     saída do ExifTool (-json -l -G1), sem caminhos do PC
+└── neutro/<nome>.png            revelação neutra de cada CR3 (PNG 8 bits, tamanho cheio)
+```
+
+```jsonc
+{
+  "kind": "efpacote", "format_version": 1, "importer_version": "0.6.0", "created_at": "...",
+  "day": "2026-10-12", "name": "cartao",
+  "engines": { "libraw": "0.22.1", "rawpy": "0.27.1", "exiftool": "13.42" },
+  "shots": [{
+    "name": "IMG_9362",
+    "files": [{ "file": "originais/IMG_9362.JPG", "kind": "jpeg", "size": 9000000, "metadata": "metadados/IMG_9362.JPG.json" }, ...],
+    "neutral": { "file": "neutro/IMG_9362.png", "from": "originais/IMG_9362.CR3", "render": { /* acima */ } },  // ou null
+    "problems": []                // textos para a tela (ex.: CR3 que o LibRaw não abriu)
+  }]
+}
+```
+`metadata: null` = o ExifTool não leu o arquivo; o site lê com o ExifTool-WASM. Caminhos fora de
+`originais/`, `metadados/` ou `neutro/` são recusados. Exemplo canônico, conferido pelos testes
+dos dois lados: `importador/tests/pacote-exemplo.json`. O tipo `efsessao` continua sendo o do
+`sessao.json` no Drive.
+
 ## Migrações
 
 | De → para | O que muda |
@@ -254,3 +312,4 @@ Drive. Sem ZIP64: até 4 GB.
 | — (v0.4) | Registros sem mudança (esquema 4). O banco local passa para a versão 3 (store `sync`). |
 | 4 → 5 (v0.5.0) | A captura (da foto e de cada variante) ganha `lens.max_aperture`, `exposure.measured_ev` e `focus.distance`, todos `null` até a próxima análise reler o JSON do ExifTool guardado. `METRICS_VERSION` 2: desfoque, histograma, assinatura e trechos, recalculados a partir dos originais do aparelho. Sessões: só a versão. |
 | 5 → 6 (v0.5.1) | Cenas: `scene_id: null` (separação automática) em toda foto. Sessões: só a versão. |
+| 6 → 7 (v0.6) | Variante nova `raw_neutral` (importador); nenhuma foto antiga a tem, então só a versão muda. Fotos e sessões. Um aparelho com o app antigo que encontra um `sessao.json` 7 no Drive para de enviar e pede a atualização (v0.5.3). |

@@ -101,6 +101,40 @@ Tudo puro, em `core/`, e calculado na hora a partir do registro (nada é guardad
 Esse JPEG é processado pela câmera (mesmo caminho do JPEG gravado), portanto **não substitui** a
 renderização neutra do RAW, que fica com o importador Python.
 
+## Importador no PC e pacote de sessão (v0.6)
+
+Decisão 0015. O importador **entrega arquivos**: não calcula indicadores (regra 6) e não fala
+com o Drive (o site no PC importa e sincroniza).
+
+```
+importador/ (Python 3.13, importador/.venv)      site no navegador do PC
+ scan.py      disparos do cartão (JPEG + CR3)      Enviar → Importar pacote do PC
+ exiftool.py  ExifTool nativo, -json -l -G1        core/package-format.js  valida pacote.json
+ render.py    LibRaw/rawpy → PNG neutro            pipeline/import-package.js  um item da fila
+ package.py   <dia>_<nome>.efsessao/                 por disparo: JPEG e CR3 pela ingestão normal
+ __main__.py  janela + confirmação + progresso       (com o JSON do pacote) + versão raw_neutral
+ importar.bat duplo clique                         análise normal → recortes; PNG apagado
+```
+
+- **Revelação neutra** (`render.py`): AHD, balanço de branco da câmera, sRGB, sem redução de
+  ruído, sem nitidez, sem correção da lente; renderiza em 16 bits lineares, corta no **recorte
+  que o próprio CR3 informa** (o mesmo enquadramento do JPEG da câmera em 3:2, 16:9 e recorte
+  1,6x, conferido pixel a pixel nas 26 amostras) e passa para 8 bits com a **curva de tons do
+  JPEG da câmera**, tirada do histograma dele (uma tabela de 65 536 valores por canal, sempre
+  crescente). A curva só muda brilho e contraste de cada valor; ruído, nitidez e detalhe ficam
+  como o sensor captou. Sem JPEG do mesmo tamanho, curva sRGB (e a ficha avisa que a comparação
+  é aproximada). PNG nível 3: ~27 MB e ~4 s por foto da EOS RP.
+- **No site**: a versão `raw_neutral` repete a captura do CR3 (`from_variant`) e é
+  `transient`: `pipeline/analyze.js` a mede como as outras e, ao gravar, apaga a imagem inteira
+  (`dropBlobs`). Nunca é a versão principal; vem primeiro na cadeia e a **etapa sensor**
+  (`sensorStep`, `core/indicators.js`) a compara com a principal nos mesmos recortes: redução
+  de ruído, realce de nitidez, detalhe apagado, com os limites em `THRESHOLDS.sensor_*`.
+- `core/drive-layout.js`: só os recortes dela vão ao Drive (nem original, nem metadados).
+- Testes: `npm run test:py` (pytest, rawpy e ExifTool simulados) faz parte do `npm test`;
+  `tests/e2e/v06-importador.spec.mjs` importa um pacote sintético gerado pelas fixtures.
+  Conferência local com as amostras: `tests/amostras/revelar.py`, `pacote-amostras.py` e
+  `sensor.mjs`.
+
 ## Armazenamento local (IndexedDB `evolucao-fotografia`, versão 3)
 
 | Store | Chave | Conteúdo |

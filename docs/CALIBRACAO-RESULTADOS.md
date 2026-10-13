@@ -147,8 +147,51 @@ F03 (7) | F06–F07 (troca de lente) | F08–F09 (pausa de 16 min) | série T (7
 Limites: corte com dois sinais (pausa de 2 min, zoom 1,8×, enquadramento 28 ou mais); corte só
 pelo enquadramento a partir de 45 e 30 s de pausa.
 
+## RAW sem processamento da v0.6 nas amostras
+
+Os 26 CR3 revelados pelo importador (`tests/amostras/revelar.py`), empacotados
+(`pacote-amostras.py`) e importados no site (`sensor.mjs`, 155 s para as 26 no PC). Decisão 0015.
+
+**Enquadramento.** O recorte que o CR3 informa coincide pixel a pixel com o JPEG da câmera nas
+26, inclusive 16:9 (IMG_9368) e recorte 1,6x (IMG_9370, onde o próprio RAW já vem recortado):
+deslocamento zero no centro e nos dois cantos (correlação de fase em trechos de 512 px).
+
+**Tons.** Com só o brilho mediano igualado (ganho único), a curva em S do JPEG mudava sozinha as
+medidas: a sombra do foco de IMG_9372/9373 ia de 52 para 23 e a "nitidez" caía 92–97%, o que o
+site leria como detalhe apagado. Com a curva de tons do próprio JPEG (histograma), o brilho do
+recorte do foco fica a até 6 níveis do JPEG em 21 das 26; nas 5 da rajada F03 (IMG_9374–9378) a
+câmera deixou essa região 14 a 21 níveis mais escura que a curva geral, um ajuste local; a ficha
+avisa que ali a comparação é aproximada.
+
+**Ruído e detalhe** (detalhe = variância do Laplaciano menos 20σ², o que o ruído soma a ela;
+mesmos recortes a 100%):
+
+| Grupo | ISO | Redução de ruído | Ruído σ RAW → JPEG | Detalhe RAW → JPEG |
+|---|---|---|---|---|
+| F01, F02, F06 (IMG_9362, 9364, 9380) | 100 | Padrão | 0,46–0,86 → 0,25–0,39 | +86% a +271% |
+| T01–T05, T08b, T07 (IMG_9384–9390) | 100–400 | Baixa | 0,62–1,14 → 0,39–0,57 | +109% a +179% |
+| IMG_9365, 9366 | 100, 640 | Padrão | 0,61–0,72 → 0,27–0,28 | −11%, 0% |
+| IMG_9367, 9370, 9371 | 200–640 | Padrão | 0,53–1,38 → 0,27–0,31 | −49% a −62% |
+| Rajada F03 (IMG_9372–9378) | 500–800 | Padrão | 0,36–1,36 → 0,25–0,30 | −82% a −98% |
+| F08 (IMG_9382) | 12800 | Forte | 5,75 → 0,44 | −96% |
+| F09 (IMG_9383) | 12800 | Desligada | 5,09 → 1,68 | −61% |
+| IMG_9381 (F07, 300 mm) | 640 | Padrão | 1,65 → 0,40 | +100% |
+
+Leitura: em ISO baixo a câmera **realça** a nitidez (o estilo de imagem), com a redução de ruído
+Baixa ou Padrão. Com a Padrão, a partir de ISO ~250 ela passa a **apagar detalhe**, muito na
+rajada em ISO 500–800. Em ISO 12800, mesmo "Desligada" ainda tira 61% (a câmera sempre faz
+alguma redução); "Forte" tira 96%. Ressalva: os grupos são cenas diferentes (a série T, toda com
+redução Baixa, é outra cena); para comparar Baixa × Padrão no mesmo ISO, faltam fotos da mesma
+cena com as duas (sugestão para a Rodada 2).
+
+Limites em `THRESHOLDS` (`core/indicators.js`): mudança de 15% para virar achado (só 2 das 26
+ficaram abaixo); redução de ruído só é citada com σ do RAW a partir de 0,8 (abaixo disso o ruído
+não aparece na foto); brilho dos recortes a mais de 12 níveis = comparação aproximada.
+
 ## Próximos passos
 
 - Fazer a **T09** (temporizador 10 s), a **T08 em 300 mm** e, se possível, a **T06** (através do vidro). Depois rodar o conferidor e `metricas.mjs` de novo para comparar T02 × T08 × T09 em 300 mm.
 - Com as avaliações da v0.3 (nítida / tremida / fora de foco...), transformar a nitidez relativa em faixas por cena e lente.
+- **Rodada 2 (sugestão da v0.6)**: a mesma cena em ISO 400 e 800 com a redução de ruído Baixa e
+  Padrão, em RAW + JPEG, para medir pelo importador quanto detalhe cada uma apaga.
 - **Rodada 2**: trocar as regras gerais do diagnóstico pelos números do equipamento e da mão do Guilherme (blocos M e Z: tremido; I: ISO; A: abertura da RF 50; D: margem do foco errado; E: compensação do céu). Ver decisão 0013.

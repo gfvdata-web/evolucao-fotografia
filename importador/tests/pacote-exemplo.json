@@ -18,10 +18,9 @@
     "from": "originais/IMG_0001.CR3",
     "render": {
      "width": 6240, "height": 4160, "demosaic": "AHD", "white_balance": "camera", "color": "sRGB",
-     "tone_curve": "sRGB (sem a curva do Picture Style)", "noise_reduction": "none", "sharpening": "none",
+     "tone_curve": "camera_jpeg", "tone_matched_to": "IMG_0001.JPG", "noise_reduction": "none", "sharpening": "none",
      "lens_correction": "none", "frame": {"x": 12, "y": 12, "width": 6240, "height": 4160}, "frame_source": "cr3_crop",
-     "flip": 0, "exposure_gain": 3.68, "brightness_matched_to": "IMG_0001.JPG",
-     "median_luma": {"neutral": 132.0, "camera_jpeg": 131.0}
+     "flip": 0, "median_luma": {"neutral": 131.0, "camera_jpeg": 131.0}
     }
    },
    "problems": []

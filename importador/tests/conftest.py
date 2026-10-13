@@ -91,4 +91,4 @@ def card(tmp_path):
 def fake_render(cr3, out_png, jpeg):
     out_png.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(np.zeros((4, 6, 3), dtype=np.uint8)).save(out_png, "PNG")
-    return {"width": 6, "height": 4, "exposure_gain": 1.0, "brightness_matched_to": jpeg.name if jpeg else None}
+    return {"width": 6, "height": 4, "tone_curve": "camera_jpeg" if jpeg else "srgb", "tone_matched_to": jpeg.name if jpeg else None}

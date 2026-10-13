@@ -307,17 +307,47 @@ aparecer "erro 401: invalid_client" ou "origin_mismatch", espere um pouco e tent
    aparece a pasta **EvolucaoFotografia**.
 ## No computador (importador Python)
 
-Chega na **v0.6** (plano na decisão 0015). Ele lê o cartão no PC e revela o CR3 sem o
-processamento da câmera, para você ver o que a redução de ruído e a nitidez da câmera mudam.
-Para o dia a dia e o diagnóstico, o JPEG L enviado pelo tablet basta.
+Desde a **v0.6** (decisão 0015). O importador lê o cartão no PC e revela cada CR3 **sem o
+processamento da câmera**: sem redução de ruído, sem realce de nitidez, sem correção da lente.
+O site compara essa versão com o JPEG da câmera nos mesmos recortes a 100% e a ficha mostra o
+que a câmera mudou ("O que a câmera fez com o RAW"). Para o dia a dia e o diagnóstico, o JPEG L
+enviado pelo tablet basta; o importador serve para essa investigação e para trazer o cartão
+inteiro de uma vez.
 
-**Para adiantar (opcional):** instalar o ExifTool no PC. Abra o **Prompt de Comando** e rode:
+Para ter o CR3, fotografe em RAW + JPEG (menu da câmera: **Image quality** → **RAW** + **L**).
+
+### Uma vez só: instalar o ExifTool
+1. Abra o **Prompt de Comando** (tecla Windows, digite `cmd`, Enter).
+2. Rode o comando abaixo e aceite o que ele perguntar:
 
 ```bash
 winget install OliverBetz.ExifTool
 ```
 
-O Python 3.13 já está instalado. O resto (dependências e o `importar.bat`) vem com a v0.6.
+3. Feche o Prompt de Comando. O Python 3.13 já está instalado no seu PC.
+
+### A cada cartão
+1. Coloque o cartão no PC.
+2. Na pasta do projeto (`Documents\ClaudeCode\EvolucaoFotografia\importador`), dê **dois
+   cliques em `importar.bat`**. Na primeira vez ele prepara o Python sozinho (um ou dois
+   minutos, precisa de internet).
+3. Na janela que abre, escolha a pasta **DCIM** do cartão (ou qualquer pasta com as fotos).
+4. Ele mostra quantos disparos achou, por dia, e quanto espaço vai usar. Tecle **Enter** para
+   continuar. Cada CR3 leva uns 4 segundos.
+5. No fim, abre a pasta com os pacotes (padrão: Área de Trabalho), um por dia:
+   `2026-10-12_cartao.efsessao`.
+6. No **navegador do computador**, abra o site, aba **Enviar** → **Importar pacote do PC** →
+   escolha a pasta do pacote. Também dá para arrastar a pasta para o quadro de envio.
+7. Cada disparo aparece na lista ("JPEG + CR3 + RAW sem processamento"). As sessões são
+   sugeridas por dia, como no envio pelo tablet.
+8. Com o Drive conectado, espere o selo mostrar **Sincronizado** e apague a pasta do pacote
+   (ela ocupa uns 60 MB por disparo). No tablet, a foto aparece com o selo **RAW** na grade.
+
+O que fica guardado: a revelação inteira (~27 MB) é medida uma vez no PC e descartada; ficam os
+recortes a 100% e as medidas. O CR3 vai ao Drive só se "Guardar CR3" estiver ligado (aba Drive).
+
+Se aparecer "ExifTool não encontrado", refaça o passo de instalação e abra o `importar.bat` de
+novo.
 
 ## Amostras de calibração
 

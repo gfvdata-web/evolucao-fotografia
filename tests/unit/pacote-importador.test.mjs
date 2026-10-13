@@ -7,7 +7,7 @@ import {
   packageRoots, readPackageDoc, neutralVariant, ingestOrder, NEUTRAL_KEY, PACKAGE_KIND,
 } from '../../site/js/core/package-format.js';
 import {
-  chainComparison, chainOrder, needsAnalysis, primaryVariant, sensorStep, METRICS_VERSION, THRESHOLDS,
+  chainComparison, chainOrder, detailOf, needsAnalysis, primaryVariant, sensorStep, METRICS_VERSION, THRESHOLDS,
 } from '../../site/js/core/indicators.js';
 import { newPhotoRecord, newVariant, emptyCapture, refreshRecord, RAW_NEUTRAL } from '../../site/js/core/model.js';
 import { desiredAssets } from '../../site/js/core/drive-layout.js';
@@ -24,7 +24,7 @@ function analysis({ lap, sigma, luma = 120 }) {
   };
 }
 
-function shot({ jpegPx = [6240, 4160], neutralPx = [6240, 4160], jpeg = { lap: 140, sigma: 0.25 }, raw = { lap: 100, sigma: 0.6 } } = {}) {
+function shot({ jpegPx = [6240, 4160], neutralPx = [6240, 4160], jpeg = { lap: 140, sigma: 0.25 }, raw = { lap: 100, sigma: 1.2 } } = {}) {
   const r = newPhotoRecord({ id: 'p1', matchKey: 'k1', now: '2026-10-13T00:00:00Z' });
   const capture = emptyCapture();
   capture.camera.model = 'Canon EOS RP';
@@ -37,7 +37,7 @@ function shot({ jpegPx = [6240, 4160], neutralPx = [6240, 4160], jpeg = { lap: 1
   c.pixels = { width: 6240, height: 4160, decoded_from: 'cr3-embedded-jpeg' };
   Object.assign(c, { capture: structuredClone(capture), metadata_status: 'complete', missing: [], analysis: analysis({ lap: 130, sigma: 0.05 }) });
   const n = neutralVariant({
-    neutral: { file: 'neutro/IMG_0001.png', from: 'originais/IMG_0001.CR3', render: { width: neutralPx[0], height: neutralPx[1], exposure_gain: 3.7 } },
+    neutral: { file: 'neutro/IMG_0001.png', from: 'originais/IMG_0001.CR3', render: { width: neutralPx[0], height: neutralPx[1], tone_curve: 'camera_jpeg', tone_matched_to: 'IMG_0001.JPG' } },
     engines: { libraw: '0.22.1', rawpy: '0.27.1' }, cr3Variant: c, size: 27e6,
   });
   n.analysis = raw ? analysis(raw) : null;
@@ -119,11 +119,21 @@ test('cadeia: o RAW vem primeiro e é comparado com o JPEG da câmera (etapa sen
   assert.equal(sensor.from, NEUTRAL_KEY);
   assert.equal(sensor.to, 'jpeg-importer');
   assert.deepEqual(sensor.findings.map((f) => f.kind), ['noise_reduction', 'sharpening']);
-  assert.match(sensor.findings[0].text, /0,60 → 0,25/);
+  assert.match(sensor.findings[0].text, /1,20 → 0,25/);
   assert.match(sensor.findings[0].text, /redução de ruído em ISO alto: Baixa/);
-  assert.match(sensor.findings[1].text, /100 → 140 .*\+40%/);
+  // detail without noise: 100 − 20 × 1,2² = 71 → 140 − 20 × 0,25² = 139
+  assert.match(sensor.findings[1].text, /detalhe 71 → 139 .*\+95%, já sem o ruído/);
   assert.ok(sensor.findings.every((f) => f.severity === 'info'));
   assert.deepEqual([next.from, next.to], ['cr3-importer', 'jpeg-importer']); // the rest of the chain is unchanged
+});
+
+test('etapa sensor: ruído do RAW tirado da conta; ruído invisível (σ < 0,8) não vira achado', () => {
+  // ISO 12800 like F08: the RAW's "sharpness" is mostly noise; removing it is not removing detail.
+  const high = sensorStep(shot({ raw: { lap: 900, sigma: 6 }, jpeg: { lap: 200, sigma: 0.5 } }));
+  assert.equal(detailOf({ sharpness: 900, noise_sigma: 6 }), 180);
+  assert.deepEqual(high.findings.map((f) => f.kind), ['noise_reduction']); // 180 → 195: detail kept
+  const iso100 = sensorStep(shot({ raw: { lap: 50, sigma: 0.6 }, jpeg: { lap: 120, sigma: 0.3 } }));
+  assert.deepEqual(iso100.findings.map((f) => f.kind), ['sharpening']);
 });
 
 test('etapa sensor: detalhe apagado, nada relevante, brilho diferente, escala diferente', () => {

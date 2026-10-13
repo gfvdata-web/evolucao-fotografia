@@ -157,6 +157,9 @@ export const SHOTS = {
   auto: { datetime: '2026:10:11 10:00:00', subsec: '30', easyMode: 59 },
   // v0.5.0: blown sky (pixels in generate.mjs, skyJpeg), S2 like IMG_0010.
   sky: { datetime: '2026:10:11 11:00:00', subsec: '40', exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 },
+  // v0.6: importer package — RAW+JPEG shot (with the neutral rendering) and a JPEG-only shot.
+  pkgRaw: { datetime: '2026:10:11 12:00:00', subsec: '50', exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 },
+  pkgJpeg: { datetime: '2026:10:11 12:00:30', subsec: '60', exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 },
 };
 
 /**

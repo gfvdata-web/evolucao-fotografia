@@ -1,12 +1,13 @@
 // Generates the synthetic test fixtures into tests/fixtures/generated/.
 // Nothing here comes from a real photo: pixels are a procedural pattern and all
 // metadata is written by the tests themselves (see specs.mjs).
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import jpegJs from 'jpeg-js';
 import { buildTiff, insertExif } from './lib/tiff-writer.mjs';
 import { buildCr3 } from './lib/cr3-writer.mjs';
+import { encodePng } from './lib/png-writer.mjs';
 import {
   fullTree, noMakerNoteTree, ifd0Entries, exifEntries, gpsEntries, canonMakerNoteEntries, SHOTS, SCENE_SHOTS,
 } from './specs.mjs';
@@ -94,7 +95,77 @@ export function generateAll() {
   return Object.keys(files).map((n) => join(OUT, n));
 }
 
+/**
+ * v0.6: a session package as the importer writes it (importador/package.py):
+ * IMG_0030 = JPEG + CR3 + neutral rendering (PNG, the pattern with noise in the
+ * flat area, as a RAW without the camera's noise reduction); IMG_0031 = JPEG
+ * only, without the ExifTool JSON (the site reads the file itself). The JSON
+ * comes from the real ExifTool-WASM (needs "npm run vendor").
+ */
+export async function generatePackage() {
+  const { readWithExifTool } = await import('../../site/js/metadata/exiftool-engine.js');
+  const { readFileSync } = await import('node:fs');
+  const wasm = readFileSync(join(OUT, '..', '..', '..', 'site', 'vendor', 'zeroperl.wasm'));
+  const root = join(OUT, 'pacote', '2026-10-11_teste.efsessao');
+  rmSync(join(OUT, 'pacote'), { recursive: true, force: true });
+  for (const d of ['originais', 'metadados', 'neutro']) mkdirSync(join(root, d), { recursive: true });
+  const W = 2400;
+  const H = 1600;
+  const files = {
+    'originais/IMG_0030.JPG': insertExif(patternJpeg(W, H, 95), buildTiff(fullTree(SHOTS.pkgRaw))),
+    'originais/IMG_0030.CR3': buildCr3({
+      cmt1: buildTiff(ifd0Entries()),
+      cmt2: buildTiff(exifEntries({ withMakerNote: false, ...SHOTS.pkgRaw })),
+      cmt3: buildTiff(canonMakerNoteEntries(SHOTS.pkgRaw)),
+      cmt4: buildTiff(gpsEntries()),
+      jpeg: patternJpeg(W, H, 80),
+    }),
+    'originais/IMG_0031.JPG': insertExif(patternJpeg(W, H, 95), buildTiff(fullTree(SHOTS.pkgJpeg))),
+  };
+  const raw = patternPixels(W, H);
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  for (let i = 0; i < raw.length; i += 4) {
+    const n = Math.round((rnd() + rnd() + rnd() - 1.5) * 8); // ≈ σ 4 levels of noise everywhere
+    for (let c = 0; c < 3; c++) raw[i + c] = Math.max(0, Math.min(255, raw[i + c] + n));
+  }
+  files['neutro/IMG_0030.png'] = encodePng(raw, W, H);
+  for (const [name, bytes] of Object.entries(files)) writeFileSync(join(root, name), bytes);
+
+  const meta = {};
+  for (const name of ['originais/IMG_0030.JPG', 'originais/IMG_0030.CR3']) {
+    const base = name.slice(name.indexOf('/') + 1);
+    const json = await readWithExifTool(new File([files[name]], base), { loadWasm: async () => new Response(wasm) });
+    meta[name] = `metadados/${base}.json`;
+    writeFileSync(join(root, meta[name]), JSON.stringify(json));
+  }
+  const fileEntry = (file, kind) => ({ file, kind, size: files[file].length, metadata: meta[file] ?? null });
+  const doc = {
+    kind: 'efpacote', format_version: 1, importer_version: '0.6.0', created_at: '2026-10-13T12:00:00+00:00',
+    day: '2026-10-11', name: 'teste', engines: { libraw: '0.22.1', rawpy: '0.27.1', exiftool: '13.42' },
+    shots: [
+      {
+        name: 'IMG_0030',
+        files: [fileEntry('originais/IMG_0030.JPG', 'jpeg'), fileEntry('originais/IMG_0030.CR3', 'cr3')],
+        neutral: {
+          file: 'neutro/IMG_0030.png', from: 'originais/IMG_0030.CR3',
+          render: {
+            width: W, height: H, demosaic: 'AHD', white_balance: 'camera', color: 'sRGB', tone_curve: 'camera_jpeg', tone_matched_to: 'IMG_0030.JPG',
+            noise_reduction: 'none', sharpening: 'none', lens_correction: 'none', frame: { x: 12, y: 12, width: W, height: H },
+            frame_source: 'cr3_crop', flip: 0, median_luma: { neutral: 120, camera_jpeg: 120 },
+          },
+        },
+        problems: [],
+      },
+      { name: 'IMG_0031', files: [fileEntry('originais/IMG_0031.JPG', 'jpeg')], neutral: null, problems: [] },
+    ],
+  };
+  writeFileSync(join(root, 'pacote.json'), JSON.stringify(doc, null, 1));
+  return Object.keys(files).length + 3;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const written = generateAll();
-  console.log(`fixtures: ${written.length} arquivos em ${OUT}`);
+  const inPackage = await generatePackage();
+  console.log(`fixtures: ${written.length} arquivos em ${OUT}, mais um pacote do importador com ${inPackage}`);
 }

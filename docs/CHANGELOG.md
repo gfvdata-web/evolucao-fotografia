@@ -2,6 +2,31 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.6.0] — 2026-10-13
+
+Importador no PC e o RAW sem processamento (decisão 0015).
+
+### Adicionado
+- **Importador** (`importador/`, Python): dois cliques no `importar.bat`, escolher a pasta do
+  cartão, confirmar. Lê os metadados com o ExifTool nativo e revela cada CR3 **sem o
+  processamento da câmera** (LibRaw: sem redução de ruído, sem realce de nitidez, sem correção da
+  lente), no mesmo enquadramento do JPEG e com a curva de tons dele, para a comparação mostrar
+  só o que o processamento muda nos detalhes. Escreve um pacote por dia (`<dia>_cartao.efsessao/`).
+- **Importar pacote do PC** na tela Enviar (escolher a pasta ou arrastá-la): uma linha por
+  disparo, JPEG + CR3 + RAW sem processamento.
+- Na ficha, a versão **RAW sem processamento** vem primeiro e a comparação entre versões ganha
+  **"O que a câmera fez com o RAW"**: quanto ruído a câmera tirou, quanta nitidez acrescentou ou
+  se apagou detalhe, nos mesmos recortes a 100%.
+- Selo **RAW** na grade de fotos. Explicações do papel do CR3 no envio, na ficha (foto só com
+  JPEG) e no Sobre (pedido do Guilherme).
+- Testes do importador (pytest) dentro do `npm test` e no GitHub.
+
+### Mudado
+- Esquema de dados 7 (variante `raw_neutral`). Um aparelho com app antigo é avisado para
+  atualizar ao encontrar dados do formato novo no Drive (v0.5.3).
+- A revelação inteira (~27 MB) é medida uma vez no PC e apagada; ao Drive vão só os recortes e
+  as medidas dela.
+
 ## [0.5.4] — 2026-10-12
 
 ### Corrigido

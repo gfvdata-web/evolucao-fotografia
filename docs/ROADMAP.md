@@ -120,39 +120,36 @@ diagnóstico por cena e variação dos ajustes), que usa o diagnóstico de cada 
   feita quando a v0.5 começou: o motor usa regras gerais nesses pontos e diz isso em cada
   orientação. Quando chegar, os limites ficam em `core/diagnosis.js` (`LIMITS`).
 
-### 🔨 v0.6 — Importador Python (Windows)
-Preparada em 12/10/2026 (decisão 0015, aceita: pacote em pasta e renderização inteira
-descartada depois de medida).
+### ✅ v0.6 — Importador Python (Windows)
+Decisão 0015 (pacote em pasta; revelação inteira descartada depois de medida). Entregue em
+13/10/2026 como **v0.6.0**.
 
-- **Calibração primeiro**: renderização neutra dos 26 pares de `amostras/cartao/` (tamanho em
-  pixels, brilho e geometria nas bordas comparados ao JPEG da câmera) antes de qualquer tela.
-- `importador/` (Python 3.13): ExifTool nativo com os mesmos argumentos do site
-  (`-json -l -G1`), rawpy/LibRaw para a **renderização neutra do RAW** (AHD, balanço da câmera,
-  sRGB, sem redução de ruído, sem nitidez, sem correção da lente), PNG de 8 bits em tamanho
-  cheio. Não calcula indicadores (regra 6) e não fala com o Drive.
-- **Pacote de sessão** `<AAAA-MM-DD>_<nome>.efsessao/`: uma pasta por dia, com `pacote.json`
-  (`kind: "efpacote"`), originais, JSON do ExifTool e renderização. Uso sem programar:
-  `importar.bat` (duplo clique → escolher a pasta do cartão → confirmar → progresso).
-- **No site (PC)**: "Importar pacote do PC" (escolher pasta ou arrastar), sessão sugerida por dia
-  como no envio, variante nova `raw_neutral` (esquema 7) medida pelo mesmo código; a imagem
-  inteira é descartada depois de medida e ao Drive vão só recortes e medidas.
-- **Etapa "sensor" na cadeia**: RAW neutro → JPEG da câmera → JPEG do tablet, com o que o
-  processamento da câmera mudou (ruído, nitidez, detalhe) e os recortes lado a lado no mesmo
-  trecho da cena.
-- **Pedido do Guilherme (2026-10-12), ler antes de começar a v0.6:** deixar claro **na tela**,
-  de forma intuitiva, que enviar o CR3 junto com o JPEG permite ver o que o processamento da
-  câmera acrescenta ou tira (redução de ruído, nitidez do Picture Style, otimizador da lente):
-  o RAW neutro mostra a foto sem esses efeitos e distorções. Hoje ele usa só o JPEG L do tablet,
-  que basta para o diagnóstico; o CR3 é opcional e serve para essa investigação. Ideias a
-  propor: aviso no envio e na ficha quando só há JPEG ("envie o CR3 pelo importador para ver a
-  foto sem o processamento da câmera"), selo na foto que tem a etapa "sensor", explicação no
-  Sobre. Lembrar que o CR3 chega pelo importador no computador, não pelo envio do tablet.
-- Testes: pytest (rawpy simulado; pacote e parâmetros), conferência local sobre
-  `amostras/cartao/`, ponta a ponta `tests/e2e/v06-*.spec.mjs` com um pacote sintético.
-- GUIA-DE-USO: instalação no Windows (ExifTool por `winget`, dependências com um comando) e uso
-  passo a passo. **Para adiantar** (Guilherme): instalar o ExifTool no PC; o Python 3.13 já está.
-- A testar pelo Guilherme no PC: importar um cartão real e abrir a mesma foto no tablet depois
-  da sincronização.
+- ✅ **Calibração primeiro**: revelação neutra dos 26 pares de `amostras/cartao/`. O recorte
+  que o próprio CR3 informa é o enquadramento do JPEG da câmera, pixel a pixel, em 3:2, 16:9 e
+  recorte 1,6x (`tests/amostras/revelar.py`). Os tons seguem a curva do próprio JPEG (com só um
+  ganho de brilho, a curva da câmera sozinha mudava as medidas em até 90%). Resultados em
+  `docs/CALIBRACAO-RESULTADOS.md`: com a redução de ruído Baixa a câmera realça a nitidez; com a
+  Padrão, a partir de ISO ~250, apaga detalhe.
+- ✅ `importador/` (Python 3.13): ExifTool nativo com os argumentos do site (`-json -l -G1`,
+  sem caminhos do PC), rawpy/LibRaw para a **revelação neutra** (AHD, balanço da câmera, sRGB,
+  sem redução de ruído, sem nitidez, sem correção da lente; curva de tons do JPEG), PNG de 8 bits
+  em tamanho cheio (~27 MB, ~4 s por foto). Não calcula indicadores (regra 6) e não fala com o Drive.
+- ✅ **Pacote** `<AAAA-MM-DD>_<nome>.efsessao/`: uma pasta por dia, `pacote.json`
+  (`kind: "efpacote"`), originais, JSON do ExifTool e revelação. `importar.bat`: duplo clique
+  → escolher a pasta do cartão → confirmar → progresso; prepara o Python na primeira vez.
+- ✅ **No site**: "Importar pacote do PC" na tela Enviar (escolher pasta ou arrastar), uma linha
+  da fila por disparo, sessão sugerida por dia como no envio; versão `raw_neutral` (esquema 7)
+  medida pelo mesmo código e apagada depois (`transient`); ao Drive vão só recortes e medidas.
+- ✅ **Etapa sensor** na comparação entre versões: "O que a câmera fez com o RAW" (redução de
+  ruído, realce de nitidez, detalhe apagado, já descontado o ruído), com os recortes do RAW ao
+  lado dos do JPEG.
+- ✅ **Pedido do Guilherme (2026-10-12)**: o papel do CR3 explicado na tela de envio, na ficha da
+  foto que só tem JPEG ("passe o cartão pelo importador...") e no Sobre; selo **RAW** na grade.
+- ✅ Testes: 34 pytest (rawpy e ExifTool simulados; dentro do `npm test`), unitários do pacote e
+  da etapa sensor, ponta a ponta `tests/e2e/v06-importador.spec.mjs` com pacote sintético.
+- ✅ GUIA-DE-USO: instalação do ExifTool e uso passo a passo.
+- A testar pelo Guilherme no PC: instalar o ExifTool, passar um cartão real pelo importador,
+  importar no site do computador e abrir a mesma foto no tablet depois da sincronização.
 
 ### ⏳ v1.0 — Polimento + Painel (beta)
 Preparada em 12/10/2026 (decisão 0016, aceita: axe-core nos testes e a tabela "o site disse ×

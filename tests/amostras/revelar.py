@@ -43,7 +43,7 @@ for cr3 in sorted((samples / "cartao").glob("*.CR3")):
               for cy, cx in ((H // 2, W // 2), (300, 300), (H - 300, W - 300))] if same else []
     ok = same and all(s == (0, 0) for s in shifts)
     bad += not ok
-    print(f"{cr3.stem} {'ok ' if ok else 'ERRO'} {info['width']}x{info['height']} ganho {info['exposure_gain']:.2f} "
+    print(f"{cr3.stem} {'ok ' if ok else 'ERRO'} {info['width']}x{info['height']} curva {info['tone_curve']} "
           f"mediana neutra {np.median(n):.0f} jpeg {np.median(j):.0f} deslocamentos {shifts} {took:.1f}s")
 print(f"\n{bad} com problema")
 sys.exit(1 if bad else 0)

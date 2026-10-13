@@ -37,7 +37,12 @@ jobs:
       - name: Instalar Chromium para os testes ponta a ponta
         run: npx playwright install --with-deps chromium
 
-      - name: Rodar a suíte (vendor → fixtures → unitários → ponta a ponta)
+      # Importador (v0.6): o npm test cria importador/.venv com este Python.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Rodar a suíte (vendor → fixtures → unitários → importador → ponta a ponta)
         run: npm test
 
       - name: Guardar relatório do Playwright (se falhar)

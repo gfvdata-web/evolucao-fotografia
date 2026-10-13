@@ -1,6 +1,6 @@
 {
   "name": "evolucao-fotografia",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "private": true,
   "description": "Análise da qualidade de captura das fotos (Canon EOS RP) direto no navegador.",
   "type": "module",
@@ -10,7 +10,8 @@
     "serve": "node scripts/serve.mjs",
     "test:unit": "node --test \"tests/unit/**/*.test.mjs\"",
     "test:e2e": "playwright test",
-    "test": "npm run vendor && npm run fixtures && npm run test:unit && npm run test:e2e"
+    "test:py": "node scripts/pytest.mjs",
+    "test": "npm run vendor && npm run fixtures && npm run test:unit && npm run test:py && npm run test:e2e"
   },
   "engines": {
     "node": ">=22"

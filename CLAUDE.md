@@ -33,7 +33,8 @@ tablet e dá direção.
 5. **O que não foi lido aparece como não lido.** Nunca preencher campo ausente com um valor
    plausível. A ficha mostra o que faltou e o motivo provável.
 6. **Uma única implementação de cada métrica**, em JavaScript. O importador Python (v0.6)
-   entrega metadados, prévias e recortes, mas não calcula indicadores.
+   entrega originais, metadados e a revelação neutra do RAW; recortes e indicadores são do
+   site (decisão 0015).
 7. **Não adicionar funcionalidade fora do escopo sem perguntar.** Escolha não óbvia: trazer
    1–2 alternativas com prós e contras e registrar em `docs/decisoes/`.
 
@@ -62,7 +63,8 @@ tests/fixtures/             gerador de JPEG/CR3 sintéticos com EXIF e MakerNote
 tests/lib/fake-drive.mjs    Drive falso em memória (unitários e ponta a ponta; nada vai ao Google)
 tests/amostras/             conferência das amostras reais (roda só localmente)
 scripts/                    vendor.mjs, serve.mjs, icons.mjs (PNG dos ícones a partir do SVG)
-importador/                 script Python (v0.6)
+importador/                 Python (v0.6): cartão → pacote .efsessao/ (ExifTool nativo + revelação
+                            neutra do CR3 com rawpy); importar.bat; testes em importador/tests (pytest)
 docs/                       catálogo em docs/INDICE.md
 ```
 
@@ -87,11 +89,15 @@ Detalhes: `docs/ARQUITETURA.md`. Modelo de dados: `docs/MODELO-DE-DADOS.md`.
 npm ci                 # dependências (uma vez)
 npm run vendor         # copia exifr e ExifTool-WASM para site/vendor/
 npm run serve          # http://localhost:8765/  (file:// não funciona: módulos ES + wasm)
-npm test               # vendor → fixtures → unitários → ponta a ponta (tudo)
+npm test               # vendor → fixtures → unitários → importador (pytest) → ponta a ponta (tudo)
 npm run test:unit      # só unitários
+npm run test:py        # só o importador (cria importador/.venv na primeira vez)
 npm run test:e2e       # só Playwright (E2E_PORT=8791 para rodar em paralelo com outra cópia)
 node tests/amostras/conferir.mjs   # relatório das amostras reais em amostras/ (local)
 node tests/amostras/metricas.mjs   # métricas do site sobre as amostras + recortes (local, após o conferir)
+importador/.venv/Scripts/python tests/amostras/revelar.py         # revelação neutra × JPEG (local)
+importador/.venv/Scripts/python tests/amostras/pacote-amostras.py # pacote das amostras (local)
+node tests/amostras/sensor.mjs     # etapa sensor medida pelo site nas amostras (local, após o pacote)
 ```
 
 ## Rotina de cada mudança
@@ -140,9 +146,11 @@ aparelhos, PWA e backup `.efbackup`. **v0.5.0**: diagnóstico de uma foto com or
 na ficha, veredito na grade; `core/diagnosis.js`, limites em `LIMITS` calibrados nas amostras;
 decisões 0011 e 0013). **v0.5.1**: cenas na sessão (separação automática com motivo, arrastar e
 soltar com o dedo, diagnóstico por cena e variação dos ajustes; `core/scenes.js`,
-`core/scene-diagnosis.js`, `ui/scene-drag.js`; decisão 0014). Esquema de dados 6, métricas
-versão 2. Em andamento: v0.6 (importador, decisão 0015); depois, v1.0 (polimento e Painel,
-decisão 0016). Ver `docs/ROADMAP.md`.
+`core/scene-diagnosis.js`, `ui/scene-drag.js`; decisão 0014). **v0.6.0**: importador no PC
+(`importador/`, `importar.bat`) e pacote `.efsessao/` em pasta; no site, "Importar pacote do PC",
+versão `raw_neutral` transitória (medida e apagada) e a etapa sensor (`sensorStep`) na ficha;
+decisão 0015. Esquema de dados 7, métricas versão 2. Próximo: v1.0 (polimento e Painel, decisão
+0016). Ver `docs/ROADMAP.md`.
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o

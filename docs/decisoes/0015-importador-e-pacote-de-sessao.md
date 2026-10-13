@@ -35,8 +35,9 @@ renderização.
      `normalize.js` ler sem mudança e o site não precisar rodar o ExifTool-WASM;
    - a **renderização neutra do RAW** (abaixo).
 3. **Renderização neutra** (rawpy/LibRaw): interpolação AHD, balanço de branco da câmera, saída
-   sRGB com a curva sRGB, **sem** redução de ruído, **sem** nitidez, **sem** correção da lente e
-   sem brilho automático. Os parâmetros e a versão do LibRaw vão gravados junto (`render`).
+   sRGB, **sem** redução de ruído, **sem** nitidez, **sem** correção da lente e sem brilho
+   automático. Os tons seguem a **curva do JPEG da câmera**, tirada do histograma dele (ver
+   "Resultado da calibração"). Os parâmetros e a versão do LibRaw vão gravados junto (`render`).
    A calibração da v0.6, nos 26 pares, confere: tamanho em pixels (se o LibRaw entrega
    6240×4160 como o JPEG L), brilho comparado ao JPEG da câmera e diferença de geometria nas
    bordas (o JPEG pode ter correção de distorção; o RAW neutro, não).
@@ -75,6 +76,22 @@ renderização.
     local, sobre `amostras/cartao/` (`tests/amostras/`), como as outras amostras. No site, a
     importação é testada ponta a ponta (`tests/e2e/v06-*.spec.mjs`) com um pacote sintético
     gerado pelos próprios testes (PNG + JSON + fixtures CR3/JPEG de `tests/fixtures/`).
+
+## Resultado da calibração (13/10/2026, 26 pares da 1ª rodada)
+
+- **Enquadramento:** o recorte que o próprio CR3 informa (margens do LibRaw) coincide pixel a
+  pixel com o JPEG da câmera em 3:2, em 16:9 e no recorte 1,6x (no 1,6x o próprio RAW já vem
+  recortado). Nenhum deslocamento no centro nem nos cantos. Não foi preciso mexer em
+  `core/camera-profiles.js`.
+- **Tons:** a primeira versão igualava só o brilho mediano, com um ganho único. Nas medidas do
+  site, a curva em S do JPEG sozinha mudava nitidez e ruído em até 90% (sombra escurecida de 52
+  para 23 em IMG_9372/9373), e isso aparecia como "a câmera apagou detalhe" ou "realçou a
+  nitidez". Passou-se a aplicar à revelação a **curva de tons do próprio JPEG**, tirada do
+  histograma (uma tabela crescente por canal). Uma curva de tons não muda a ordem dos valores:
+  ruído, bordas e detalhe continuam os do sensor, e a comparação passa a mostrar só o que o
+  processamento faz no espaço (redução de ruído, realce de nitidez, correção da lente). Os
+  números por foto estão em `docs/CALIBRACAO-RESULTADOS.md`.
+- **Custo:** ~4 s por CR3 da EOS RP no PC e ~27 MB de PNG (nível 3).
 
 ## Alternativas consideradas
 
