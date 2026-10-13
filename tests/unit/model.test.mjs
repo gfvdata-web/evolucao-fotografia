@@ -143,7 +143,7 @@ test('migração de sessão 4 → 5 só acompanha a versão', async () => {
 });
 
 test('migração 5 → 6: foto entra na separação automática de cenas (scene_id nulo)', () => {
-  const out = migrate({ schema_version: 5, id: 'a', session_id: 'ses-1', variants: [] });
+  const out = migrate({ schema_version: 5, id: 'a', session_id: 'ses-1', variants: [] }, undefined, 6);
   assert.equal(out.schema_version, 6);
   assert.equal(out.scene_id, null);
   assert.equal(out.session_id, 'ses-1');
@@ -153,5 +153,13 @@ test('migração 5 → 6: foto entra na separação automática de cenas (scene_
 test('migração de sessão 5 → 6 só acompanha a versão', async () => {
   const { SESSION_MIGRATIONS } = await import('../../site/js/core/migrations.js');
   const s = { schema_version: 5, id: 'ses-1', name: 'Parque' };
-  assert.deepEqual(migrate(s, SESSION_MIGRATIONS), { ...s, schema_version: 6 });
+  assert.deepEqual(migrate(s, SESSION_MIGRATIONS, 6), { ...s, schema_version: 6 });
+});
+
+test('migração 6 → 7 (v0.6): só a versão; a variante raw_neutral é nova e nenhuma foto antiga a tem', async () => {
+  const { SESSION_MIGRATIONS } = await import('../../site/js/core/migrations.js');
+  const v6 = { schema_version: 6, id: 'a', scene_id: null, variants: [{ key: 'jpeg-web', kind: 'jpeg' }] };
+  assert.deepEqual(migrate(v6), { ...v6, schema_version: 7 });
+  const s = { schema_version: 6, id: 'ses-1', name: 'Parque' };
+  assert.deepEqual(migrate(s, SESSION_MIGRATIONS), { ...s, schema_version: 7 });
 });

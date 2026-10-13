@@ -44,12 +44,15 @@ function focusRegion(record, toPrimary, around) {
   return { rect: around({ cx: 0.5, cy: 0.5 }, AF_CROP_PX), source: 'center' };
 }
 
-/** Capture of each version re-read from its stored ExifTool output (key → capture). */
+/**
+ * Capture of each version re-read from its stored ExifTool output (key →
+ * capture). The neutral RAW (v0.6) reads the output of the CR3 it came from.
+ */
 async function renormalized(record) {
   const out = new Map();
   for (const v of record.variants) {
     if (v.metadata_status !== 'complete') continue;
-    const raw = await repo.getRawMetadata(record.id, v.key);
+    const raw = await repo.getRawMetadata(record.id, v.from_variant || v.key);
     if (raw) out.set(v.key, fromExifTool(raw));
   }
   return out;
@@ -140,7 +143,11 @@ async function run(photoId, force) {
     };
     fresh.indicators = buildIndicators(fresh, now);
     fresh.updated_at = now;
-    await repo.savePhoto(fresh, { blobs });
+    // Transient versions (the neutral RAW, decision 0015): measured once, the
+    // full image goes away; crops and measures stay and are synced.
+    const dropBlobs = fresh.variants.filter((v) => v.transient && results.has(v.key))
+      .map((v) => repo.blobKey.original(fresh.id, v.key));
+    await repo.savePhoto(fresh, { blobs, dropBlobs });
   });
   notifyChanged(photoId);
 }

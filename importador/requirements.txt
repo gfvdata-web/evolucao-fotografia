@@ -1,0 +1,5 @@
+# Importador (v0.6): revelação neutra do CR3 e pacote de sessão.
+# ExifTool é instalado à parte: winget install OliverBetz.ExifTool
+rawpy==0.27.1
+numpy==2.5.4
+Pillow==12.3.0

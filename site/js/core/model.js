@@ -5,7 +5,7 @@
 // Each variant keeps the metadata read from that exact file, so later versions
 // can compare stages (camera → transfer → app) and find where quality was lost.
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
 /** Fields the analysis needs. Order = display order of the "missing" list. */
 export const EXPECTED_FIELDS = [
@@ -81,8 +81,13 @@ export function mergeCaptures(captures) {
   return out;
 }
 
-/** Trust order of variants when merging: CR3 first, then camera JPEG, then the rest. */
+/**
+ * Trust order of variants when merging: CR3 first, then camera JPEG, then the
+ * rest. The neutral rendering (v0.6) has no metadata of its own (it repeats
+ * its CR3's), so it comes last.
+ */
 export function variantRank(variant) {
+  if (variant.kind === RAW_NEUTRAL) return 3;
   if (variant.kind === 'cr3') return 0;
   if (variant.metadata_status === 'complete' && !variant.missing?.some((f) => MAKERNOTE_FIELDS.has(f))) return 1;
   return 2;
@@ -111,8 +116,16 @@ export function newPhotoRecord({ id, matchKey, now }) {
 }
 
 /**
+ * Neutral rendering of a CR3 made by the importer (v0.6, decision 0015): the
+ * photo without the camera's noise reduction, sharpening and lens corrections.
+ * The full image is measured once on the PC and then dropped (`transient`):
+ * only its 100% crops and measures are kept and synced.
+ */
+export const RAW_NEUTRAL = 'raw_neutral';
+
+/**
  * @param {object} p
- * @param {'jpeg'|'cr3'} p.kind
+ * @param {'jpeg'|'cr3'|'raw_neutral'} p.kind
  * @param {'web'|'importer'} p.source
  * @param {File} p.file
  */

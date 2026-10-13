@@ -132,6 +132,16 @@ const VALUES = {
   },
 };
 
+/** Versions of a shot (variant.kind): badge and description. */
+export const VARIANT_BADGE = { jpeg: 'JPEG', cr3: 'CR3', raw_neutral: 'RAW' };
+export const VARIANT_KIND_LABEL = {
+  jpeg: 'JPEG',
+  cr3: 'CR3 (JPEG embutido)',
+  raw_neutral: 'RAW sem processamento',
+};
+export const variantBadge = (kind) => VARIANT_BADGE[kind] || String(kind).toUpperCase();
+export const variantKindLabel = (kind) => VARIANT_KIND_LABEL[kind] || kind;
+
 /** Translates an engine value to pt-BR, or returns it unchanged. */
 export function translate(path, value) {
   if (value === null || value === undefined) return value;

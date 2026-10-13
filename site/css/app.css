@@ -116,6 +116,7 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .badge { font-size: .75rem; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); }
 .badge-cr3 { color: var(--af); }
 .badge-jpeg { color: var(--accent); }
+.badge-raw_neutral { color: var(--ok); outline: 1px solid currentColor; }
 
 /* --- Photo sheet ------------------------------------------------------------ */
 .sheet-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }

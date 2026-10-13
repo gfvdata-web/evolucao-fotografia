@@ -38,4 +38,5 @@ export function applySettingsPatch(current, patch) {
 }
 
 /** Whether the original of a variant goes to the Drive under these settings. */
-export const keepsOriginal = (settings, kind) => (kind === 'cr3' ? settings.keep_cr3 : settings.keep_jpeg);
+// The neutral RAW rendering (v0.6) never goes: it is dropped after being measured (decision 0015).
+export const keepsOriginal = (settings, kind) => (kind === 'cr3' ? settings.keep_cr3 : kind === 'jpeg' ? settings.keep_jpeg : false);

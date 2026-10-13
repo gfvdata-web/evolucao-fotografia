@@ -10,10 +10,10 @@ import { assignPhotos, removePhoto } from '../../pipeline/organize.js';
 import { RATING_LABELS, ratingText } from '../../core/glossary.js';
 import { formatDate } from '../../core/sessions.js';
 import { scheduleAnalysis, setCropChoice, AF_CROP_PX, UNIFORM_CROP_PX } from '../../pipeline/analyze.js';
-import { FIELDS, MISSING_HINTS, fieldLabel, translate } from '../../core/glossary.js';
-import { MAKERNOTE_FIELDS, getPath } from '../../core/model.js';
+import { FIELDS, MISSING_HINTS, fieldLabel, translate, variantBadge, variantKindLabel } from '../../core/glossary.js';
+import { MAKERNOTE_FIELDS, RAW_NEUTRAL, getPath } from '../../core/model.js';
 import { afAreasOnPreview, describeAfPosition } from '../../core/af-geometry.js';
-import { buildIndicators, chainOrder, needsAnalysis } from '../../core/indicators.js';
+import { METRICS_VERSION, buildIndicators, chainOrder, needsAnalysis } from '../../core/indicators.js';
 import { diagnosePhoto } from '../../core/diagnosis.js';
 import { diagnosisCard } from '../diagnosis-card.js';
 import {
@@ -78,17 +78,36 @@ function versionLabels(photo) {
 
 // ---------------------------------------------------------------- sections
 
+/** How the importer rendered the RAW, and what is kept of it (v0.6). */
+function renderNote(v) {
+  const r = v.render || {};
+  const gain = r.exposure_gain ? formatDecimal(r.exposure_gain, 1) : null;
+  return [
+    h('div', { class: 'small' }, 'Revelado no computador pelo importador',
+      v.engines.length ? ` (${v.engines.join(', ')})` : '',
+      ': sem redução de ruído, sem realce de nitidez, sem correção da lente, sem a curva do estilo de imagem.'),
+    h('div', { class: 'small muted' }, r.brightness_matched_to
+      ? `Brilho igualado ao do ${r.brightness_matched_to} por um ganho único (${gain}×), sem curva.`
+      : 'Sem JPEG da câmera no cartão: brilho sem ajuste.'),
+    h('div', { class: 'small muted', 'data-testid': 'raw-transient' },
+      'A imagem inteira não fica guardada (cerca de 30 MB): só os recortes a 100% e as medidas.',
+      v.analysis && !v.analysis.error && v.analysis.metrics_version !== METRICS_VERSION
+        ? ` Medida com a versão ${v.analysis.metrics_version} das métricas; importe o CR3 de novo para atualizar.` : ''),
+  ];
+}
+
 function variantBlock(v, label) {
   const exifDims = v.capture.image.exif_width && v.capture.image.exif_height
     ? formatPixels(v.capture.image.exif_width, v.capture.image.exif_height) : null;
   const decoded = v.pixels ? formatPixels(v.pixels.width, v.pixels.height) : null;
   return h('li', { class: 'variant', 'data-testid': 'variant' },
-    h('div', {}, h('span', { class: `badge badge-${v.kind}` }, v.kind.toUpperCase()), ' ',
+    h('div', {}, h('span', { class: `badge badge-${v.kind}` }, variantBadge(v.kind)), ' ',
       h('strong', {}, v.file.name), h('span', { class: 'muted' }, ` · ${label} · ${formatBytes(v.file.size)}`)),
     h('div', { class: 'small' }, 'Pixels da imagem: ', decoded || '—',
       v.pixels?.decoded_from === 'cr3-embedded-jpeg' ? ' (JPEG embutido no CR3)' : ''),
-    exifDims && exifDims !== decoded ? h('div', { class: 'small' }, 'Tamanho declarado no EXIF: ', exifDims) : null,
-    h('div', { class: 'small muted' }, `Metadados: ${STATUS_LABEL[v.metadata_status] || v.metadata_status}`,
+    v.kind === RAW_NEUTRAL ? renderNote(v) : null,
+    exifDims && exifDims !== decoded && v.kind !== RAW_NEUTRAL ? h('div', { class: 'small' }, 'Tamanho declarado no EXIF: ', exifDims) : null,
+    v.kind === RAW_NEUTRAL ? null : h('div', { class: 'small muted' }, `Metadados: ${STATUS_LABEL[v.metadata_status] || v.metadata_status}`,
       v.engines.length ? ` (${v.engines.join(', ')})` : '',
       v.tag_count ? ` · ${v.tag_count} campos` : ''),
     v.error ? h('div', { class: 'small warn-text' }, v.error) : null,
@@ -124,7 +143,7 @@ function chainBlock(ind, labels) {
   const num = (v, d = 0) => (v === null || v === undefined ? '—' : formatDecimal(v, d));
   const rows = [
     ['Arquivo', (v) => v.name],
-    ['Tipo', (v) => (v.kind === 'cr3' ? 'CR3 (JPEG embutido)' : 'JPEG')],
+    ['Tipo', (v) => variantKindLabel(v.kind)],
     ['Pixels', (v) => (v.width ? `${v.width} × ${v.height} (${num(v.mp, 1)} MP)` : '—')],
     ['Tamanho do arquivo', (v) => formatBytes(v.bytes) || '—'],
     ['Bits por pixel', (v) => num(v.bits_per_pixel, 2)],
@@ -138,16 +157,20 @@ function chainBlock(ind, labels) {
   return h('section', { class: 'card', 'data-testid': 'chain' },
     h('div', { class: 'card-head' }, h('h3', {}, 'Comparação entre versões'), chip(chain.status)),
     h('p', { class: 'small muted' }, 'Versões do mesmo disparo, da mais completa para a menos completa. ',
-      'O CR3 entra pelo JPEG que a câmera grava dentro dele, que mostra o sensor inteiro.'),
+      'O CR3 entra pelo JPEG que a câmera grava dentro dele, que mostra o sensor inteiro.',
+      vs.some((v) => v.kind === RAW_NEUTRAL)
+        ? ' O RAW sem processamento é o CR3 revelado no computador sem o que a câmera faz; ele é comparado com o JPEG da câmera.' : ''),
     h('div', { class: 'table-scroll' }, h('table', { class: 'chain-table' },
       h('thead', {}, h('tr', {}, h('th', {}, ''), vs.map((v) => h('th', {}, labels.get(v.key))))),
       h('tbody', {}, rows.map(([label, fn]) => h('tr', {}, h('th', { scope: 'row' }, label), vs.map((v) => h('td', {}, fn(v)))))))),
     h('h4', {}, 'O que mudou entre as versões'),
-    h('ul', { class: 'chain-steps', 'data-testid': 'chain-steps' }, chain.steps.map((s) => h('li', {},
-      h('strong', {}, `${labels.get(s.from)} → ${labels.get(s.to)}: `),
+    h('ul', { class: 'chain-steps', 'data-testid': 'chain-steps' }, chain.steps.map((s) => h('li', s.sensor ? { 'data-testid': 'sensor-step' } : {},
+      h('strong', {}, s.sensor
+        ? `O que a câmera fez com o RAW (${labels.get(s.from)} → ${labels.get(s.to)}): `
+        : `${labels.get(s.from)} → ${labels.get(s.to)}: `),
       s.findings.length
         ? h('ul', {}, s.findings.map((f) => h('li', { class: `finding sev-${f.severity}` }, f.text)))
-        : 'nenhuma perda detectada.'))));
+        : s.sensor ? 'sem diferença relevante de ruído ou nitidez nos recortes.' : 'nenhuma perda detectada.'))));
 }
 
 function cropsBlock(photo, bag, state, labels, onPick, onReset) {
@@ -185,7 +208,7 @@ function cropsBlock(photo, bag, state, labels, onPick, onReset) {
             : `ruído ${formatDecimal(item.sigma, 1)} · brilho ${formatDecimal(item.mean_luma, 0)} · ${item.px.w}×${item.px.h} px`));
     };
     rows.push(h('div', { class: 'crop-row' },
-      h('div', { class: 'small' }, h('strong', {}, labels.get(v.key)), ` · ${v.kind === 'cr3' ? 'CR3 (JPEG embutido)' : v.file.name}`,
+      h('div', { class: 'small' }, h('strong', {}, labels.get(v.key)), ` · ${v.kind === 'jpeg' ? v.file.name : variantKindLabel(v.kind)}`,
         v.pixels ? ` · ${v.pixels.width}×${v.pixels.height}` : ''),
       h('div', { class: 'crop-pair' }, fig('af', a.af, AF_CROP_PX), fig('uniform', a.uniform, UNIFORM_CROP_PX))));
   }
@@ -380,7 +403,11 @@ export function photoSheetView(root, { id }) {
           indicatorsBlock(photo, ind, labels),
           chainBlock(ind, labels),
           h('section', { class: 'card' }, h('h3', {}, 'Arquivos desta foto'),
-            h('ul', { class: 'variants' }, chainOrder(photo).map((v) => variantBlock(v, labels.get(v.key))))),
+            h('ul', { class: 'variants' }, chainOrder(photo).map((v) => variantBlock(v, labels.get(v.key)))),
+            photo.variants.some((v) => v.kind === RAW_NEUTRAL) ? null : h('p', { class: 'small muted', 'data-testid': 'raw-hint' },
+              'Esta foto só tem a versão processada pela câmera, que basta para o diagnóstico. Para vê-la sem esse processamento ',
+              '(redução de ruído, realce de nitidez, correção da lente), passe o cartão pelo importador no computador: ',
+              'ele revela o CR3 e a ficha mostra o que a câmera mudou.')),
           h('section', { class: 'card' }, h('h3', {}, 'Configuração usada'), settingsTable(photo.capture, reading)),
           h('section', { class: 'card' }, h('h3', {}, 'O que não foi possível ler'), missingBlock(photo, reading)),
           rawMetadataBlock(photo, labels),

@@ -4,7 +4,7 @@ import { listPhotos, getBlob, blobKey } from '../../storage/photos-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
 import { formatDateTime, formatShutter, formatAperture, formatIso, formatFocal } from '../../core/format.js';
 import { buildIndicators } from '../../core/indicators.js';
-import { RATING_LABELS } from '../../core/glossary.js';
+import { RATING_LABELS, variantBadge, variantKindLabel } from '../../core/glossary.js';
 import { isRated, ratingSummary } from '../../core/rating.js';
 import { diagnosePhoto, diagnosisChip } from '../../core/diagnosis.js';
 
@@ -64,7 +64,9 @@ export async function photoCard(photo, bag, opts = {}) {
       ? h('img', { src: bag.url(preview), alt: `Prévia de ${photo.variants[0]?.file.name}`, loading: 'lazy' })
       : h('div', { class: 'no-preview' }, 'sem prévia'),
     h('div', { class: 'photo-card-body' },
-      h('div', { class: 'badges' }, photo.variants.map((v) => h('span', { class: `badge badge-${v.kind}` }, v.kind.toUpperCase()))),
+      h('div', { class: 'badges' }, photo.variants.map((v) => h('span', {
+        class: `badge badge-${v.kind}`, title: variantKindLabel(v.kind), 'data-testid': `badge-${v.kind}`,
+      }, variantBadge(v.kind)))),
       h('div', { class: 'photo-card-title' }, photo.variants[0]?.file.name || photo.id),
       h('div', { class: 'muted small' }, formatDateTime(c.datetime_original) || 'sem data de captura'),
       settings ? h('div', { class: 'small' }, settings) : null,

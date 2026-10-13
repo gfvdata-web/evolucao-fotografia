@@ -36,6 +36,9 @@ export const MIGRATIONS = {
   // 5 → 6 (v0.5.1): scenes inside the session. Every photo starts in the
   // automatic split (scene_id null) until the user moves one.
   5: (doc) => ({ ...doc, scene_id: doc.scene_id ?? null }),
+  // 6 → 7 (v0.6): a new kind of variant, `raw_neutral` (importer). Existing
+  // records have none, so nothing changes but the version.
+  6: (doc) => ({ ...doc }),
 };
 
 /** Capture in the current shape: known values kept, new fields null. */
@@ -79,6 +82,8 @@ export const SESSION_MIGRATIONS = {
   4: (doc) => ({ ...doc }),
   // 5 → 6: scenes live on the photos (scene_id); sessions unchanged.
   5: (doc) => ({ ...doc }),
+  // 6 → 7: sessions unchanged.
+  6: (doc) => ({ ...doc }),
 };
 
 export function migrate(doc, migrations = MIGRATIONS, target = SCHEMA_VERSION) {

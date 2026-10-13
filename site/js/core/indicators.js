@@ -4,7 +4,8 @@
 // threshold changes: photos analysed with an older version are recomputed from
 // the originals kept on the device (pipeline/analyze.js).
 import { profileFor, matchSizes } from './camera-profiles.js';
-import { MAKERNOTE_FIELDS } from './model.js';
+import { MAKERNOTE_FIELDS, RAW_NEUTRAL } from './model.js';
+import { translate } from './glossary.js';
 
 // 2 (v0.5.0): blur of the focus crop, histogram, signature and 100% tiles of
 // the primary version; the capture gains max aperture, meter EV and focus distance.
@@ -25,6 +26,12 @@ export const THRESHOLDS = {
   // Sharpness counts noise as detail: in the EOS RP samples at ISO 12800 the
   // same scene read 13 with noise reduction "Strong" and 236 with it "Off".
   high_iso_sharpness_note: 3200,
+  // Sensor step (v0.6): camera JPEG against the neutral rendering of its RAW,
+  // same 100% crops. Calibrated on the 26 EOS RP samples (docs/CALIBRACAO-RESULTADOS.md).
+  sensor_noise_drop: 0.15, // noise σ in the uniform area lower by more than this = noise reduction
+  sensor_sharpen_rise: 0.15, // Laplacian in the focus crop higher by more than this = sharpening
+  sensor_detail_drop: 0.15, // Laplacian lower by more than this = detail removed
+  sensor_luma_diff: 12, // brightness gap (0–255) above which the comparison is approximate
 };
 
 export const STATUS_ORDER = ['unknown', 'ok', 'info', 'attention', 'alert'];
@@ -162,7 +169,12 @@ export function sceneLight(capture) {
  * preview compressed harder (quality ~80 against ~97 on the EOS RP samples).
  */
 export function primaryVariant(photo) {
-  const scored = photo.variants.filter((v) => v.pixels?.width);
+  // The neutral rendering of the RAW (v0.6) never is the primary: the
+  // diagnosis measures the JPEG, the photo the user keeps. Only a photo with
+  // nothing else falls back to it.
+  const withPx = photo.variants.filter((v) => v.pixels?.width);
+  const camera = withPx.filter((v) => v.kind !== RAW_NEUTRAL);
+  const scored = camera.length ? camera : withPx;
   scored.sort((a, b) => (b.pixels.width * b.pixels.height - a.pixels.width * a.pixels.height)
     || ((a.kind === 'cr3' ? 1 : 0) - (b.kind === 'cr3' ? 1 : 0)));
   return scored[0] || null;
@@ -174,9 +186,10 @@ export function isCropMode(variant) {
   return matchSizes(profileFor(variant.capture?.camera?.model), px.width, px.height).some((s) => s.crop_mode);
 }
 
-/** Variants ordered from the most to the least faithful (chain order). */
+/** Variants ordered from the most to the least faithful (chain order): the neutral RAW first. */
 export function chainOrder(photo) {
   return [...photo.variants].sort((a, b) => {
+    if ((a.kind === RAW_NEUTRAL) !== (b.kind === RAW_NEUTRAL)) return a.kind === RAW_NEUTRAL ? -1 : 1;
     if ((a.kind === 'cr3') !== (b.kind === 'cr3')) return a.kind === 'cr3' ? -1 : 1;
     const pa = a.pixels ? a.pixels.width * a.pixels.height : 0;
     const pb = b.pixels ? b.pixels.width * b.pixels.height : 0;
@@ -205,17 +218,85 @@ function variantStats(v) {
     canon_data: v.metadata_status === 'complete' ? !(v.missing || []).some((f) => MAKERNOTE_FIELDS.has(f)) : null,
     sharpness: a?.af?.laplacian_var ?? null,
     noise_sigma: a?.uniform?.sigma ?? null,
+    focus_luma: a?.af?.mean_luma ?? null,
+    uniform_luma: a?.uniform?.mean_luma ?? null,
   };
+}
+
+const signedPct = (x) => `${x >= 0 ? '+' : '−'}${Math.round(Math.abs(x) * 100)}%`;
+
+/**
+ * Sensor step (v0.6, decision 0015): what the camera's processing did to the
+ * RAW, comparing the neutral rendering with the primary JPEG in the same 100%
+ * crops. Findings describe the processing (severity info), they are not losses.
+ */
+export function sensorStep(photo) {
+  const neutral = photo.variants.find((v) => v.kind === RAW_NEUTRAL && v.analysis && !v.analysis.error);
+  const primary = primaryVariant(photo);
+  if (!neutral || !primary || primary === neutral || !primary.analysis || primary.analysis.error) return null;
+  const a = variantStats(neutral);
+  const b = variantStats(primary);
+  const findings = [];
+  const sameScale = a.width && b.width && (a.width === b.width || a.height === b.height);
+  if (!sameScale) {
+    findings.push({
+      kind: 'scale', severity: 'info',
+      text: `A versão principal tem outra escala de pixels (${b.width} × ${b.height} contra ${a.width} × ${a.height}): o efeito do processamento não foi comparado.`,
+    });
+    return { from: neutral.key, to: primary.key, sensor: true, findings };
+  }
+  const nr = translate('noise_reduction.high_iso', photo.capture?.noise_reduction?.high_iso);
+  const style = translate('picture_style', photo.capture?.picture_style);
+  const t = THRESHOLDS;
+  if (a.noise_sigma > 0 && b.noise_sigma != null) {
+    const change = b.noise_sigma / a.noise_sigma - 1;
+    if (change < -t.sensor_noise_drop) {
+      findings.push({
+        kind: 'noise_reduction', severity: 'info', change,
+        text: `Redução de ruído da câmera: ruído ${a.noise_sigma.toFixed(2).replace('.', ',')} → ${b.noise_sigma.toFixed(2).replace('.', ',')} na área uniforme (${signedPct(change)})`
+          + `${nr ? `; redução de ruído em ISO alto: ${nr}` : ''}.`,
+      });
+    }
+  }
+  if (a.sharpness > 0 && b.sharpness != null) {
+    const change = b.sharpness / a.sharpness - 1;
+    if (change > t.sensor_sharpen_rise) {
+      findings.push({
+        kind: 'sharpening', severity: 'info', change,
+        text: `Realce de nitidez da câmera: nitidez ${Math.round(a.sharpness)} → ${Math.round(b.sharpness)} no recorte do foco (${signedPct(change)})`
+          + `${style ? `; estilo de imagem ${style}` : ''}.`,
+      });
+    } else if (change < -t.sensor_detail_drop) {
+      findings.push({
+        kind: 'detail_loss', severity: 'info', change,
+        text: `A câmera apagou detalhe no foco: nitidez ${Math.round(a.sharpness)} → ${Math.round(b.sharpness)} (${signedPct(change)}), efeito provável da redução de ruído`
+          + `${nr ? ` (${nr})` : ''}.`,
+      });
+    }
+  }
+  const lumaGap = [[a.uniform_luma, b.uniform_luma], [a.focus_luma, b.focus_luma]]
+    .filter(([x, y]) => x != null && y != null).map(([x, y]) => Math.abs(x - y));
+  if (lumaGap.some((g) => g > t.sensor_luma_diff)) {
+    findings.push({
+      kind: 'brightness', severity: 'info',
+      text: `Brilho diferente nos recortes (até ${Math.round(Math.max(...lumaGap))} níveis): a comparação acima é aproximada.`,
+    });
+  }
+  return { from: neutral.key, to: primary.key, sensor: true, findings };
 }
 
 /** Differences between consecutive versions of the same shot. */
 export function chainComparison(photo) {
   if (photo.variants.length < 2) return null;
   const versions = chainOrder(photo).map(variantStats);
-  const steps = [];
-  for (let i = 1; i < versions.length; i++) {
-    const a = versions[i - 1];
-    const b = versions[i];
+  // The neutral RAW is compared with the camera JPEG (sensorStep), not with
+  // the next version in the list; the other steps follow the chain.
+  const path = versions.filter((v) => v.kind !== RAW_NEUTRAL);
+  const sensor = sensorStep(photo);
+  const steps = sensor ? [sensor] : [];
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1];
+    const b = path[i];
     const findings = [];
     if (a.mp && b.mp && b.mp < a.mp * THRESHOLDS.reduced_pixels_fraction) {
       const drop = `Pixels: ${fmtMp(a.mp)} → ${fmtMp(b.mp)} (−${Math.round((1 - b.mp / a.mp) * 100)}%)`;
@@ -306,7 +387,11 @@ export function buildIndicators(photo, now = new Date().toISOString()) {
   };
 }
 
-/** True when the photo needs (re)analysis: missing or older metrics. */
+/**
+ * True when the photo needs (re)analysis: missing or older metrics. A
+ * transient version (the neutral RAW, whose full image is not kept) is
+ * analysed once; later metric versions keep its old measures.
+ */
 export function needsAnalysis(photo) {
-  return photo.variants.some((v) => v.pixels && v.analysis?.metrics_version !== METRICS_VERSION);
+  return photo.variants.some((v) => v.pixels && (v.transient ? !v.analysis : v.analysis?.metrics_version !== METRICS_VERSION));
 }

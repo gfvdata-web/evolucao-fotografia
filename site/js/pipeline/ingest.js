@@ -68,9 +68,13 @@ async function completeInBackground(lockKey, photoId, variantKey, file) {
  * may still be running). Status values: stored | duplicate | unsupported | error.
  * @param {File} file
  * @param {(step: string) => void} [onStep] progress messages in pt-BR
+ * @param {'web'|'importer'} [source]
+ * @param {object} [options]
+ * @param {object} [options.fullJson] ExifTool output already read (importer package, v0.6)
+ * @param {boolean} [options.analyze] false = the caller schedules the analysis
  * @returns {Promise<{status: string, photoId?: string, message?: string, background?: Promise}>}
  */
-export async function ingestFile(file, onStep = () => {}, source = 'web') {
+export async function ingestFile(file, onStep = () => {}, source = 'web', { fullJson: given = null, analyze = true } = {}) {
   const kind = await detectKind(file);
   if (!kind) return { status: 'unsupported', message: 'não é JPEG nem CR3' };
 
@@ -78,11 +82,15 @@ export async function ingestFile(file, onStep = () => {}, source = 'web') {
   let capture;
   let fullJson = null;
   let engines = [];
-  if (kind === 'jpeg') {
+  if (given) {
+    fullJson = given;
+    capture = fromExifTool(given);
+    engines = [exifToolVersion(given)];
+  } else if (kind === 'jpeg') {
     capture = (await readQuickMetadata(file)).capture;
     engines = [QUICK_ENGINE];
   }
-  if (kind === 'cr3' || !capture?.datetime_original) {
+  if (!given && (kind === 'cr3' || !capture?.datetime_original)) {
     onStep('lendo metadados completos (pode levar alguns segundos)');
     try {
       fullJson = await readFullMetadata(file);
@@ -140,9 +148,8 @@ export async function ingestFile(file, onStep = () => {}, source = 'web') {
 
   if (result.status === 'stored') {
     notifyChanged(result.photoId);
-    result.background = result.needsFull
-      ? completeInBackground(lockKey, result.photoId, result.variantKey, file)
-      : scheduleAnalysis(result.photoId);
+    if (result.needsFull) result.background = completeInBackground(lockKey, result.photoId, result.variantKey, file);
+    else if (analyze) result.background = scheduleAnalysis(result.photoId);
   }
   return result;
 }

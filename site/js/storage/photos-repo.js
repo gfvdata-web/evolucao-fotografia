@@ -33,10 +33,11 @@ export const blobKey = {
   crop: (photoId, variantKey, which) => `${photoId}/crop/${variantKey}/${which}`,
 };
 
-export async function savePhoto(record, { blobs = [], rawMetadata = [] } = {}) {
+export async function savePhoto(record, { blobs = [], rawMetadata = [], dropBlobs = [] } = {}) {
   await idb.write([
     { store: 'photos', value: record },
     ...blobs.map(({ key, blob }) => ({ store: 'blobs', key, value: blob })),
+    ...dropBlobs.map((key) => ({ store: 'blobs', delete: key })),
     ...rawMetadata.map(({ key, json }) => ({ store: 'raw_metadata', key, value: json })),
   ]);
 }

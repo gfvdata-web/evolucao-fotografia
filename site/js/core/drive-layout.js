@@ -52,7 +52,8 @@ export function desiredAssets(record, settings) {
   }
   for (const v of record.variants) {
     const vk = safe(v.key);
-    if (v.metadata_status === 'complete') {
+    // The neutral RAW has no ExifTool read of its own (it repeats its CR3's).
+    if (v.metadata_status === 'complete' && !v.from_variant) {
       out.push({
         key: `metadata/${v.key}`, folder: 'metadados', name: `${id}__${vk}.json`, mime: 'application/json',
         sig: gps, source: { kind: 'metadata', variant: v.key },
