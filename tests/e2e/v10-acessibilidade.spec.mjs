@@ -48,7 +48,7 @@ async function uploadSession(page) {
 for (const scheme of SCHEMES) {
   test(`axe: telas vazias, tema ${scheme}`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme });
-    for (const hash of ['#/enviar', '#/sessoes', '#/fotos', '#/drive', '#/sobre', '#/sessao/nao-existe', '#/avaliar/todas']) {
+    for (const hash of ['#/enviar', '#/sessoes', '#/fotos', '#/painel', '#/drive', '#/sobre', '#/sessao/nao-existe', '#/avaliar/todas']) {
       await audit(page, hash, `${hash} vazia (${scheme})`);
     }
   });
@@ -59,6 +59,7 @@ for (const scheme of SCHEMES) {
     const { sessionHash, photoHash, rateHash } = await uploadSession(page);
     await audit(page, '#/enviar', `#/enviar com envio feito (${scheme})`);
     await audit(page, '#/sessoes', `#/sessoes (${scheme})`);
+    await audit(page, '#/painel', `#/painel com dados (${scheme})`);
     await audit(page, sessionHash, `${sessionHash} (${scheme})`);
     await audit(page, '#/fotos', `#/fotos (${scheme})`);
     await audit(page, photoHash, `${photoHash} (${scheme})`);
@@ -70,6 +71,8 @@ for (const scheme of SCHEMES) {
     const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
     expect(violations, `${rateHash} avaliada (${scheme})\n${describeViolations(violations)}`).toEqual([]);
     await audit(page, '#/fotos', `#/fotos avaliada (${scheme})`);
+    await audit(page, '#/painel', `#/painel com uma avaliada (${scheme})`);
+    await audit(page, '#/fotos?nitidez=4', `#/fotos filtrada (${scheme})`);
     await audit(page, '#/sobre', `#/sobre com medidas (${scheme})`);
   });
 }
@@ -77,7 +80,7 @@ for (const scheme of SCHEMES) {
 test('alvos de toque >= 48 px, foco visível e botões de ícone com nome', async ({ page }) => {
   test.setTimeout(180_000);
   const { sessionHash, photoHash, rateHash } = await uploadSession(page);
-  for (const hash of ['#/enviar', '#/sessoes', sessionHash, '#/fotos', photoHash, rateHash, '#/drive', '#/sobre']) {
+  for (const hash of ['#/enviar', '#/sessoes', sessionHash, '#/fotos', '#/painel', photoHash, rateHash, '#/drive', '#/sobre']) {
     await page.goto(hash);
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(300);
@@ -146,7 +149,7 @@ test('retrato: com a fonte do sistema em 200% não há rolagem horizontal', asyn
   test.skip(!info.project.name.includes('retrato'), 'a conferência de 200% vale para o retrato');
   test.setTimeout(180_000);
   const { sessionHash, photoHash, rateHash } = await uploadSession(page);
-  for (const hash of ['#/enviar', '#/sessoes', sessionHash, '#/fotos', photoHash, rateHash, '#/drive', '#/sobre']) {
+  for (const hash of ['#/enviar', '#/sessoes', sessionHash, '#/fotos', '#/painel', photoHash, rateHash, '#/drive', '#/sobre']) {
     await page.goto(hash);
     await page.waitForLoadState('networkidle');
     // The user's system font size scales the root font; the page uses rem, so 200% of 16 px = 32 px.

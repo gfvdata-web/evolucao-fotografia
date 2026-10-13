@@ -8,6 +8,11 @@ import { buildIndicators } from '../../core/indicators.js';
 import { RATING_LABELS, variantBadge, variantKindLabel } from '../../core/glossary.js';
 import { isRated, ratingSummary } from '../../core/rating.js';
 import { diagnosePhoto, diagnosisChip } from '../../core/diagnosis.js';
+import { applyFilter, hrefFor, isFilterEmpty, parseFilterHash, scopeOf } from '../../core/photo-filter.js';
+import { verdictOfPhoto } from '../../core/dashboard.js';
+import { listSessions } from '../../storage/sessions-repo.js';
+import { DASHBOARD_LABELS } from '../../core/glossary.js';
+import { formatDate } from '../../core/sessions.js';
 
 const VERDICT_STATUS = { good: 'ok', usable: 'attention', problem: 'alert', unknown: 'unknown' };
 
@@ -85,18 +90,50 @@ export async function photoCard(photo, bag, opts = {}) {
         flags(photo, diagnosis).map(([st, text]) => h('span', { class: `chip st-${st}` }, text)))));
 }
 
+/** "Filtro: nitidez 2 · sessão X" in words, from a filter (see core/photo-filter.js). */
+function filterText(f, sessions) {
+  const parts = [];
+  if (f.session_id) {
+    const s = sessions.find((x) => x.id === f.session_id);
+    parts.push(`sessão: ${f.session_id === 'sem-sessao' ? DASHBOARD_LABELS.no_session : (s?.name || 'desconhecida')}`);
+  }
+  if (f.sharpness !== null) parts.push(`nitidez ${f.sharpness}`);
+  if (f.problem) parts.push(`problema: ${RATING_LABELS.problem[f.problem]}`);
+  if (f.verdict) parts.push(`veredito do site (sem a sua avaliação): ${DASHBOARD_LABELS.verdict[f.verdict]}`);
+  if (f.rated !== null) parts.push(f.rated ? 'avaliadas' : 'não avaliadas');
+  if (f.from || f.to) parts.push(`tiradas ${f.from ? `de ${formatDate(f.from)} ` : ''}${f.to ? `até ${formatDate(f.to)}` : ''}`.trim());
+  return `Filtro: ${parts.join(' · ')}`;
+}
+
 export function photosView(root) {
   let bag = new UrlBag(); // URLs of the images on screen
   let alive = true;
+  const filter = parseFilterHash(location.hash); // from the Painel: "#/fotos?nitidez=2&sessao=..."
 
   const render = serialized(async () => {
-    const photos = await listPhotos();
+    const all = await listPhotos();
     if (!alive) return;
-    if (!photos.length) {
+    const filtering = !isFilterEmpty(filter);
+    const photos = filtering ? applyFilter(all, filter, verdictOfPhoto) : all;
+    const sessions = filtering ? await listSessions() : [];
+    if (!alive) return;
+    const banner = filtering
+      ? h('div', { class: 'filter-bar', 'data-testid': 'filter-bar' },
+        h('span', { 'data-testid': 'filter-text' }, filterText(filter, sessions)),
+        h('span', {}, ' · '), h('a', { href: '#/fotos', class: 'filter-clear', 'data-testid': 'filter-clear' }, 'limpar'),
+        h('span', {}, ' · '), h('a', { href: hrefFor('#/painel', scopeOf(filter)), class: 'filter-clear' }, 'voltar ao Painel'))
+      : null;
+    if (!all.length) {
       mount(root, h('section', { class: 'card empty' },
         h('h2', {}, 'Nenhuma foto ainda'),
         h('p', {}, 'As fotos enviadas ficam guardadas neste aparelho.'),
         h('a', { href: '#/enviar', class: 'btn btn-primary' }, 'Enviar fotos')));
+      return;
+    }
+    if (!photos.length) {
+      mount(root, banner, h('section', { class: 'card empty', 'data-testid': 'filter-empty' },
+        h('h2', {}, 'Nenhuma foto com esse filtro'),
+        h('a', { href: '#/fotos', class: 'btn btn-primary' }, 'Limpar filtro')));
       return;
     }
     const next = new UrlBag();
@@ -104,6 +141,7 @@ export function photosView(root) {
     if (!alive) { next.revokeAll(); return; }
     const { rated } = ratingSummary(photos);
     mount(root,
+      banner,
       h('div', { class: 'section-head' },
         h('h2', {}, `Fotos (${photos.length})`),
         h('span', { class: 'muted small', 'data-testid': 'rated-count' }, `${rated} de ${photos.length} avaliadas`),

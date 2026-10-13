@@ -371,3 +371,25 @@ body.scene-dragging { -webkit-user-select: none; user-select: none; }
 .compat-fail .compat-state { color: var(--danger); }
 .compat-unknown .compat-state { color: var(--warn); }
 .compat-advice { display: block; margin-top: 2px; }
+
+/* v1.0 — Painel (beta) e filtro da grade */
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; margin-bottom: 12px; padding: 4px var(--gutter); background: var(--surface-2); border-radius: var(--radius); }
+.filter-bar a { min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 8px; }
+.dash-filters { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-end; }
+.dash-filters .form-field { margin-bottom: 0; }
+.dash-note { margin: 0 0 4px; font-weight: 600; }
+.dash-table { border-collapse: collapse; width: 100%; margin-bottom: 12px; }
+.dash-table caption { text-align: left; font-weight: 600; padding: 4px 0 8px; }
+.dash-table th, .dash-table td { text-align: left; padding: 0 8px; border-bottom: 1px solid var(--border); vertical-align: middle; height: var(--tap); }
+.dash-table thead th { color: var(--muted); font-size: .875rem; font-weight: 600; }
+.dash-table tbody th { font-weight: 500; }
+.dash-table .num-col { text-align: right; width: 1%; white-space: nowrap; }
+.dash-table tfoot th, .dash-table tfoot td { font-weight: 600; }
+.dash-matrix .num-col { width: auto; }
+.num { display: inline-flex; align-items: center; justify-content: center; min-width: var(--tap); min-height: var(--tap); font-weight: 700; font-variant-numeric: tabular-nums; }
+.num-zero { color: var(--muted); font-weight: 400; }
+.dash-summary .num { display: inline; min-width: 0; min-height: 0; }
+.bar { display: block; height: 10px; border-radius: 5px; background: var(--surface-2); min-width: 80px; }
+.bar > span { display: block; height: 100%; border-radius: 5px; background: var(--accent); }
+.dash-matrix td.disagree { background: color-mix(in srgb, var(--warn) 22%, transparent); box-shadow: inset 0 0 0 2px var(--warn); }
+.dash-matrix td.disagree a::before { content: "≠ "; color: var(--text); }

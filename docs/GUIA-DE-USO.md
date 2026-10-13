@@ -89,6 +89,17 @@ Aba **Fotos**. Etiquetas aparecem só nos casos mais claros: **reduzida no camin
 tremido") em laranja ou vermelho. A nitidez e o problema dados por você aparecem
 num selo à parte; a sessão mostra a nitidez média e quantas fotos tiveram cada problema. O topo mostra quantas já foram avaliadas.
 
+### Painel (beta, v1.0)
+Aba **Painel**: quantas fotos têm cada nitidez (1–5), cada problema principal e cada veredito
+do diagnóstico, e quantas estão avaliadas ou não (avaliada = nitidez e problema marcados).
+Escolha uma **sessão** e/ou um **período** (dia em que a foto foi tirada) no topo para
+restringir as contas. **Todo número é um link**: toque nele e a aba Fotos abre só essas fotos,
+com o aviso "Filtro: …" e o link **limpar**. A tabela **O site disse × você marcou** cruza o
+veredito com a sua nitidez; as células com **≠** são as discordâncias fortes ("Boa" com nitidez
+1–2, ou "Com problema" com nitidez 4–5) — é onde o diagnóstico precisa de ajuste. "Sem
+diagnóstico" são fotos com dados insuficientes. Os cruzamentos com ISO, velocidade e lente
+ficam para a V2.
+
 ### Ver a ficha
 Aba **Fotos** → toque numa foto. Assim que a foto chega, o app calcula sozinho os recortes e
 os indicadores ("Calculando recortes e indicadores…" leva alguns segundos por foto).

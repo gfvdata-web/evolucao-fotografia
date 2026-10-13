@@ -190,3 +190,10 @@ export const EXPERIMENT_LABELS = {
   lens: 'Lente', af_mode: 'Modo de foco', af_area: 'Área de AF', drive_mode: 'Modo de disparo',
   transfer: 'Forma de transferência (Camera Connect)', other: 'Outro',
 };
+
+/** Painel (v1.0): names of the categories that are not in the other tables. */
+export const DASHBOARD_LABELS = {
+  verdict: { good: 'Boa', usable: 'Aceitável', problem: 'Com problema', unknown: 'Sem diagnóstico' },
+  unrated: 'Não avaliada',
+  no_session: 'Fotos sem sessão',
+};
