@@ -349,6 +349,24 @@ recortes a 100% e as medidas. O CR3 vai ao Drive só se "Guardar CR3" estiver li
 Se aparecer "ExifTool não encontrado", refaça o passo de instalação e abra o `importar.bat` de
 novo.
 
+## Conferir no tablet (Chrome e Samsung Internet)
+
+O que só dá para ver no aparelho. Faça uma vez no **Chrome** e outra no **Samsung Internet**, e
+mande ao Claude o que aparecer (foto da tela ou o texto copiado).
+
+1. Abra o app, aba **Sobre**, e toque em **Conferir compatibilidade**. Toque em **Copiar a lista**
+   (ou fotografe a tela). Itens "Falhou" trazem o aviso; "Não deu para saber" se confirmam nos
+   passos abaixo.
+2. **Instalar o app**: menu do navegador > Instalar app / Adicionar à tela inicial. Abra pelo
+   ícone e confira que a barra do navegador some.
+3. **Enviar fotos**: da galeria (várias JPEG) e um **CR3**. Confira o envio até o fim e a ficha.
+4. **Avaliar com deslize** (aba Sessões > Avaliar): deslize entre as fotos e marque nitidez.
+5. **Arrastar uma foto entre cenas**, com o dedo, dentro de uma sessão.
+6. **Conectar o Drive** (aba Drive): a janela do Google deve abrir; espere o selo
+   **Sincronizado**. Se a janela não abrir, permita pop-ups para o site.
+7. Volte à aba **Sobre**, veja **Desempenho deste aparelho** e mande os números.
+8. Gire o tablet (retrato e paisagem) e confira que nada fica cortado.
+
 ## Amostras de calibração
 
 Roteiro das fotos de teste: [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md).

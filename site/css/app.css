@@ -361,3 +361,13 @@ body.scene-dragging { -webkit-user-select: none; user-select: none; }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); margin: 0;
 }
 .drag-source { opacity: 0.35; }
+
+/* v1.0 — Conferir compatibilidade (aba Sobre) */
+.compat-list { list-style: none; margin: 8px 0; padding: 0; }
+.compat-row { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.compat-row:last-child { border-bottom: 0; }
+.compat-state { font-weight: 700; }
+.compat-ok .compat-state { color: var(--ok); }
+.compat-fail .compat-state { color: var(--danger); }
+.compat-unknown .compat-state { color: var(--warn); }
+.compat-advice { display: block; margin-top: 2px; }

@@ -11,6 +11,8 @@ import { analyzeAllStale } from '../../pipeline/analyze.js';
 import { METRICS_VERSION, needsAnalysis } from '../../core/indicators.js';
 import { loadPerf } from '../../pipeline/perf.js';
 import { perfRows } from '../../core/perf.js';
+import { compatRows, compatSummary, compatReport, browserLabel } from '../../core/compat.js';
+import { probeCompat } from '../../pipeline/compat-probe.js';
 
 const EXIFTOOL_STATE = {
   idle: 'ainda não usado nesta visita',
@@ -30,6 +32,41 @@ async function diagnostics() {
   try { versions = await (await fetch(new URL('../../../vendor/versions.json', import.meta.url))).json(); } catch { /* offline */ }
   const photos = await listPhotos();
   return { est, persisted, versions, photoCount: photos.length, stale: photos.filter(needsAnalysis).length, perf: await loadPerf() };
+}
+
+function compatCard() {
+  const result = h('div', { 'aria-live': 'polite', 'data-testid': 'compat-result' });
+  const run = async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    mount(result, h('p', { class: 'muted' }, 'Conferindo…'));
+    const results = await probeCompat();
+    const summary = compatSummary(results);
+    mount(result,
+      h('p', { class: 'value', 'data-testid': 'compat-summary' }, `${summary.text} (${summary.ok} ok, ${summary.fail} falha(s), ${summary.unknown} sem resposta)`),
+      h('p', { class: 'small', 'data-testid': 'compat-browser' }, `Navegador: ${browserLabel(navigator.userAgent)}`),
+      h('ul', { class: 'compat-list' }, compatRows(results).map((r) => h('li', { class: `compat-row compat-${r.state}`, 'data-testid': `compat-${r.id}`, 'data-state': r.state },
+        h('span', { class: 'compat-state' }, r.label),
+        ' ',
+        h('strong', {}, r.name),
+        h('span', { class: 'small muted' }, ` ${r.purpose}`),
+        r.advice ? h('span', { class: 'small compat-advice' }, ` ${r.advice}`) : null))),
+      h('p', { class: 'small muted' }, 'Copie ou fotografe esta lista e mande ao Claude.'),
+      h('button', {
+        class: 'btn btn-small', type: 'button', 'data-testid': 'compat-copy',
+        onclick: async (ev) => {
+          const b = ev.currentTarget;
+          try { await navigator.clipboard.writeText(compatReport(results, navigator.userAgent)); b.textContent = 'Copiado'; } catch { b.textContent = 'Não consegui copiar: fotografe a lista'; }
+        },
+      }, 'Copiar a lista'));
+    btn.disabled = false;
+    btn.textContent = 'Conferir de novo';
+  };
+  return h('section', { class: 'card', 'data-testid': 'compat-card' },
+    h('h3', {}, 'Compatibilidade do navegador'),
+    h('p', { class: 'small' }, 'Testa, neste navegador, cada recurso que o app usa. Toque no Chrome e no Samsung Internet do tablet.'),
+    h('button', { class: 'btn', type: 'button', 'data-testid': 'compat-run', onclick: run }, 'Conferir compatibilidade'),
+    result);
 }
 
 export function aboutView(root) {
@@ -63,6 +100,7 @@ export function aboutView(root) {
       h('p', {}, 'Evolução Fotografia analisa a qualidade da captura das suas fotos antes da edição. ',
         'As fotos ficam neste aparelho e, com o Google Drive conectado (aba Drive), também numa pasta sua no Drive.'),
       body),
+    compatCard(),
     h('section', { class: 'card', 'data-testid': 'about-raw' },
       h('h3', {}, 'JPEG, CR3 e o RAW sem processamento'),
       h('p', { class: 'small' }, 'O JPEG L que chega pelo Camera Connect basta para o diagnóstico: é a foto que você usa. ',
