@@ -2,6 +2,28 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.5.4] — 2026-10-12
+
+### Corrigido
+- O aviso de atualização da v0.5.3 podia sumir sozinho logo depois de aparecer, quando os dados
+  locais terminavam de abrir depois dele (os testes no GitHub pegaram, e a v0.5.3 não chegou a ser
+  publicada). Cada aviso do topo agora esconde só a si mesmo.
+
+## [0.5.3] — 2026-10-12
+
+### Adicionado
+- Aviso **"Versão nova do app"** com o botão **Atualizar agora**: o app confere a versão publicada
+  ao abrir, ao voltar para a tela e a cada 30 minutos. Um aparelho deixado aberto com uma cópia
+  antiga (o app instalado no tablet, principalmente) fica sabendo que precisa atualizar.
+
+### Corrigido
+- Uma sessão criada num aparelho podia não aparecer no outro, mesmo sincronizando: quando um dos
+  aparelhos estava com uma versão antiga do app e o outro já tinha gravado no Drive dados num
+  formato novo (a v0.5 mudou o formato duas vezes), a sincronização do aparelho antigo parava
+  antes de enviar o que ele tinha de novo, e o motivo ficava escondido na aba Drive. Agora o
+  topo da tela mostra **"Atualize o app neste aparelho"** com o botão para atualizar, o selo
+  vira "Atualize o app" e nada é enviado até atualizar, para não estragar os dados mais novos.
+
 ## [0.5.2] — 2026-10-12
 
 ### Corrigido

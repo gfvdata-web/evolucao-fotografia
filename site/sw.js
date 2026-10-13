@@ -51,5 +51,7 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  // The app's "is there a newer version?" check must always reach the network.
+  if (url.searchParams.has('check')) return;
   e.respondWith(cacheFirst(url) ? cacheFirstThenNetwork(req) : networkFirst(req));
 });

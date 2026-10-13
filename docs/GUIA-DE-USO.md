@@ -169,6 +169,13 @@ Aba **Drive** → **Conectar ao Google Drive** e escolha a conta. O app cria a p
 Se aparecer **"Feche as outras abas do Evolução Fotografia"**: o app foi atualizado e uma aba
 aberta antes ainda usa os dados. Feche (ou recarregue) a outra aba; esta continua sozinha.
 
+### Atualizar o app (v0.5.3)
+Quando sai uma versão nova, aparece no topo **"Versão nova do app"** com o botão **Atualizar
+agora**. Se o aviso for **"Atualize o app neste aparelho"**, o outro aparelho já gravou no Drive
+dados de uma versão mais nova: a sincronização deste fica parada até atualizar, sem perder nada.
+No app instalado, **Atualizar agora** basta; se o aviso continuar, feche o app (tire da lista de
+apps abertos) e abra de novo.
+
 ### Backup neste aparelho (v0.4)
 Aba **Drive** → **Exportar backup** gera um arquivo `.efbackup` (avaliações, sessões,
 metadados, prévias e recortes; marque **Incluir os arquivos originais** para levar as fotos).

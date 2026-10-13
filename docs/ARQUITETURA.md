@@ -119,6 +119,14 @@ Outras abas: uma aba aberta com uma versão antiga segura o banco e impede a atu
 quando a outra aba fecha. Cada conexão fecha sozinha quando uma versão mais nova pede o banco
 (`versionchange`) e pede para recarregar.
 
+## Atualização do app (v0.5.3)
+
+`pipeline/app-update.js` busca `js/version.js?check=…` (sem cache; o service worker deixa passar)
+ao abrir, ao voltar para a tela, ao voltar a internet e a cada 30 min, e compara com a versão em
+execução (`core/app-version.js`). A sincronização trata `NewerDataError` (`core/drive-layout.js`,
+um `sessao.json` com `schema_version` maior que o deste app): para tudo, sem enviar nada, e pede
+a atualização. `app.js` mostra o aviso em `#app-alert` com o botão **Atualizar agora**.
+
 ## Cenas (v0.5.1)
 
 Decisão 0014. Puro, calculado na hora a partir das fotos da sessão:

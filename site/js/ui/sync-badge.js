@@ -10,6 +10,7 @@ function view() {
   if (auth.state === 'reconnect' || (s.state === 'paused' && s.reason === 'auth')) return ['attention', 'Reconectar ao Drive'];
   if (s.state === 'running') return ['info', s.progress ? `Enviando ${s.progress.done + 1}/${s.progress.total}` : 'Sincronizando…'];
   if (s.state === 'paused' && s.reason === 'offline') return ['unknown', `Sem internet${s.pending ? ` · ${s.pending} pendente(s)` : ''}`];
+  if (s.state === 'paused' && s.reason === 'update') return ['alert', 'Atualize o app'];
   if (s.state === 'paused') return ['alert', 'Drive: erro'];
   if (s.pending) return ['attention', `${s.pending} pendente(s)`];
   return ['ok', 'Sincronizado'];

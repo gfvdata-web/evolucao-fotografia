@@ -23,6 +23,7 @@ import { photoEvents } from './pipeline/photo-events.js';
 import { dbEvents } from './storage/idb.js';
 import { h, mount } from './ui/dom.js';
 import { APP_VERSION } from './version.js';
+import { startUpdateChecks, updateEvents, updateState } from './pipeline/app-update.js';
 
 const routes = [
   { pattern: /^#\/enviar$/, view: uploadView, nav: 'enviar' },
@@ -59,21 +60,37 @@ document.getElementById('app-version').textContent = `v${APP_VERSION}`;
 
 // Local database shared with other tabs of the app (see storage/idb.js).
 const alertEl = document.getElementById('app-alert');
-const showAlert = (...content) => { mount(alertEl, ...content); alertEl.hidden = false; };
-dbEvents.addEventListener('blocked', () => showAlert(
+// One banner at a time; each kind hides only itself (the database getting ready must not hide
+// the update notice that arrived first).
+let alertKind = null;
+const showAlert = (kind, ...content) => { alertKind = kind; mount(alertEl, ...content); alertEl.hidden = false; };
+dbEvents.addEventListener('blocked', () => showAlert('blocked',
   h('strong', {}, 'Feche as outras abas do Evolução Fotografia. '),
   'Uma aba aberta antes da atualização está usando os dados do app, e esta aba precisa atualizá-los. ',
   'Assim que a outra aba for fechada ou recarregada, esta continua sozinha.'));
-dbEvents.addEventListener('ready', () => { alertEl.hidden = true; });
-dbEvents.addEventListener('replaced', () => showAlert(
+dbEvents.addEventListener('ready', () => { if (alertKind === 'blocked') { alertEl.hidden = true; alertKind = null; } });
+dbEvents.addEventListener('replaced', () => showAlert('replaced',
   h('strong', {}, 'O app foi atualizado em outra aba. '), 'Recarregue esta aba para continuar. ',
   h('button', { type: 'button', class: 'btn btn-small', onclick: () => location.reload() }, 'Recarregar')));
+// A newer app is online, or the Drive has data from one: reload to update.
+updateEvents.addEventListener('change', () => {
+  const reload = h('button', { type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'update-reload', onclick: () => location.reload() },
+    'Atualizar agora');
+  const text = updateState.reason === 'data'
+    ? [h('strong', {}, 'Atualize o app neste aparelho. '),
+      'O Drive tem dados gravados por uma versão mais nova (de outro aparelho). Até atualizar, este aparelho não envia nem recebe nada, ',
+      `para não estragar esses dados. Versão deste aparelho: ${APP_VERSION}. `]
+    : [h('strong', {}, `Versão nova do app: ${updateState.version}. `),
+      `Este aparelho está com a ${APP_VERSION}. Atualize para manter a sincronização com os outros aparelhos. `];
+  showAlert('update', h('span', { 'data-testid': 'update-banner', 'data-reason': updateState.reason }, text, reload));
+});
 window.addEventListener('hashchange', route);
 route();
 
 // Drive: the sign-in is renewed on a tap (browsers block popups otherwise),
 // only when there is something to send or nothing was synced in this visit.
 startPwa();
+startUpdateChecks();
 startSync();
 preloadAuth();
 mountSyncBadge(document.getElementById('sync-badge'));

@@ -142,11 +142,23 @@ export function buildSessionDoc({ session, photos, states, deleted, settings, ap
 }
 
 /** Validates a downloaded sessao.json; returns {session, photos: [{record, assets}], deleted}. */
+/**
+ * The Drive has data written by a newer version of the app. This copy must
+ * not read it (it would lose fields) nor overwrite it: the sync stops and the
+ * screen asks to update the app (pipeline/app-update.js).
+ */
+export class NewerDataError extends Error {
+  constructor(found) {
+    super(`O Drive tem dados de uma versão mais nova do app (formato ${found}; este aparelho lê até o ${SCHEMA_VERSION}). `
+      + 'Atualize o app neste aparelho.');
+    this.name = 'NewerDataError';
+    this.found = found;
+  }
+}
+
 export function readSessionDoc(doc) {
   if (!doc || doc.kind !== 'efsessao' || !Array.isArray(doc.photos)) throw new Error('sessao.json inválido');
-  if (doc.schema_version > SCHEMA_VERSION) {
-    throw new Error(`sessao.json de uma versão mais nova do app (${doc.schema_version}). Atualize a página.`);
-  }
+  if (doc.schema_version > SCHEMA_VERSION) throw new NewerDataError(doc.schema_version);
   return {
     session: doc.session || null,
     photos: doc.photos.map(({ drive_assets: assets, ...record }) => ({ record, assets: assets || {} })),
