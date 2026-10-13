@@ -151,11 +151,11 @@ Decisão 0015 (pacote em pasta; revelação inteira descartada depois de medida)
 - A testar pelo Guilherme no PC: instalar o ExifTool, passar um cartão real pelo importador,
   importar no site do computador e abrir a mesma foto no tablet depois da sincronização.
 
-### ⏳ v1.0 — Polimento + Painel (beta)
+### 🔨 v1.0 — Polimento + Painel (beta)
 Preparada em 12/10/2026 (decisão 0016, aceita: axe-core nos testes e a tabela "o site disse ×
 você marcou" no Painel). Fecha a V1.
 
-- **Desempenho no tablet**: miniatura de ~400 px na grade (hoje a grade carrega a prévia de
+- ✅ **Desempenho no tablet**: miniatura de ~400 px na grade (hoje a grade carrega a prévia de
   2048 px de cada foto), grade montada aos poucos, "Desempenho deste aparelho" no Sobre (tempo
   de leitura, prévia e análise por foto). Metas a confirmar no Tab S9+: 500 fotos na grade sem
   travar, ~3 s por foto analisada, sessão de 300 fotos sem a aba fechar.

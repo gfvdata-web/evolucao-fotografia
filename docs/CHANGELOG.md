@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [Não lançado] — v1.0 em andamento
+
+### Adicionado
+- Grade, sessões e cenas mostram uma **miniatura de ~400 px** (feita a partir da prévia, só no
+  aparelho: não vai ao Drive nem ao backup) e carregam as imagens só quando chegam perto da tela.
+- **Desempenho deste aparelho** na aba Sobre: tempo médio de leitura, prévia e análise por foto.
+
 ## [0.6.0] — 2026-10-13
 
 Importador no PC e o RAW sem processamento (decisão 0015).
