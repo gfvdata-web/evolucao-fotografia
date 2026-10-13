@@ -193,6 +193,7 @@ async function pull(folders, tombstones) {
             await withLock(lockKeyOf(p), async () => {
               const fresh = await repo.getPhoto(p.id);
               fresh.session_id = null;
+              fresh.scene_id = null;
               fresh.updated_at = now();
               await repo.savePhoto(fresh);
             });

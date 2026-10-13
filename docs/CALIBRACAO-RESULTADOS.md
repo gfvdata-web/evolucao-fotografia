@@ -132,6 +132,21 @@ Rodada 2 vai calibrar essa margem.
 | F06, F07 | céu no quadro | Altas luzes estouradas (14% e 6%) |
 | F03 (7 quadros) | rajada interna | 4 boas, 1 um pouco mole, 2 com pouco detalhe para julgar |
 
+## Cenas da v0.5.1 nas amostras
+
+Com as 26 fotos numa sessão só, `metricas.mjs` agora também mostra a separação em cenas
+(decisão 0014). Distância de enquadramento (assinatura 8×8, já descontada a exposição) em relação
+à foto anterior:
+
+- **Mesma cena:** de 1 a 30 (série T de 300 para 205 mm: 30; rajada F03: até 41, mas 22 s
+  depois da anterior).
+- **Assunto novo:** de 38 a 78 (F04 78, F10 59, F03 56, F08 50).
+
+Resultado: 8 cenas, todas batendo com o roteiro: F01–F02 | F04–F05 | F10–F11 | F12–F13 | rajada
+F03 (7) | F06–F07 (troca de lente) | F08–F09 (pausa de 16 min) | série T (7, pausa de 35 min).
+Limites: corte com dois sinais (pausa de 2 min, zoom 1,8×, enquadramento 28 ou mais); corte só
+pelo enquadramento a partir de 45 e 30 s de pausa.
+
 ## Próximos passos
 
 - Fazer a **T09** (temporizador 10 s), a **T08 em 300 mm** e, se possível, a **T06** (através do vidro). Depois rodar o conferidor e `metricas.mjs` de novo para comparar T02 × T08 × T09 em 300 mm.

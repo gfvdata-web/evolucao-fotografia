@@ -1,12 +1,20 @@
 // "Sessão": name, date, place, notes and experiment marking (saved as they
-// change), rating progress, the session's photos and moving photos between
-// sessions. The form is built once; only the summary and grid re-render on
-// changes, so typing is never interrupted.
+// change), rating progress, the session's photos grouped in scenes (v0.5.1)
+// with the diagnosis of each scene and of the session, and moving photos
+// between scenes (drag and drop, or "Mover para…") and sessions. The form is
+// built once; only the summary and scenes re-render on changes, so typing is
+// never interrupted.
 import { h, mount, UrlBag, serialized } from '../dom.js';
 import { listPhotos } from '../../storage/photos-repo.js';
 import { getSession, listSessions } from '../../storage/sessions-repo.js';
 import { photoEvents } from '../../pipeline/photo-events.js';
-import { updateSession, deleteSession, assignPhotos, createSession } from '../../pipeline/organize.js';
+import {
+  updateSession, deleteSession, assignPhotos, createSession, movePhotosToScene, resetScenes,
+} from '../../pipeline/organize.js';
+import { sessionScenes, scenesAdjusted } from '../../core/scenes.js';
+import { diagnoseSession } from '../../core/scene-diagnosis.js';
+import { SOURCE_LABELS } from '../../core/diagnosis.js';
+import { attachSceneDrag } from '../scene-drag.js';
 import { EXPERIMENT_PARAMETERS, experimentField, experimentValue, formatDate, sessionPhotos } from '../../core/sessions.js';
 import { PROBLEMS, ratingSummary } from '../../core/rating.js';
 import { EXPERIMENT_LABELS, RATING_LABELS } from '../../core/glossary.js';
@@ -62,6 +70,67 @@ function sessionForm(session, onSaved) {
     expFields);
 }
 
+const VERDICT_STATUS = { good: 'ok', usable: 'attention', problem: 'alert', unknown: 'unknown' };
+const VERDICT_WORDS = {
+  good: ['boa', 'boas'], usable: ['aceitável', 'aceitáveis'], problem: ['com problema', 'com problema'], unknown: ['sem dados', 'sem dados'],
+};
+const hhmm = (iso) => (iso ? String(iso).slice(11, 16) : null);
+
+function verdictCounts(v) {
+  return ['good', 'usable', 'problem', 'unknown'].filter((k) => v[k])
+    .map((k) => `${v[k]} ${VERDICT_WORDS[k][v[k] > 1 ? 1 : 0]}`).join(' · ');
+}
+
+function variationTable(variation) {
+  const rows = variation.rows.filter((r) => r.values.length);
+  return h('table', { class: 'diag-table' }, h('tbody', {}, rows.map((r) => h('tr', { class: r.changed ? 'var-changed' : '' },
+    h('th', { scope: 'row' }, r.label), h('td', {}, r.changed ? h('strong', {}, r.text) : r.text)))));
+}
+
+function sceneMeta(scene) {
+  const lenses = [...new Set(scene.photos.map((p) => p.capture?.lens?.model).filter(Boolean))];
+  const focals = scene.photos.map((p) => p.capture?.lens?.focal_length_mm).filter(Boolean);
+  let fRange = null;
+  if (focals.length) {
+    const lo = Math.round(Math.min(...focals)); const hi = Math.round(Math.max(...focals));
+    fRange = lo === hi ? `${lo} mm` : `${lo}–${hi} mm`;
+  }
+  const t0 = hhmm(scene.start); const t1 = hhmm(scene.end);
+  const when = t0 ? (t1 && t1 !== t0 ? `${t0}–${t1}` : t0) : 'sem horário';
+  return [when, `${scene.photos.length} foto${scene.photos.length > 1 ? 's' : ''}`,
+    lenses.length ? lenses.map((l) => l.replace(/^RF/, 'RF ')).join(' + ') : null, fRange].filter(Boolean).join(' · ');
+}
+
+function sceneDiagnosisBlock(sd) {
+  const mp = sd.main_problem;
+  let light = null;
+  if (sd.light) {
+    light = sd.light.min === sd.light.max ? `luz EV ${formatDecimal(sd.light.min, 1)}`
+      : `luz EV ${formatDecimal(sd.light.min, 1)} a ${formatDecimal(sd.light.max, 1)}`;
+  }
+  return h('div', { class: 'scene-diag', 'data-testid': 'scene-diagnosis' },
+    h('div', { class: 'photo-chips' },
+      h('span', { class: `chip st-${VERDICT_STATUS[sd.verdict]}`, 'data-testid': 'scene-verdict', 'data-verdict': sd.verdict }, verdictCounts(sd.verdicts)),
+      light ? h('span', { class: 'chip' }, light) : null),
+    mp ? h('div', { class: 'scene-main', 'data-testid': 'scene-main-problem' },
+      h('p', {}, h('strong', {}, 'Problema principal: '), mp.text),
+      mp.advice ? h('p', { class: 'diag-advice' }, h('strong', {}, 'Ajuste principal: '), mp.advice) : null,
+      h('details', { class: 'diag-why' }, h('summary', {}, `Por quê · certeza ${mp.certainty_label}`),
+        h('p', { class: 'small' }, `Exemplo: ${mp.example} (veja a ficha dela). De onde vem: `,
+          mp.sources.map((x) => SOURCE_LABELS[x] || x).join(' · '), '.')),
+      sd.other_problems.length ? h('p', { class: 'small', 'data-testid': 'scene-other-problems' }, h('strong', {}, 'Também aparece: '),
+        sd.other_problems.map((o) => `${o.title} (${o.count} foto${o.count > 1 ? 's' : ''})`).join(', '), '.') : null)
+      : h('p', { class: 'small', 'data-testid': 'scene-main-problem' },
+        sd.verdicts.good ? 'Nenhum problema recorrente nesta cena.' : 'Sem achados com certeza suficiente nesta cena.'),
+    sd.comparison ? h('p', { class: 'small', 'data-testid': 'scene-comparison' }, h('strong', {}, 'Comparação na cena: '), sd.comparison.text) : null,
+    sd.variation.warnings.length ? h('ul', { class: 'small scene-warnings', 'data-testid': 'scene-warnings' },
+      sd.variation.warnings.map((w) => h('li', { class: 'warn-text' }, w.text))) : null,
+    h('details', { class: 'diag-why', 'data-testid': 'scene-variation' },
+      h('summary', {}, sd.variation.changed.length
+        ? `Quanto os ajustes variaram (${sd.variation.changed.length} mudaram)` : 'Quanto os ajustes variaram (nenhum mudou)'),
+      variationTable(sd.variation)));
+}
+
 export function sessionView(root, { id }) {
   let bag = new UrlBag();
   let alive = true;
@@ -71,8 +140,10 @@ export function sessionView(root, { id }) {
   const sel = { on: false, ids: new Set(), target: '__new' };
   const titleEl = h('h2', {});
   const body = h('div');
+  let dropPending = false; // a render that arrived during a drag runs after the drop
 
   const render = serialized(async () => {
+    if (document.body.classList.contains('scene-dragging')) { dropPending = true; return; }
     const [all, sessions] = await Promise.all([listPhotos(), listSessions()]);
     if (!alive) return;
     const photos = sessionPhotos(all, id);
@@ -81,6 +152,8 @@ export function sessionView(root, { id }) {
     const next = new UrlBag();
     const exp = session.experiment;
     const expField = exp && experimentField(exp.parameter);
+    const scenes = sessionScenes(photos);
+    const sessDiag = diagnoseSession(scenes);
     const cards = await Promise.all(photos.map((p) => {
       // The varied parameter as read from each photo ("não lido" when absent).
       const shown = expField && experimentValue(p, exp) !== null ? displayValue(expField, p.capture) : null;
@@ -98,11 +171,17 @@ export function sessionView(root, { id }) {
       });
     }));
     if (!alive) { next.revokeAll(); return; }
+    const cardById = new Map(photos.map((p, k) => [p.id, cards[k]]));
+    for (const [pid, card] of cardById) card.dataset.photoId = pid;
 
     const target = h('select', { 'data-testid': 'move-target', 'aria-label': 'Mover para' },
-      h('option', { value: '__new' }, 'Nova sessão'),
-      sessions.filter((s) => s.id !== id).map((s) => h('option', { value: s.id }, `${s.name}${s.date ? ` (${formatDate(s.date)})` : ''}`)),
-      h('option', { value: '__none' }, 'Sem sessão'));
+      h('optgroup', { label: 'Outra sessão' },
+        h('option', { value: '__new' }, 'Nova sessão'),
+        sessions.filter((s) => s.id !== id).map((s) => h('option', { value: s.id }, `${s.name}${s.date ? ` (${formatDate(s.date)})` : ''}`)),
+        h('option', { value: '__none' }, 'Sem sessão')),
+      h('optgroup', { label: 'Cena desta sessão' },
+        scenes.map((sc) => h('option', { value: `scene:${sc.id}` }, `Cena ${sc.number}`)),
+        h('option', { value: 'scene:__new' }, 'Nova cena')));
     target.value = sel.target;
     if (target.value !== sel.target) sel.target = target.value = '__new'; // that session no longer exists
     target.addEventListener('change', () => { sel.target = target.value; });
@@ -116,6 +195,13 @@ export function sessionView(root, { id }) {
           const ids = [...sel.ids];
           const dest = sel.target;
           sel.target = '__new';
+          if (dest.startsWith('scene:')) {
+            await movePhotosToScene(id, ids, dest.slice(6));
+            sel.on = false;
+            sel.ids.clear();
+            render();
+            return;
+          }
           if (dest === '__new') {
             const s = await createSession({ date: session.date, photoIds: ids });
             location.hash = `#/sessao/${s.id}`;
@@ -143,8 +229,36 @@ export function sessionView(root, { id }) {
           total ? h('a', { href: `#/avaliar/${id}`, class: 'btn btn-primary', 'data-testid': 'start-rating' },
             rated === total ? 'Rever avaliações' : rated ? 'Continuar avaliação' : 'Avaliar fotos') : null,
           total && !sel.on ? h('button', { type: 'button', class: 'btn', 'data-testid': 'select-photos', onclick: () => { sel.on = true; render(); } }, 'Selecionar fotos') : null)),
+      total ? h('section', { class: 'card', 'data-testid': 'session-diagnosis' },
+        h('div', { class: 'card-head' }, h('h3', {}, 'Diagnóstico da sessão'),
+          h('span', { 'data-testid': 'session-scene-count' }, `${scenes.length} cena${scenes.length > 1 ? 's' : ''}`)),
+        h('p', { 'data-testid': 'session-verdicts' }, verdictCounts(sessDiag.totals)),
+        sessDiag.recurring.length ? h('p', { 'data-testid': 'session-recurring' }, h('strong', {}, 'Repetiu em mais de uma cena: '),
+          sessDiag.recurring.map((r) => `${r.title} (${r.scenes} cenas)`).join(', '), '.') : null,
+        h('details', { class: 'diag-why', 'data-testid': 'session-variation' },
+          h('summary', {}, `Quanto os ajustes variaram na sessão (${sessDiag.variation.changed.length} mudaram)`),
+          variationTable(sessDiag.variation)),
+        h('p', { class: 'small muted' }, sel.on
+          ? 'Escolha as fotos e use "Mover para" para trocar de cena ou de sessão.'
+          : 'As cenas são separadas sozinhas (pausa, troca de lente, salto de zoom, enquadramento). Para corrigir, '
+            + 'segure uma foto e solte em outra cena, ou use "Selecionar fotos" → "Mover para".'),
+        scenesAdjusted(photos) ? h('button', {
+          type: 'button', class: 'btn btn-small', 'data-testid': 'scenes-reset',
+          onclick: async () => { await resetScenes(id); render(); },
+        }, 'Separar as cenas automaticamente de novo') : null) : null,
       moveBar,
-      total ? h('div', { class: 'photo-grid session-grid' }, cards) : h('p', { class: 'muted' }, 'Nenhuma foto nesta sessão.'),
+      total ? h('div', { class: 'scenes', 'data-testid': 'scenes' },
+        scenes.map((sc, i) => h('section', {
+          class: 'card scene', 'data-testid': 'scene', 'data-scene-drop': sc.id, 'data-scene-number': sc.number,
+        },
+        h('div', { class: 'card-head' },
+          h('h3', {}, `Cena ${sc.number}`),
+          h('span', { class: 'small muted', 'data-testid': 'scene-meta' }, sceneMeta(sc))),
+        sc.reasons.length ? h('p', { class: 'small muted', 'data-testid': 'scene-reasons' }, `Separada por: ${sc.reasons.join(', ')}.`) : null,
+        sceneDiagnosisBlock(sessDiag.scenes[i]),
+        h('div', { class: 'photo-grid session-grid' }, sc.photos.map((p) => cardById.get(p.id))))),
+        h('div', { class: 'scene-new-drop', 'data-scene-drop': '__new', 'data-testid': 'scene-new-drop' }, 'Solte aqui para criar uma cena nova'))
+        : h('p', { class: 'muted' }, 'Nenhuma foto nesta sessão.'),
       h('section', { class: 'card danger-zone' },
         h('button', {
           class: 'btn btn-danger', type: 'button', 'data-testid': 'delete-session',
@@ -175,10 +289,25 @@ export function sessionView(root, { id }) {
   })();
 
   const onChange = () => { if (session) render(); };
+  const detachDrag = attachSceneDrag(body, {
+    enabled: () => !sel.on,
+    onDrop: async (photoId, target) => {
+      await movePhotosToScene(id, [photoId], target);
+      dropPending = false;
+      render();
+    },
+  });
+  // A change that arrived during a drag is shown right after it ends.
+  const afterDrag = () => { if (dropPending) { dropPending = false; setTimeout(render, 0); } };
+  document.addEventListener('pointerup', afterDrag);
+  document.addEventListener('pointercancel', afterDrag);
   photoEvents.addEventListener('changed', onChange);
   photoEvents.addEventListener('sessions', onChange);
   return () => {
     alive = false;
+    detachDrag();
+    document.removeEventListener('pointerup', afterDrag);
+    document.removeEventListener('pointercancel', afterDrag);
     photoEvents.removeEventListener('changed', onChange);
     photoEvents.removeEventListener('sessions', onChange);
     bag.revokeAll();

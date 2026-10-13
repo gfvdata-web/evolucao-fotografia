@@ -102,7 +102,22 @@ async function lerBanco() {
   const pegar = (loja, chave) => new Promise((ok) => { const r = db.transaction(loja).objectStore(loja).get(chave); r.onsuccess = () => ok(r.result); });
   const fotos = await new Promise((ok) => { const r = db.transaction('photos').objectStore('photos').getAll(); r.onsuccess = () => ok(r.result); });
   const { diagnosePhoto } = await import('/js/core/diagnosis.js');
+  // v0.5.1: cenas, como se todas as fotos fossem uma sessão só.
+  const { sessionScenes, signatureDistance, captureMs } = await import('/js/core/scenes.js');
   const comoDataUrl = (blob) => new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(blob); });
+  const cenas = sessionScenes(fotos);
+  for (const c of cenas) {
+    c.photos.forEach((f, i) => {
+      f.cena = { numero: c.number, motivos: i === 0 ? c.reasons : [] };
+    });
+  }
+  const assinatura = (f) => f.variants.find((v) => v.key === f.indicators?.primary_variant)?.analysis?.whole?.signature;
+  const ordem = cenas.flatMap((c) => c.photos);
+  ordem.forEach((f, i) => {
+    const a = ordem[i - 1];
+    f.cena.intervalo_s = a && captureMs(a) !== null && captureMs(f) !== null ? (captureMs(f) - captureMs(a)) / 1000 : null;
+    f.cena.distancia = a ? signatureDistance(assinatura(a), assinatura(f)) : null;
+  });
   for (const f of fotos) {
     f.diagnostico = diagnosePhoto(f);
     f.recortes = {};
@@ -158,6 +173,7 @@ function diagnosticoResumo(foto) {
     luz_ev: d.light.ev, luz_fonte: d.light.source,
     veredito: d.verdict, manchete: d.headline,
     achados: d.findings.map((f) => `${f.key}:${f.severity}/${f.certainty}`),
+    cena: foto.cena,
     mao: d.possible ? `${tempoTxt(d.possible.hand.shutter)} f/${d.possible.hand.aperture} ISO ${d.possible.hand.iso}` : null,
   };
 }
@@ -185,6 +201,12 @@ function markdown(linhas) {
     L.push(`| ${l.codigo} | ${tempo(l.tempo_s)} | ${l.abertura} | ${l.iso} | ${l.focal_mm} | ${f1(l.desfoque_foco, 2)} (${f1(l.detalhe_foco, 2)}) | `
       + `${tr.length ? `${f1(Math.min(...tr), 2)}–${f1(Math.max(...tr), 2)}` : '—'} | ${l.estouro == null ? '—' : `${f1(l.estouro * 100, 1)}%`} | `
       + `${l.pretos == null ? '—' : `${f1(l.pretos * 100, 1)}%`} | ${f1(l.luz_ev, 1)} | ${l.veredito} | ${l.manchete} | ${l.achados.join(', ')} | ${l.mao ?? '—'} |`);
+  }
+  L.push('', '## Cenas (v0.5.1)', '', 'Todas as fotos como uma sessão só. Intervalo e distância de enquadramento em relação à foto anterior.', '',
+    '| Cena | Código | Arquivo | mm | Intervalo | Enquadramento | Motivo do corte |', '|---|---|---|---|---|---|---|');
+  for (const l of [...linhas].sort((a, b) => a.quando.localeCompare(b.quando))) {
+    L.push(`| ${l.cena.numero} | ${l.codigo} | ${l.arquivo} | ${l.focal_mm} | ${l.cena.intervalo_s == null ? '—' : `${Math.round(l.cena.intervalo_s)} s`} | `
+      + `${f1(l.cena.distancia, 0)} | ${l.cena.motivos.join(', ')} |`);
   }
   const achados = linhas.filter((l) => l.cadeia_achados.length);
   L.push('', '## Comparação entre versões (JPG do cartão × JPEG embutido no CR3)', '');

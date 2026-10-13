@@ -125,7 +125,7 @@ test('migração 4 → 5: captura ganha abertura máxima, luz do fotômetro e di
   delete old.lens.max_aperture; delete old.exposure.measured_ev; delete old.focus.distance;
   old.lens.model = 'RF50mm F1.8 STM'; old.exposure.iso = 400;
   const v4 = { schema_version: 4, id: 'a', capture: old, variants: [{ key: 'jpeg-web', capture: structuredClone(old) }] };
-  const out = migrate(v4);
+  const out = migrate(v4, undefined, 5);
   assert.equal(out.schema_version, 5);
   for (const c of [out.capture, out.variants[0].capture]) {
     assert.equal(c.lens.model, 'RF50mm F1.8 STM');
@@ -139,5 +139,19 @@ test('migração 4 → 5: captura ganha abertura máxima, luz do fotômetro e di
 test('migração de sessão 4 → 5 só acompanha a versão', async () => {
   const { SESSION_MIGRATIONS } = await import('../../site/js/core/migrations.js');
   const s = { schema_version: 4, id: 'ses-1', name: 'Parque' };
-  assert.deepEqual(migrate(s, SESSION_MIGRATIONS), { ...s, schema_version: 5 });
+  assert.deepEqual(migrate(s, SESSION_MIGRATIONS, 5), { ...s, schema_version: 5 });
+});
+
+test('migração 5 → 6: foto entra na separação automática de cenas (scene_id nulo)', () => {
+  const out = migrate({ schema_version: 5, id: 'a', session_id: 'ses-1', variants: [] });
+  assert.equal(out.schema_version, 6);
+  assert.equal(out.scene_id, null);
+  assert.equal(out.session_id, 'ses-1');
+  assert.equal(newPhotoRecord({ id: 'b', matchKey: 'k', now: 't' }).scene_id, null);
+});
+
+test('migração de sessão 5 → 6 só acompanha a versão', async () => {
+  const { SESSION_MIGRATIONS } = await import('../../site/js/core/migrations.js');
+  const s = { schema_version: 5, id: 'ses-1', name: 'Parque' };
+  assert.deepEqual(migrate(s, SESSION_MIGRATIONS), { ...s, schema_version: 6 });
 });

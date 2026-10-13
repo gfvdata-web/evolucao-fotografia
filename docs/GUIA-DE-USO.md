@@ -39,6 +39,25 @@ Na sessão:
   sessão" (para separar dois passeios do mesmo dia).
 - **Excluir sessão** apaga só a sessão: as fotos e as avaliações continuam no aparelho.
 
+### Cenas (v0.5.1)
+Dentro da sessão, as fotos aparecem separadas em **cenas** (o mesmo assunto e a mesma luz). O app
+separa sozinho e diz o motivo de cada corte: pausa longa, troca de lente, salto de zoom ou
+enquadramento diferente.
+- **Corrigir a separação:** **segure** a foto até ela "levantar" (meio segundo) e **arraste**
+  para outra cena. Para criar uma cena nova, solte na área **"Solte aqui para criar uma cena
+  nova"**, que aparece no fim da tela durante o arraste. Chegando perto da borda de cima ou de
+  baixo, a tela rola sozinha. Um toque rápido continua abrindo a foto, e arrastar sem segurar
+  continua rolando a tela.
+- Sem arrastar: **Selecionar fotos** → **Mover para** → "Cena 2" ou "Nova cena".
+- **Separar as cenas automaticamente de novo** desfaz as suas correções.
+- Cada cena mostra: quantas fotos estão boas, aceitáveis ou com problema; a luz (EV); o
+  **problema principal** e o **ajuste principal** (com "Por quê"); a **comparação** entre a mais
+  nítida e a mais mole e o que mudou entre elas; e **quanto os ajustes variaram**. Um aviso em
+  laranja aparece quando dois ajustes mudaram ao mesmo tempo entre duas fotos seguidas: assim não
+  dá para saber qual deles fez a diferença.
+- No topo, o **Diagnóstico da sessão**: número de cenas, totais e o problema que se repetiu em
+  mais de uma cena.
+
 ### Avaliar (v0.3.1)
 **Avaliar fotos** (na sessão ou na aba Fotos) abre uma foto por vez, na ordem em que foram
 tiradas, começando pela primeira sem avaliação. Você diz o que **vê**; a causa é o app que
@@ -281,17 +300,8 @@ aparecer "erro 401: invalid_client" ou "origin_mismatch", espere um pouco e tent
    aparece a pasta **EvolucaoFotografia**.
 ## No computador (importador Python)
 
-Chega na **v0.6** (plano na decisão 0015). Ele lê o cartão no PC e revela o CR3 sem o
-processamento da câmera, para você ver o que a redução de ruído e a nitidez da câmera mudam.
-Para o dia a dia e o diagnóstico, o JPEG L enviado pelo tablet basta.
-
-**Para adiantar (opcional):** instalar o ExifTool no PC. Abra o **Prompt de Comando** e rode:
-
-```bash
-winget install OliverBetz.ExifTool
-```
-
-O Python 3.13 já está instalado. O resto (dependências e o `importar.bat`) vem com a v0.6.
+Chega na **v0.6**. Instalação no Windows (Python, ExifTool via `winget install
+OliverBetz.ExifTool`, dependências) e uso serão descritos aqui.
 
 ## Amostras de calibração
 

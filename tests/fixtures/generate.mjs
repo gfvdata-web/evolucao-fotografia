@@ -8,7 +8,7 @@ import jpegJs from 'jpeg-js';
 import { buildTiff, insertExif } from './lib/tiff-writer.mjs';
 import { buildCr3 } from './lib/cr3-writer.mjs';
 import {
-  fullTree, noMakerNoteTree, ifd0Entries, exifEntries, gpsEntries, canonMakerNoteEntries, SHOTS,
+  fullTree, noMakerNoteTree, ifd0Entries, exifEntries, gpsEntries, canonMakerNoteEntries, SHOTS, SCENE_SHOTS,
 } from './specs.mjs';
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), 'generated');
@@ -38,6 +38,23 @@ export function skyJpeg(width, height, quality = 92) {
   return new Uint8Array(jpegJs.encode({ data, width, height }, quality).data);
 }
 
+/** v0.5.1: the pattern smeared 11 px sideways (a shaken photo; blur ≈ 0.52 like F04/F06). */
+export function smearJpeg(width, height, quality = 92) {
+  const src = patternPixels(width, height);
+  const out = Buffer.from(src);
+  const L = 5;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      for (let c = 0; c < 3; c++) {
+        let s = 0;
+        for (let k = -L; k <= L; k++) s += src[(y * width + Math.min(width - 1, Math.max(0, x + k))) * 4 + c];
+        out[(y * width + x) * 4 + c] = Math.round(s / (2 * L + 1));
+      }
+    }
+  }
+  return new Uint8Array(jpegJs.encode({ data: out, width, height }, quality).data);
+}
+
 /** Procedural test pattern: gradient + checkerboard + flat area, so decoders have real edges. */
 export function patternJpeg(width, height, quality = 90) {
   return new Uint8Array(jpegJs.encode({ data: patternPixels(width, height), width, height }, quality).data);
@@ -46,6 +63,7 @@ export function patternJpeg(width, height, quality = 90) {
 export function generateAll() {
   mkdirSync(join(OUT, 'cartao'), { recursive: true });
   mkdirSync(join(OUT, 'tablet'), { recursive: true });
+  mkdirSync(join(OUT, 'cenas'), { recursive: true });
   const base = patternJpeg(96, 64);
   const files = {
     'IMG_0001.JPG': insertExif(base, buildTiff(fullTree())),
@@ -69,6 +87,9 @@ export function generateAll() {
     // v0.5.0: blown sky at 1/250 s, 50 mm, meter EV 9.5 (diagnosis: highlights).
     'IMG_0020_ceu.JPG': insertExif(skyJpeg(2400, 1600), buildTiff(fullTree(SHOTS.sky))),
   };
+  const sharpS2 = patternJpeg(2400, 1600, 92);
+  const smearS2 = smearJpeg(2400, 1600);
+  for (const [name, s] of Object.entries(SCENE_SHOTS)) files[name] = insertExif(s.smear ? smearS2 : sharpS2, buildTiff(fullTree(s)));
   for (const [name, bytes] of Object.entries(files)) writeFileSync(join(OUT, name), bytes);
   return Object.keys(files).map((n) => join(OUT, n));
 }

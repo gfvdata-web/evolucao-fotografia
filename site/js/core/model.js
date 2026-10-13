@@ -5,7 +5,7 @@
 // Each variant keeps the metadata read from that exact file, so later versions
 // can compare stages (camera → transfer → app) and find where quality was lost.
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 /** Fields the analysis needs. Order = display order of the "missing" list. */
 export const EXPECTED_FIELDS = [
@@ -94,6 +94,7 @@ export function newPhotoRecord({ id, matchKey, now }) {
     id,
     match_key: matchKey,
     session_id: null, // core/sessions.js
+    scene_id: null, // core/scenes.js (v0.5.1): null = automatic split
     added_at: now,
     updated_at: now,
     variants: [],

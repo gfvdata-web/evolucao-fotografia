@@ -2,6 +2,29 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.5.1] — 2026-10-12
+
+Cenas dentro da sessão (decisão 0014). Fecha a v0.5.
+
+### Adicionado
+- A sessão aparece separada em **cenas**, sozinha, com o motivo de cada corte (pausa, troca de
+  lente, salto de zoom, enquadramento diferente). Separação conferida nas 26 amostras.
+- **Arrastar e soltar** com o dedo: segurar a foto, levar a outra cena ou à área "nova cena"; a
+  tela rola sozinha perto das bordas. "Mover para" ganhou "Cena N" e "Nova cena". "Separar as
+  cenas automaticamente de novo" desfaz as correções.
+- **Diagnóstico por cena:** vereditos, luz, problema e ajuste principal (com "Por quê"),
+  comparação entre a mais nítida e a mais mole e o que mudou entre elas.
+- **Quanto os ajustes variaram** na cena e na sessão, com aviso quando dois ajustes escolhidos
+  por você mudaram ao mesmo tempo entre fotos seguidas.
+- **Diagnóstico da sessão:** número de cenas, totais e problema que se repete em mais de uma
+  cena.
+
+### Mudado
+- Esquema de dados 6 (`scene_id` na foto). Mudar a foto de sessão volta a cena dela para a
+  separação automática.
+- Na grade, o selo "risco de tremido" não aparece mais quando o diagnóstico já diz "Provável
+  tremido".
+
 ## [0.5.0] — 2026-10-12
 
 Diagnóstico de uma foto com orientação (decisões 0011 e 0013). Primeira parte da v0.5; as cenas

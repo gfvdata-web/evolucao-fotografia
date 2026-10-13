@@ -39,7 +39,10 @@ const gpsDms = (deg) => {
  */
 const shot = (o = {}) => ({
   datetime: EXPECTED.datetime, subsec: EXPECTED.subsec, exifWidth: EXPECTED.exifWidth,
-  exifHeight: EXPECTED.exifHeight, shutter: [1, 250], imageSizeCode: 0, easyMode: null, ...o,
+  exifHeight: EXPECTED.exifHeight, shutter: [1, 250], imageSizeCode: 0, easyMode: null,
+  // v0.5.1: lens and exposure per shot (scenes). maxApCode = Canon EV × 32 of the widest aperture.
+  lens: EXPECTED.lens, focal: EXPECTED.focal, focalRange: [50, 50], aperture: [18, 10], iso: EXPECTED.iso,
+  evComp: [-1, 3], maxApCode: 54, ...o,
 });
 
 export const ifd0Entries = (o = {}) => [
@@ -54,21 +57,21 @@ export const exifEntries = ({ withMakerNote = true, ...o } = {}) => {
   const s = shot(o);
   return [
     rational(0x829a, s.shutter),
-    rational(0x829d, [18, 10]),
+    rational(0x829d, s.aperture),
     short(0x8822, s.easyMode ? 2 : 3), // Program AE in A+ (same as P), else Aperture-priority AE
-    short(0x8827, EXPECTED.iso),
+    short(0x8827, s.iso),
     ascii(0x9003, s.datetime),
     ascii(0x9011, EXPECTED.offset),
     ascii(0x9291, s.subsec),
-    srational(0x9204, [-1, 3]),
+    srational(0x9204, s.evComp),
     short(0x9207, 5), // Multi-segment (evaluative)
     short(0x9209, 16), // Off, did not fire
-    rational(0x920a, [50, 1]),
+    rational(0x920a, [s.focal, 1]),
     short(0xa002, s.exifWidth),
     short(0xa003, s.exifHeight),
     short(0xa403, 0), // Auto white balance
     ascii(0xa431, EXPECTED.serial),
-    ascii(0xa434, EXPECTED.lens),
+    ascii(0xa434, s.lens),
     ...(withMakerNote ? [makerNote(canonMakerNoteEntries(s))] : []),
   ];
 };
@@ -91,8 +94,8 @@ export function canonMakerNoteEntries(o = {}) {
   cameraSettings[17] = 3; // MeteringMode: Evaluative
   cameraSettings[20] = s.easyMode ? 0 : 3; // CanonExposureMode: Easy (A+, SCN...) or Aperture-priority AE
   cameraSettings[22] = 61182; // LensType: Canon RF lens
-  cameraSettings[23] = 50; cameraSettings[24] = 50; cameraSettings[25] = 1;
-  cameraSettings[26] = 54; // MaxAperture: Canon EV 54/32 → f/1.8
+  cameraSettings[23] = s.focalRange[1]; cameraSettings[24] = s.focalRange[0]; cameraSettings[25] = 1;
+  cameraSettings[26] = s.maxApCode; // MaxAperture: Canon EV 54/32 → f/1.8
   cameraSettings[27] = 288; // MinAperture: f/22.6
 
   // ShotInfo: MeasuredEV (val/32 + 5) and focus distance (cm).
@@ -125,7 +128,7 @@ export function canonMakerNoteEntries(o = {}) {
     sshort(0x0004, shotInfo),
     long(0x0010, 0x80000433), // CanonModelID (EOS RP)
     sshort(0x0026, afInfo2),
-    ascii(0x0095, EXPECTED.lens),
+    ascii(0x0095, s.lens),
     sshort(0x00a0, processing),
     slong(0x4018, lightingOpt),
   ];
@@ -154,4 +157,19 @@ export const SHOTS = {
   auto: { datetime: '2026:10:11 10:00:00', subsec: '30', easyMode: 59 },
   // v0.5.0: blown sky (pixels in generate.mjs, skyJpeg), S2 like IMG_0010.
   sky: { datetime: '2026:10:11 11:00:00', subsec: '40', exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 },
+};
+
+/**
+ * v0.5.1: one session in two scenes (12/10/2026). Scene A: RF 50, three shots in
+ * 40 s; the third changes aperture and compensation at once (a warning). Scene B,
+ * 19 min later: RF 75-300 at 300 mm, 1/30 s, pixels with a horizontal smear (shake).
+ */
+const S2 = { exifWidth: 2400, exifHeight: 1600, imageSizeCode: 15 };
+const TELE = { lens: 'RF75-300mm F4-5.6', focal: 300, focalRange: [75, 300], maxApCode: 160, aperture: [8, 1] };
+export const SCENE_SHOTS = {
+  'cenas/IMG_0101.JPG': { ...S2, datetime: '2026:10:12 09:00:00', subsec: '00', aperture: [4, 1], evComp: [0, 1] },
+  'cenas/IMG_0102.JPG': { ...S2, datetime: '2026:10:12 09:00:20', subsec: '00', aperture: [8, 1], evComp: [0, 1] },
+  'cenas/IMG_0103.JPG': { ...S2, datetime: '2026:10:12 09:00:40', subsec: '00', aperture: [28, 10], evComp: [-1, 1] },
+  'cenas/IMG_0104.JPG': { ...S2, ...TELE, datetime: '2026:10:12 09:20:00', subsec: '00', shutter: [1, 30], smear: true },
+  'cenas/IMG_0105.JPG': { ...S2, ...TELE, datetime: '2026:10:12 09:20:15', subsec: '00', shutter: [1, 30], smear: true },
 };

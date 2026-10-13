@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Versão atual do esquema: **5** (`SCHEMA_VERSION` em `site/js/core/model.js`).
+Versão atual do esquema: **6** (`SCHEMA_VERSION` em `site/js/core/model.js`).
 Todo documento guardado leva `schema_version` e é migrado na leitura (`core/migrations.js`).
 Chaves em inglês, `snake_case`.
 
@@ -8,10 +8,11 @@ Chaves em inglês, `snake_case`.
 
 ```jsonc
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "id": "012345678901-20261010T143012.45-IMG_0001",   // estável; nunca muda depois de criado
   "match_key": "20261010T143012.45-IMG_0001",          // sem a série: pareia versões do disparo
   "session_id": "ses-20261010-k3x9ab",                 // v0.3; null = sem sessão
+  "scene_id": "cena-k3x9ab",                           // v0.5.1; null = separação automática das cenas
   "added_at": "2026-10-10T18:00:00.000Z",
   "updated_at": "...",
   "variants": [ /* uma por arquivo da mesma foto, ver abaixo */ ],
@@ -135,7 +136,7 @@ posições, e com AF em 1 ponto as outras 142 são zeros.
 
 ```jsonc
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "id": "ses-20261010-k3x9ab",        // ses-<AAAAMMDD | semdata>-<6 caracteres aleatórios>
   "name": "Sessão de 10/10/2026",     // vazio volta a este padrão
   "date": "2026-10-10",               // ou null
@@ -145,11 +146,16 @@ posições, e com AF em 1 ponto as outras 142 são zeros.
 }
 ```
 
-O vínculo fica só na foto (`session_id`); a sessão não lista as fotos. `experiment.parameter`:
+O vínculo fica só na foto (`session_id`); a sessão não lista as fotos. O mesmo vale para as
+**cenas** (v0.5.1, decisão 0014): `scene_id` na foto, `null` enquanto a separação é automática.
+Ao mover uma foto de cena, todas as fotos da sessão recebem o id da cena em que estavam
+(`cena-` + 6 caracteres); trocar a foto de sessão volta o `scene_id` a `null`. As cenas não têm
+documento próprio: número, horário e diagnóstico são calculados na hora (`core/scenes.js`,
+`core/scene-diagnosis.js`). `experiment.parameter`:
 `iso`, `shutter`, `aperture`, `focal_length`, `lens`, `af_mode`, `af_area`, `drive_mode` (lidos
 da foto, e a sessão mostra o valor de cada uma), `transfer` e `other` (só a descrição). Sessões
 usam o mesmo `SCHEMA_VERSION`, com migrações próprias (`SESSION_MIGRATIONS`); a versão 3 é a
-primeira, e a 4 e a 5 não mudaram o formato. Ver decisão 0009.
+primeira, e da 4 à 6 o formato não mudou. Ver decisão 0009.
 
 ## Indicadores (`indicators`, calculados em `core/indicators.js`)
 
@@ -202,14 +208,14 @@ Subpastas: `ef_kind=sub`, `ef_sub=<nome>`. Arquivos de foto: `ef_kind=asset`, `e
 ```jsonc
 // sessao.json
 {
-  "schema_version": 5, "kind": "efsessao", "app_version": "0.5.0", "written_at": "...",
+  "schema_version": 6, "kind": "efsessao", "app_version": "0.5.1", "written_at": "...",
   "session": { /* documento da sessão */ } ,          // null em _sem_sessao
   "photos": [ { /* registro da foto */ ,
                "drive_assets": { "preview": { "id": "...", "sig": "jpeg-web", "size": 123 }, ... } } ],
   "deleted_photos": [ { "id": "...", "at": "..." } ]  // lápides: o outro aparelho apaga também
 }
 // indice.json
-{ "schema_version": 5, "kind": "efindice", "sessions": [ {id, name, date, updated_at} ],
+{ "schema_version": 6, "kind": "efindice", "sessions": [ {id, name, date, updated_at} ],
   "deleted_sessions": [ { "id", "at" } ] }
 // config.json
 { "schema_version": 1, "kind": "efconfig", "updated_at": "...", "settings": { /* abaixo */ } }
@@ -247,3 +253,4 @@ Drive. Sem ZIP64: até 4 GB.
 | 3 → 4 (v0.3.1) | Avaliação por sintoma (decisão 0012). Passa só o que tem o mesmo sentido: `sharp`→`none`, `noise`→`grain`, `shake`→`motion_blur`, `pixelated_upload`→`blocky`, `other`; `harsh_sun`→fora + forte, `shade`/`overcast`→fora, `indoor`→dentro; assunto e nota. `out_of_focus`, `score` e `night` viram "não marcado". `sharpness` fica `null`, então a foto volta a "não avaliada". Sessões: só a versão. |
 | — (v0.4) | Registros sem mudança (esquema 4). O banco local passa para a versão 3 (store `sync`). |
 | 4 → 5 (v0.5.0) | A captura (da foto e de cada variante) ganha `lens.max_aperture`, `exposure.measured_ev` e `focus.distance`, todos `null` até a próxima análise reler o JSON do ExifTool guardado. `METRICS_VERSION` 2: desfoque, histograma, assinatura e trechos, recalculados a partir dos originais do aparelho. Sessões: só a versão. |
+| 5 → 6 (v0.5.1) | Cenas: `scene_id: null` (separação automática) em toda foto. Sessões: só a versão. |

@@ -33,6 +33,9 @@ export const MIGRATIONS = {
     capture: withCaptureShape(doc.capture),
     variants: (doc.variants || []).map((v) => ({ ...v, capture: withCaptureShape(v.capture) })),
   }),
+  // 5 → 6 (v0.5.1): scenes inside the session. Every photo starts in the
+  // automatic split (scene_id null) until the user moves one.
+  5: (doc) => ({ ...doc, scene_id: doc.scene_id ?? null }),
 };
 
 /** Capture in the current shape: known values kept, new fields null. */
@@ -74,6 +77,8 @@ export const SESSION_MIGRATIONS = {
   3: (doc) => ({ ...doc }),
   // 4 → 5: nothing changed in sessions either.
   4: (doc) => ({ ...doc }),
+  // 5 → 6: scenes live on the photos (scene_id); sessions unchanged.
+  5: (doc) => ({ ...doc }),
 };
 
 export function migrate(doc, migrations = MIGRATIONS, target = SCHEMA_VERSION) {

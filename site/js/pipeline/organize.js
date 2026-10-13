@@ -6,7 +6,8 @@ import * as sessionsRepo from '../storage/sessions-repo.js';
 import * as syncRepo from '../storage/sync-repo.js';
 import { applySettingsPatch } from '../core/settings.js';
 import { applyRatingPatch } from '../core/rating.js';
-import { applySessionPatch, newSession, sessionId } from '../core/sessions.js';
+import { applySessionPatch, newSession, sessionId, sessionPhotos } from '../core/sessions.js';
+import { planMove, sessionScenes } from '../core/scenes.js';
 import { notifyChanged, notifySessionsChanged, withLock, lockKeyOf } from './photo-events.js';
 
 const now = () => new Date().toISOString();
@@ -40,7 +41,35 @@ export function setRating(photoId, patch) {
 
 /** Moves photos to a session (or out of any session with null). */
 export async function assignPhotos(photoIds, targetSessionId) {
-  for (const id of photoIds) await updatePhoto(id, (r) => { r.session_id = targetSessionId; });
+  for (const id of photoIds) {
+    await updatePhoto(id, (r) => {
+      // A scene belongs to its session: in the new one the photo starts automatic.
+      if (r.session_id !== targetSessionId) r.scene_id = null;
+      r.session_id = targetSessionId;
+    });
+  }
+  notifySessionsChanged();
+}
+
+const newSceneId = () => `cena-${randomSuffix()}`;
+
+/**
+ * Moves photos to another scene of their session (`target` = scene id, or
+ * "__new"). The session's split is frozen first, so the other photos stay in
+ * the scenes they were shown in (core/scenes.js, planMove).
+ */
+export async function movePhotosToScene(sessionIdValue, photoIds, target) {
+  const photos = sessionPhotos(await repo.listPhotos(), sessionIdValue);
+  const plan = planMove(sessionScenes(photos), photoIds, target, newSceneId);
+  for (const [id, sceneId] of plan) await updatePhoto(id, (r) => { r.scene_id = sceneId; });
+  notifySessionsChanged();
+  return plan.size;
+}
+
+/** Back to the automatic split of the session's scenes. */
+export async function resetScenes(sessionIdValue) {
+  const photos = sessionPhotos(await repo.listPhotos(), sessionIdValue).filter((p) => p.scene_id);
+  for (const p of photos) await updatePhoto(p.id, (r) => { r.scene_id = null; });
   notifySessionsChanged();
 }
 

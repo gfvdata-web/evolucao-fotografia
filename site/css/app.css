@@ -338,3 +338,24 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .diag-table th, .diag-table td { text-align: left; padding: 6px 8px 6px 0; vertical-align: top; border-top: 1px solid var(--border); }
 .diag-table th { font-weight: 400; color: var(--muted); width: 40%; }
 .diag-missing h4, .diag-possible h4 { margin: 12px 0 4px; }
+
+/* v0.5.1 — Cenas */
+.scenes { display: grid; gap: 12px; }
+.scene { transition: outline-color 0.1s; outline: 3px solid transparent; outline-offset: -3px; }
+.scene.drop-over, .scene-new-drop.drop-over { outline-color: var(--accent); background: var(--surface-2); }
+.scene-diag { margin: 4px 0 10px; }
+.scene-diag p { margin: 6px 0; }
+.scene-warnings { padding-left: 18px; }
+.var-changed th { color: var(--text); font-weight: 600; }
+.scenes .photo-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.scene-new-drop {
+  display: none; min-height: 96px; border: 2px dashed var(--accent); border-radius: var(--radius);
+  align-items: center; justify-content: center; color: var(--accent); font-weight: 600; padding: 16px; text-align: center;
+}
+body.scene-dragging .scene-new-drop { display: flex; outline: 3px solid transparent; outline-offset: -3px; }
+body.scene-dragging { -webkit-user-select: none; user-select: none; }
+.drag-ghost {
+  position: fixed; z-index: 1000; pointer-events: none; opacity: 0.85; transform: scale(0.92) rotate(-1.5deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); margin: 0;
+}
+.drag-source { opacity: 0.35; }

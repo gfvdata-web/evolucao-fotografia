@@ -119,6 +119,23 @@ Outras abas: uma aba aberta com uma versão antiga segura o banco e impede a atu
 quando a outra aba fecha. Cada conexão fecha sozinha quando uma versão mais nova pede o banco
 (`versionchange`) e pede para recarregar.
 
+## Cenas (v0.5.1)
+
+Decisão 0014. Puro, calculado na hora a partir das fotos da sessão:
+
+- `core/scenes.js`: `boundary` (por que uma foto começa uma cena nova: pausa, lente, zoom,
+  enquadramento pela assinatura 8×8), `autoSplit`, `sessionScenes` (cenas fixadas pelo usuário
+  + automáticas; numeradas pela foto mediana) e `planMove` (congela a separação e move). Limites
+  em `SCENE_LIMITS`.
+- `core/scene-diagnosis.js`: `diagnoseScene` (vereditos, problema e ajuste principal, mais
+  nítida × mais mole, variação dos ajustes com aviso de dois ajustes ao mesmo tempo) e
+  `diagnoseSession`.
+- `pipeline/organize.js`: `movePhotosToScene` e `resetScenes`; `assignPhotos` limpa a cena ao
+  trocar de sessão.
+- `ui/scene-drag.js`: toque longo, arrastar, rolagem automática na borda e soltar (eventos de
+  ponteiro; `touchmove` não passivo para a tela não rolar enquanto a foto está levantada). A tela
+  da sessão adia as atualizações enquanto uma foto está sendo arrastada.
+
 ## Sessões e avaliação (v0.3)
 
 `pipeline/organize.js` grava avaliações (`setRating`) e sessões (criar, editar, excluir, mover
