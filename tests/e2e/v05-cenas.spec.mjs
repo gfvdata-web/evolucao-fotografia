@@ -172,9 +172,10 @@ test('"Mover para" leva fotos selecionadas a outra cena ou a uma cena nova', asy
 test('foto movida para outra sessão volta à separação automática lá', async ({ page }) => {
   await openSession(page);
   await mouseDrag(page, card(page, 'IMG_0103'), scene(page, 2));
-  await expect(scene(page, 2).getByTestId('photo-card')).toHaveCount(3);
+  // A tap on a button right after the drop must work (CI found it being swallowed).
   await page.getByTestId('select-photos').click();
   await expect(page.getByTestId('select-bar')).toBeVisible();
+  await expect(scene(page, 2).getByTestId('photo-card')).toHaveCount(3);
   await card(page, 'IMG_0105').click();
   await page.getByTestId('move-target').selectOption('__new'); // new session
   await page.getByTestId('move-apply').click();

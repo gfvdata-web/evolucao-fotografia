@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.5.2] — 2026-10-12
+
+### Corrigido
+- Logo depois de soltar uma foto em outra cena, um toque rápido em qualquer botão da sessão (por
+  exemplo "Selecionar fotos") era ignorado por meio segundo. Agora só o clique gerado pelo próprio
+  soltar é ignorado.
+
 ## [0.5.1] — 2026-10-12
 
 Cenas dentro da sessão (decisão 0014). Fecha a v0.5.

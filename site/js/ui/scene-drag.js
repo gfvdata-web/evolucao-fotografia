@@ -13,6 +13,7 @@
 
 export const HOLD_MS = 450;
 const MOVE_TOLERANCE_PX = 10;
+const CLICK_AFTER_DROP_MS = 80; // the click a mouse release fires comes right away
 const EDGE_PX = 80; // auto-scroll zone at the top and bottom of the window
 const MAX_SCROLL_PX = 18; // per frame, at the very edge
 
@@ -24,7 +25,7 @@ const MAX_SCROLL_PX = 18; // per frame, at the very edge
 export function attachSceneDrag(root, { onDrop, enabled = () => true }) {
   let press = null; // { id, x, y, card, timer, pointerId }
   let drag = null; // { id, ghost, card, over, dx, dy, x, y, raf }
-  let swallowClick = false;
+  let droppedAt = -Infinity; // time of the last drop (performance.now)
 
   const targetAt = (x, y) => document.elementFromPoint(x, y)?.closest?.('[data-scene-drop]') || null;
 
@@ -85,8 +86,9 @@ export function attachSceneDrag(root, { onDrop, enabled = () => true }) {
     over?.classList.remove('drop-over');
     document.body.classList.remove('scene-dragging');
     drag = null;
-    swallowClick = true;
-    setTimeout(() => { swallowClick = false; }, 400);
+    // The release itself may produce a click (mouse): ignore only that one, so a
+    // quick tap on a button right after the drop still works.
+    droppedAt = performance.now();
     const target = over?.dataset.sceneDrop;
     if (drop && target && target !== card.closest('[data-scene-drop]')?.dataset.sceneDrop) onDrop(id, target);
   }
@@ -109,7 +111,9 @@ export function attachSceneDrag(root, { onDrop, enabled = () => true }) {
   // No "open link / save image" menu on a long press, no native drag of the link.
   const onContext = (e) => { if (press || drag) e.preventDefault(); };
   const onNativeDrag = (e) => { if (e.target.closest?.('[data-photo-id]')) e.preventDefault(); };
-  const onClick = (e) => { if (swallowClick) { e.preventDefault(); e.stopPropagation(); } };
+  const onClick = (e) => {
+    if (performance.now() - droppedAt < CLICK_AFTER_DROP_MS) { e.preventDefault(); e.stopPropagation(); }
+  };
   const onKey = (e) => { if (e.key === 'Escape' && drag) finish(false); };
 
   root.addEventListener('pointerdown', onDown);
