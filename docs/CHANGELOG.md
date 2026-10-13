@@ -2,6 +2,13 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [0.5.4] — 2026-10-12
+
+### Corrigido
+- O aviso de atualização da v0.5.3 podia sumir sozinho logo depois de aparecer, quando os dados
+  locais terminavam de abrir depois dele (os testes no GitHub pegaram, e a v0.5.3 não chegou a ser
+  publicada). Cada aviso do topo agora esconde só a si mesmo.
+
 ## [0.5.3] — 2026-10-12
 
 ### Adicionado

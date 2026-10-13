@@ -1,4 +1,4 @@
-// v0.5.3: a device left open with an old copy of the app (the installed app on
+// v0.5.3–0.5.4: a device left open with an old copy of the app (the installed app on
 // the tablet especially) is told to update: when a newer version is published,
 // and when the Drive has data written by a newer version — in that case it
 // stops syncing without overwriting those data. Sign-in and Drive simulated.
@@ -39,6 +39,9 @@ test('versão nova publicada: aviso com "Atualizar agora"', async ({ page }) => 
   const banner = page.getByTestId('update-banner');
   await expect(banner).toContainText('Versão nova do app: 9.9.9');
   await expect(banner).toHaveAttribute('data-reason', 'published');
+  await expect(page.getByTestId('update-reload')).toBeVisible();
+  // The local database getting ready later must not hide it (CI caught this race).
+  await page.evaluate(async () => (await import('/js/storage/idb.js')).dbEvents.dispatchEvent(new Event('ready')));
   await expect(page.getByTestId('update-reload')).toBeVisible();
 });
 
