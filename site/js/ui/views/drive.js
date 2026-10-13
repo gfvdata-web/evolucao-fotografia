@@ -20,6 +20,7 @@ const PAUSE_TEXT = {
   auth: 'aguardando conexão com o Drive',
   offline: 'sem internet; continua quando a conexão voltar',
   error: 'interrompida por um erro',
+  update: 'este aparelho está com uma versão antiga do app',
 };
 
 function syncLine() {

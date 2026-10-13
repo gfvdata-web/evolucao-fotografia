@@ -21,11 +21,12 @@ import * as syncRepo from '../storage/sync-repo.js';
 import { migrate, SESSION_MIGRATIONS } from '../core/migrations.js';
 import {
   ROOT_NAME, NO_SESSION, SUBFOLDERS, buildIndexDoc, buildSessionDoc, desiredAssets, historyName,
-  historyToPrune, mergeTombstones, newer, photoWork, readSessionDoc, sessionFolderName, spaceStatus,
+  historyToPrune, mergeTombstones, newer, photoWork, readSessionDoc, sessionFolderName, spaceStatus, NewerDataError,
 } from '../core/drive-layout.js';
 import { stripGps, stripGpsTags } from '../core/gps-strip.js';
 import { normalizeSettings } from '../core/settings.js';
 import { APP_VERSION } from '../version.js';
+import { announceUpdate } from './app-update.js';
 import { photoEvents, notifyChanged, notifySessionsChanged, withLock, lockKeyOf } from './photo-events.js';
 
 const JSON_MIME = 'application/json';
@@ -493,6 +494,11 @@ async function runOnce() {
   } catch (e) {
     if (e instanceof AuthError) { tokenRejected(); set({ state: 'paused', reason: 'auth', progress: null }); }
     else if (e instanceof QuotaError) set({ state: 'paused', reason: 'error', error: 'O Google Drive está sem espaço.', progress: null });
+    else if (e instanceof NewerDataError) {
+      // Nothing is sent either: an old copy must not overwrite what a newer one wrote.
+      set({ state: 'paused', reason: 'update', error: e.message, progress: null });
+      announceUpdate('data');
+    }
     else { console.error('sincronização falhou', e); set({ state: 'paused', reason: 'error', error: e.message, progress: null }); }
   }
   await refreshPending();

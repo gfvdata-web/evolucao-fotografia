@@ -176,3 +176,9 @@ test('cliente: sem ler o cabeçalho Range, envia parte a parte sem recomeçar; s
   drive.state.hideHeaders = ['location'];
   await assert.rejects(api.uploadLarge({ name: 'z.CR3', mimeType: 'image/x-canon-cr3', content: new Blob([bytes]) }), NoSessionError);
 });
+
+test('v0.5.3: dados de uma versão mais nova viram NewerDataError (a sincronização para e pede atualização)', async () => {
+  const { NewerDataError } = await import('../../site/js/core/drive-layout.js');
+  const doc = { kind: 'efsessao', schema_version: SCHEMA_VERSION + 1, photos: [] };
+  assert.throws(() => readSessionDoc(doc), (e) => e instanceof NewerDataError && e.found === SCHEMA_VERSION + 1 && /Atualize o app/.test(e.message));
+});

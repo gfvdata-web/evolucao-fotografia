@@ -23,6 +23,7 @@ import { photoEvents } from './pipeline/photo-events.js';
 import { dbEvents } from './storage/idb.js';
 import { h, mount } from './ui/dom.js';
 import { APP_VERSION } from './version.js';
+import { startUpdateChecks, updateEvents, updateState } from './pipeline/app-update.js';
 
 const routes = [
   { pattern: /^#\/enviar$/, view: uploadView, nav: 'enviar' },
@@ -68,12 +69,25 @@ dbEvents.addEventListener('ready', () => { alertEl.hidden = true; });
 dbEvents.addEventListener('replaced', () => showAlert(
   h('strong', {}, 'O app foi atualizado em outra aba. '), 'Recarregue esta aba para continuar. ',
   h('button', { type: 'button', class: 'btn btn-small', onclick: () => location.reload() }, 'Recarregar')));
+// A newer app is online, or the Drive has data from one: reload to update.
+updateEvents.addEventListener('change', () => {
+  const reload = h('button', { type: 'button', class: 'btn btn-small btn-primary', 'data-testid': 'update-reload', onclick: () => location.reload() },
+    'Atualizar agora');
+  const text = updateState.reason === 'data'
+    ? [h('strong', {}, 'Atualize o app neste aparelho. '),
+      'O Drive tem dados gravados por uma versão mais nova (de outro aparelho). Até atualizar, este aparelho não envia nem recebe nada, ',
+      `para não estragar esses dados. Versão deste aparelho: ${APP_VERSION}. `]
+    : [h('strong', {}, `Versão nova do app: ${updateState.version}. `),
+      `Este aparelho está com a ${APP_VERSION}. Atualize para manter a sincronização com os outros aparelhos. `];
+  showAlert(h('span', { 'data-testid': 'update-banner', 'data-reason': updateState.reason }, text, reload));
+});
 window.addEventListener('hashchange', route);
 route();
 
 // Drive: the sign-in is renewed on a tap (browsers block popups otherwise),
 // only when there is something to send or nothing was synced in this visit.
 startPwa();
+startUpdateChecks();
 startSync();
 preloadAuth();
 mountSyncBadge(document.getElementById('sync-badge'));
