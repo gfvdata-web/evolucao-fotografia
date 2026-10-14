@@ -460,6 +460,20 @@ async function keepAwake(on) {
   } catch { /* not supported or refused: the run continues */ }
 }
 
+/** True when the Drive can be read now (connected, token valid, online). */
+export const driveReady = () => auth.state !== 'unconfigured' && tokenValid() && navigator.onLine !== false;
+
+/**
+ * Downloads a file of the app's Drive folder (an original, to reprocess it:
+ * decision 0017). A 401 pauses the sync as in a run.
+ */
+export async function downloadFile(id) {
+  try { return await drive.download(id); } catch (e) {
+    if (e instanceof AuthError) { tokenRejected(); set({ state: 'paused', reason: 'auth' }); }
+    throw e;
+  }
+}
+
 let running = null;
 let again = false;
 

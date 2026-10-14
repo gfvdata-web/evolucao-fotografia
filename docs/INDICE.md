@@ -28,3 +28,4 @@
 | [decisoes/0014-cenas-na-sessao.md](decisoes/0014-cenas-na-sessao.md) | Cenas: separação automática com motivo, vínculo na foto, congelar ao mover, arrastar e soltar com o dedo, diagnóstico por cena e variação dos ajustes |
 | [decisoes/0015-importador-e-pacote-de-sessao.md](decisoes/0015-importador-e-pacote-de-sessao.md) | v0.6: importador só entrega arquivos (sem métricas, sem Drive), renderização neutra do RAW em PNG, pacote em pasta, imagem inteira descartada depois de medida |
 | [decisoes/0016-fechamento-da-v1.md](decisoes/0016-fechamento-da-v1.md) | v1.0: miniaturas e desempenho medido no tablet, axe-core, compatibilidade com o Samsung Internet, Painel (beta) e critério para fechar a V1 |
+| [decisoes/0017-reprocessamento.md](decisoes/0017-reprocessamento.md) | v2.0: reprocessar fotos com medidas antigas; original do Drive baixado, medido e apagado; MB à vista antes de baixar |

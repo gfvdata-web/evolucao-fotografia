@@ -197,3 +197,11 @@ export const DASHBOARD_LABELS = {
   unrated: 'Não avaliada',
   no_session: 'Fotos sem sessão',
 };
+
+// v2.0: why a photo was not measured again (core/reprocess.js, pipeline/reprocess.js).
+export const REPROCESS_REASONS = {
+  no_drive: 'o original não está neste aparelho e o Google Drive não está conectado (aba Drive)',
+  not_saved: 'o original não está neste aparelho nem no Drive (o envio de originais estava desligado)',
+  download: 'não deu para baixar o original do Drive (conexão ou login); tente de novo',
+  failed: 'não deu para medir a foto neste aparelho',
+};

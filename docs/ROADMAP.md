@@ -173,18 +173,23 @@ você marcou" no Painel). Fecha a V1.
   amostras conferidas, importador testado com um cartão real, GUIA completo e conferência no
   Chrome e no Samsung Internet do tablet relatada pelo Guilherme.
 
-## V2 — padrões e experimentos (detalhada na v1.0, não implementada)
+## V2 — padrões e experimentos (detalhada na v1.0; v2.0 feita)
 Os quatro itens da V2 em entregas, na ordem em que um depende do outro. Cada número da V2 mostra
 quantas fotos o sustentam (regra 4); abaixo do mínimo, a tela diz "poucas fotos (n)" e não dá
 porcentagem. Os mínimos abaixo são o ponto de partida, a confirmar com o Guilherme ao começar
 cada entrega.
 
-### ⏳ v2.0 — Reprocessamento
-- Comando "reprocessar sessão / todas" (previsto no modelo): refaz recortes, indicadores e
-  diagnóstico das fotos com `metrics_version` menor que o atual, a partir dos originais no
-  aparelho ou baixados do Drive; fila com progresso, retomada e o que não deu para refazer
-  (original ausente) aparece como tal.
-- Aviso na grade e no Painel: "N fotos com medidas antigas".
+### ✅ v2.0 — Reprocessamento
+Feita em 13/10/2026 (decisão 0017).
+- ✅ Comando "reprocessar sessão / todas" (`#/reprocessar[/<sessão>]`): refaz recortes, indicadores e
+  diagnóstico das fotos com `metrics_version` diferente do atual, a partir dos originais no
+  aparelho ou baixados do Drive (medidos e apagados, com os MB à vista antes); fila com progresso,
+  pausa e retomada, e o que não deu para refazer (original ausente) aparece com o motivo.
+- ✅ Aviso na grade, no Painel e na sessão: "N fotos com medidas antigas".
+- ✅ Testes: unitários do plano (`tests/unit/reprocess.test.mjs`) e ponta a ponta
+  `tests/e2e/v20-reprocessamento.spec.mjs` (originais do aparelho, Drive em outro aparelho, pausa).
+- A testar pelo Guilherme no tablet: reprocessar fotos que vieram do Drive (só farão diferença
+  quando uma versão nova das métricas sair).
 - Dados necessários: nenhum. Vem primeiro porque as estatísticas seguintes só valem com todas
   as fotos medidas pela mesma versão.
 

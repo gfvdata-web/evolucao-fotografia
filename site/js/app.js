@@ -7,6 +7,7 @@
 //   #/fotos?nitidez=2&sessao=<id>&...   filtered grid (core/photo-filter.js)
 //   #/painel[?sessao=&de=&ate=]   Painel (beta): counts and "o site disse x você marcou"
 //   #/foto/<id>     photo sheet
+//   #/reprocessar[/<sessão>]   measure again photos with older metrics (v2.0)
 //   #/drive         Google Drive, settings, backup, install
 //   #/sobre         about / diagnostics
 import { uploadView } from './ui/views/upload.js';
@@ -18,6 +19,7 @@ import { sessionsView } from './ui/views/sessions.js';
 import { sessionView } from './ui/views/session.js';
 import { rateView } from './ui/views/rate.js';
 import { driveView } from './ui/views/drive.js';
+import { reprocessView } from './ui/views/reprocess.js';
 import { mountSyncBadge } from './ui/sync-badge.js';
 import { startSync, syncStatus, scheduleSync } from './pipeline/sync.js';
 import { preloadAuth, renewOnGesture } from './drive/auth.js';
@@ -40,6 +42,11 @@ const routes = [
   { pattern: /^#\/fotos(?:\?.*)?$/, view: photosView, nav: 'fotos' },
   { pattern: /^#\/painel(?:\?.*)?$/, view: dashboardView, nav: 'painel' },
   { pattern: /^#\/foto\/(.+)$/, view: (root, m) => photoSheetView(root, { id: decodeURIComponent(m[1]) }), nav: 'fotos' },
+  {
+    pattern: /^#\/reprocessar(?:\/([^/]+))?$/,
+    view: (root, m) => reprocessView(root, { sessionId: m[1] ? decodeURIComponent(m[1]) : null }),
+    nav: 'fotos',
+  },
   { pattern: /^#\/drive$/, view: driveView, nav: 'drive' },
   { pattern: /^#\/sobre$/, view: aboutView, nav: 'sobre' },
 ];

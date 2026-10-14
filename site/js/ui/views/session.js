@@ -21,6 +21,7 @@ import { EXPERIMENT_LABELS, RATING_LABELS } from '../../core/glossary.js';
 import { formatDecimal } from '../../core/format.js';
 import { photoCard } from './photos.js';
 import { displayValue } from './photo-sheet.js';
+import { staleNotice } from './reprocess.js';
 
 const field = (label, control, hint) => h('label', { class: 'form-field' },
   h('span', { class: 'form-label' }, label), control, hint ? h('small', { class: 'muted' }, hint) : null);
@@ -216,6 +217,7 @@ export function sessionView(root, { id }) {
       h('button', { type: 'button', class: 'btn btn-small', onclick: () => { sel.on = false; sel.ids.clear(); sel.target = '__new'; render(); } }, 'Cancelar')) : null;
 
     mount(body,
+      staleNotice(photos, id),
       h('section', { class: 'card', 'data-testid': 'session-summary' },
         h('div', { class: 'card-head' },
           h('h3', {}, 'Avaliação'),

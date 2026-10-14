@@ -2,6 +2,18 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [2.0.0] — 2026-10-13
+
+Reprocessamento (decisão 0017), primeira entrega da V2.
+
+### Adicionado
+- **Reprocessar** (sessão ou todas): refaz recortes, indicadores e diagnóstico das fotos medidas
+  por uma versão anterior das métricas. Mostra antes quantas têm o original no aparelho, quantas
+  no Drive (com os MB a baixar) e quantas não têm original; progresso, Pausar e continuar de onde
+  parou; ao fim, a lista das que ficaram com as medidas antigas e o motivo.
+- Original que está só no Drive é baixado, medido e apagado do aparelho.
+- Aviso "N fotos com medidas antigas" na grade, no Painel e na sessão.
+
 ## [1.0.0] — 2026-10-13
 
 Polimento e Painel (beta), decisão 0016. A tag `v1.0.0` sai depois da conferência no tablet e

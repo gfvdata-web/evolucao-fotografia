@@ -155,7 +155,10 @@ Nesta versão as fotos ficam **só neste aparelho** (no navegador). "Remover do 
 ### Aba Sobre
 Versão do app, tamanho da tela, espaço usado, estado do leitor completo e **versão das
 métricas**. Fotos enviadas antes da v0.2, ou de quando um cálculo mudou numa atualização,
-são analisadas ao abrir a ficha ou todas de uma vez pelo botão **Recalcular desatualizadas**. Se algo estranho acontecer, tire
+são analisadas ao abrir a ficha ou todas de uma vez pelo botão **Recalcular desatualizadas**. Quando aparecer o aviso
+**"N fotos com medidas antigas"** (grade, Painel ou sessão), toque em **Reprocessar**: a tela diz quantas fotos têm o
+original no aparelho, quantas vêm do Drive (e quantos MB serão baixados; o original baixado é medido e apagado) e quais
+não têm original. Dá para pausar e continuar depois. Se algo estranho acontecer, tire
 um print desta tela.
 
 ### Google Drive (v0.4)

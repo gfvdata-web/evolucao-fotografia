@@ -124,7 +124,9 @@ export function aboutView(root) {
           const n = await analyzeAllStale();
           btn.textContent = n ? `${n} foto(s) recalculada(s)` : 'Nada a recalcular';
         },
-      }, 'Recalcular desatualizadas')),
+      }, 'Recalcular desatualizadas'),
+      h('p', { class: 'small muted' }, 'Fotos cujo original está só no Drive, com progresso e a lista do que não deu para refazer: ',
+        h('a', { href: '#/reprocessar', 'data-testid': 'about-reprocess' }, 'Reprocessar'), '.')),
     h('section', { class: 'card danger-zone' },
       h('h3', {}, 'Dados locais'),
       h('p', { class: 'small' }, 'Apaga todas as fotos e dados guardados pelo app neste navegador. Não afeta as fotos do cartão nem da galeria.'),

@@ -68,14 +68,20 @@ function applyCaptures(record, captures, now) {
   refreshRecord(record, now);
 }
 
-async function run(photoId, force) {
+/**
+ * `originals` (variant key → Blob): originals that are not stored on this device
+ * (downloaded from the Drive to reprocess, decision 0017). Measured like the stored
+ * ones and never saved. Returns {measured, errors} (variant keys).
+ */
+async function run(photoId, force, originals = null) {
+  const out = { measured: [], errors: [] };
   const record = await repo.getPhoto(photoId);
-  if (!record || !metadataSettled(record)) return; // re-triggered when the full read ends
-  if (!force && !needsAnalysis(record)) return;
+  if (!record || !metadataSettled(record)) return out; // re-triggered when the full read ends
+  if (!force && !needsAnalysis(record)) return out;
   const captures = await renormalized(record);
   applyCaptures(record, captures, record.updated_at);
   const primary = primaryVariant(record);
-  if (!primary) return;
+  if (!primary) return out;
 
   const ref = frameVariant(record) || primary;
   const field = (v) => variantField(v, record.capture.camera.model);
@@ -92,7 +98,7 @@ async function run(photoId, force) {
   const results = new Map();
   const tAnalysis = performance.now();
   for (const v of ordered) {
-    const file = await repo.getBlob(repo.blobKey.original(record.id, v.key));
+    const file = originals?.get(v.key) || await repo.getBlob(repo.blobKey.original(record.id, v.key));
     if (!file) continue;
     try {
       const r = await analyzeImage(file, v.kind, v.capture.image.orientation || record.capture.image.orientation || 1, {
@@ -107,7 +113,8 @@ async function run(photoId, force) {
   }
   // No original on this device (photo that came from the Drive or a backup
   // without originals): keep the analysis made where the photo was sent.
-  if (!results.size) return;
+  if (!results.size) return out;
+  for (const [key, r] of results) (r.error ? out.errors : out.measured).push(key);
   if ([...results.values()].some((r) => !r.error)) recordTiming('analysis', performance.now() - tAnalysis);
 
   const now = new Date().toISOString();
@@ -153,6 +160,7 @@ async function run(photoId, force) {
     await repo.savePhoto(fresh, { blobs, dropBlobs });
   });
   notifyChanged(photoId);
+  return out;
 }
 
 /**
@@ -166,6 +174,16 @@ export function scheduleAnalysis(photoId, { force = false } = {}) {
   queued.add(key);
   queue = queue.then(() => run(photoId, force)).catch((e) => console.error('análise falhou', e)).finally(() => queued.delete(key));
   return queue;
+}
+
+/**
+ * Analyses one photo now, in the same one-at-a-time queue, and says what was
+ * measured: {measured, errors} (variant keys). `originals` as in run().
+ */
+export function analyzeNow(photoId, { originals = null } = {}) {
+  const job = queue.then(() => run(photoId, false, originals));
+  queue = job.catch((e) => console.error('análise falhou', e));
+  return job;
 }
 
 /**

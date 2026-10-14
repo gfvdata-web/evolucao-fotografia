@@ -13,6 +13,7 @@ import {
 import { PROBLEMS, SHARPNESS } from '../../core/rating.js';
 import { sortSessions, formatDate } from '../../core/sessions.js';
 import { DASHBOARD_LABELS, RATING_LABELS } from '../../core/glossary.js';
+import { staleNotice } from './reprocess.js';
 
 const plural = (n, one, many) => (n === 1 ? one : many);
 const photosText = (n) => `${n} ${plural(n, 'foto', 'fotos')}`;
@@ -96,6 +97,7 @@ export function dashboardView(root) {
       h('input', { type: 'date', id, 'data-testid': id, value: scope[key] || '', onchange: (e) => setScope({ [key]: e.target.value || null }) }));
 
     mount(holder,
+      staleNotice(photos),
       h('section', { class: 'card', 'data-testid': 'dash-filters' },
         h('div', { class: 'dash-filters' },
           h('div', { class: 'form-field' }, h('label', { class: 'form-label', for: 'dash-session' }, 'Sessão'), sessionSelect),

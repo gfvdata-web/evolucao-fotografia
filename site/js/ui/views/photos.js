@@ -13,6 +13,7 @@ import { verdictOfPhoto } from '../../core/dashboard.js';
 import { listSessions } from '../../storage/sessions-repo.js';
 import { DASHBOARD_LABELS } from '../../core/glossary.js';
 import { formatDate } from '../../core/sessions.js';
+import { staleNotice } from './reprocess.js';
 
 const VERDICT_STATUS = { good: 'ok', usable: 'attention', problem: 'alert', unknown: 'unknown' };
 
@@ -142,6 +143,7 @@ export function photosView(root) {
     const { rated } = ratingSummary(photos);
     mount(root,
       banner,
+      staleNotice(all),
       h('div', { class: 'section-head' },
         h('h2', {}, `Fotos (${photos.length})`),
         h('span', { class: 'muted small', 'data-testid': 'rated-count' }, `${rated} de ${photos.length} avaliadas`),

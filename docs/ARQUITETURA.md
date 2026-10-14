@@ -56,7 +56,10 @@ GitHub: só código. Actions roda os testes e publica site/ no Pages se tudo pas
 6. **Indicadores** (`core/indicators.js`, puro): resolução, metadados, risco de tremido,
    nitidez (variância do Laplaciano), ruído (estimador de Immerkær), compressão e comparação
    entre versões. Valores descrevem, não aconselham. `METRICS_VERSION` vai em cada análise;
-   ao mudar um cálculo, a versão sobe e as fotos são recalculadas.
+   ao mudar um cálculo, a versão sobe e as fotos são recalculadas. **Desde a v2.0** (decisão 0017),
+   `#/reprocessar` refaz as fotos com medidas antigas (`core/reprocess.js` monta o plano,
+   `pipeline/reprocess.js` processa uma por vez pela fila de `analyze.js`), baixando do Drive o
+   original que não está no aparelho, medindo e descartando.
 7. **Desde a v0.5.0** (`METRICS_VERSION` 2): o recorte do foco também mede o **desfoque**
    (Crété-Roffet, `blurEffect`) e, só na versão principal, a foto inteira: **histograma** com
    estouro e pretos (`histogramStats`) e **assinatura** 8×8 (`signature`) numa cópia de 600 px,

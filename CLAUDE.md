@@ -45,7 +45,7 @@ site/                       ← publicado no Pages (sem build; módulos ES)
   index.html, css/, icons/, manifest.webmanifest, sw.js (PWA, uso sem internet)
   js/config.js              Client ID público do Google (vazio = Drive "não configurado")
   js/app.js                 roteador por hash (#/enviar, #/sessoes, #/sessao/<id>, #/avaliar/...,
-                            #/fotos, #/foto/<id>, #/sobre)
+                            #/fotos, #/foto/<id>, #/painel, #/reprocessar, #/sobre)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
                             e campos de visão, perfis de câmera e de lente, indicadores, métricas de pixels,
                             qualidade JPEG, sessões e avaliação, física da exposição e diagnóstico (v0.5),
@@ -156,7 +156,9 @@ decisão 0015. Esquema de dados 7, métricas versão 2. **v1.0.0** (código pron
 compatibilidade" no Sobre, acessibilidade (axe-core em todas as telas), aba **Painel (beta)**
 (`core/dashboard.js`, `core/photo-filter.js`). A tag `v1.0.0` só sai depois que o Guilherme
 testar o importador com um cartão real e conferir o tablet (Chrome e Samsung Internet).
-Próximo: V2 em entregas v2.0–v2.3 (`docs/ROADMAP.md`).
+**v2.0.0**: reprocessamento (`#/reprocessar[/<sessão>]`, aviso "N fotos com medidas antigas" na
+grade, Painel e sessão; original do Drive baixado, medido e apagado; `core/reprocess.js`,
+`pipeline/reprocess.js`; decisão 0017). Próximo: v2.1 Painel de padrões (`docs/ROADMAP.md`).
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o
