@@ -11,6 +11,8 @@
 | [AMOSTRAS-CALIBRACAO.md](AMOSTRAS-CALIBRACAO.md) | Protocolo das fotos reais de calibração (1ª rodada: séries F e T; Rodada 2: equipamento e mão) e como entregá-las |
 | [CALIBRACAO-RESULTADOS.md](CALIBRACAO-RESULTADOS.md) | Resultados da 1ª rodada com fotos reais: valores da EOS RP para o normalizador e métricas da v0.2 nas amostras |
 | [guia-fotos/Guia-fotos-calibracao.pdf](guia-fotos/Guia-fotos-calibracao.pdf) | O mesmo protocolo em versão para imprimir ou levar no celular (fonte: `guia.html`) |
+| [guia-fotos/Guia-serie-T-tele.pdf](guia-fotos/Guia-serie-T-tele.pdf) | Série T (RF 75-300 no tripé) da 1ª rodada (fonte: `guia-tele.html`) |
+| [guia-fotos/Guia-rodada-2.pdf](guia-fotos/Guia-rodada-2.pdf) | Rodada 2 com desenhos: as 3 saídas (blocos I, T, A, Z, D, E, M), as fotos reais (bloco R) e a entrega (fonte: `guia-rodada2.html`) |
 | [CHANGELOG.md](CHANGELOG.md) | O que mudou em cada versão |
 | [decisoes/0001-site-estatico-sem-build.md](decisoes/0001-site-estatico-sem-build.md) | JS puro sem build, publicação por Actions |
 | [decisoes/0002-leitura-de-metadados-hibrida.md](decisoes/0002-leitura-de-metadados-hibrida.md) | exifr + ExifTool-WASM (comparação das bibliotecas) |

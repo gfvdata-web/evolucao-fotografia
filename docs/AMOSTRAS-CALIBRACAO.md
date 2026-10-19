@@ -99,6 +99,8 @@ Os números dos campos Canon (método AF, estilo, NR, ponto de AF) vêm das pró
 
 # Rodada 2: o equipamento e a sua mão
 
+Versão ilustrada para imprimir ou levar no tablet: [guia-fotos/Guia-rodada-2.pdf](guia-fotos/Guia-rodada-2.pdf).
+
 Roteiro de bolso, para ler no tablet ao lado da câmera. Revisto em 19/10/2026. São **~50
 disparos em três saídas**, mais as suas fotos reais. A ordem das saídas não importa. Dentro de um
 bloco, fotografe tudo em poucos minutos e com o mesmo assunto, para a luz não mudar.

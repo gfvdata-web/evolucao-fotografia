@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Rodada 2 · roteiro de fotos</title>
+<style>
+  @page { size: A4; margin: 12mm 12mm 13mm 12mm; }
+  :root {
+    --tinta: #1d232b; --suave: #5b6673; --linha: #d5dbe2; --fundo: #f3f5f8; --acento: #1f5fa8;
+    --acento-claro: #e7eef8; --alerta: #a3471b; --alerta-claro: #fbf0ea; --ok: #2e7d4f; --ok-claro: #e8f4ec;
+    --amarelo: #c99a06; --ceu: #cfe2f5;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--tinta); font-size: 10.3pt; line-height: 1.38; margin: 0; }
+  h1 { font-size: 23pt; margin: 0 0 1.5mm; letter-spacing: -0.4px; }
+  h2 { font-size: 14pt; margin: 0 0 3mm; color: var(--acento); border-bottom: 1.5px solid var(--acento); padding-bottom: 1.5mm; }
+  h3 { font-size: 11.5pt; margin: 0 0 1.5mm; }
+  p { margin: 0 0 2mm; }
+  b { font-weight: 650; }
+  .sub { color: var(--suave); font-size: 10.5pt; margin-bottom: 3mm; }
+  .pagina { break-before: page; }
+  .muted { color: var(--suave); }
+  .small { font-size: 9pt; }
+  svg { display: block; }
+  svg text { font-family: "Segoe UI", system-ui, sans-serif; }
+
+  /* capa */
+  .mapa { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 3mm 0 4mm; }
+  .mapa svg { height: 17mm; }
+  .saida-card { border: 1.4px solid var(--linha); border-radius: 2.5mm; padding: 3mm; break-inside: avoid; }
+  .saida-card .num { display: inline-block; background: var(--acento); color: #fff; font-weight: 700; border-radius: 50%; width: 7mm; height: 7mm; line-height: 7mm; text-align: center; font-size: 11pt; }
+  .saida-card h3 { margin: 2mm 0 1mm; }
+  .saida-card .quando { font-size: 9pt; color: var(--suave); }
+  .saida-card .qtd { font-size: 18pt; font-weight: 700; color: var(--acento); line-height: 1.1; margin-top: 1.5mm; }
+  .saida-card .qtd small { font-size: 9pt; font-weight: 400; color: var(--suave); }
+  .ensina { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+  .ensina td { padding: 0.9mm 2mm; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  .ensina td:first-child { width: 14mm; }
+  .bloco-tag { display: inline-block; min-width: 7mm; text-align: center; background: var(--acento-claro); color: var(--acento); font-weight: 700; border-radius: 1.2mm; padding: 0.3mm 1.5mm; }
+  .bloco-tag.r { background: var(--alerta-claro); color: var(--alerta); }
+
+  /* checklist da câmera */
+  .check { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2mm 5mm; margin-bottom: 2.5mm; }
+  .check div { display: flex; gap: 2mm; align-items: flex-start; }
+  .caixa { flex: none; display: inline-block; width: 3.8mm; height: 3.8mm; border: 1.3px solid var(--tinta); border-radius: 0.7mm; margin-top: 0.5mm; background: #fff; }
+  .regras { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+  .regra { background: var(--fundo); border-radius: 2mm; padding: 2.4mm 3mm; font-size: 9.6pt; }
+  .regra b { display: block; margin-bottom: 0.8mm; }
+
+  /* cabeçalho de saída */
+  .saida-topo { display: flex; align-items: center; gap: 4mm; margin-bottom: 3mm; }
+  .saida-topo .num { flex: none; background: var(--acento); color: #fff; font-weight: 700; border-radius: 50%; width: 12mm; height: 12mm; line-height: 12mm; text-align: center; font-size: 18pt; }
+  .saida-topo h2 { flex: 1; margin: 0; border: 0; padding: 0; font-size: 17pt; }
+  .saida-topo .meta { color: var(--suave); font-size: 9.5pt; text-align: right; }
+  .resumo { display: flex; flex-wrap: wrap; gap: 1.8mm; margin-bottom: 3mm; }
+  .chip { background: var(--fundo); border-radius: 1.5mm; padding: 0.9mm 2.4mm; font-size: 10pt; }
+  .chip small { display: block; color: var(--suave); font-size: 7.3pt; text-transform: uppercase; letter-spacing: 0.4px; }
+  .chip b { font-size: 10.8pt; }
+  .chip.cam { background: var(--acento-claro); }
+  .chip.muda { background: var(--alerta-claro); }
+  .chip.muda small { color: var(--alerta); }
+
+  .cena { display: grid; grid-template-columns: 78mm 1fr; gap: 4mm; align-items: center; margin-bottom: 3mm; }
+  .cena-desenho { background: var(--fundo); border-radius: 2.5mm; padding: 2mm; }
+  .passos { margin: 0; padding-left: 5mm; }
+  .passos li { margin-bottom: 1.3mm; }
+
+  /* bloco */
+  .bloco { border: 1.4px solid var(--linha); border-radius: 2.5mm; padding: 3mm 3.5mm 2.5mm; margin-bottom: 3.5mm; break-inside: avoid; }
+  .bloco-head { display: flex; align-items: baseline; gap: 2.5mm; margin-bottom: 2mm; }
+  .bloco-head .letra { background: var(--acento); color: #fff; font-weight: 700; border-radius: 1.5mm; padding: 0.5mm 2.4mm; font-size: 12pt; }
+  .bloco-head .titulo { font-weight: 700; font-size: 12.5pt; flex: 1; }
+  .bloco-head .qtd { color: var(--suave); font-size: 9.5pt; white-space: nowrap; }
+  .linhas { display: grid; grid-template-columns: 22mm 1fr; gap: 1mm 3mm; margin-top: 2mm; }
+  .linhas dt { color: var(--suave); font-weight: 600; font-size: 9.3pt; }
+  .linhas dd { margin: 0; }
+
+  /* tira de fotos */
+  .tira { display: grid; gap: 1.6mm; margin: 2mm 0 1mm; }
+  .foto { border: 1.2px solid var(--linha); border-radius: 1.6mm; padding: 1.3mm 1.6mm 1.5mm; text-align: center; background: #fff; }
+  .foto .cod { font-size: 8.3pt; color: var(--suave); font-weight: 600; }
+  .foto .val { font-size: 11.5pt; font-weight: 700; white-space: nowrap; }
+  .foto .boxes { display: flex; justify-content: center; gap: 1.2mm; margin-top: 1mm; }
+  .foto .vis { margin: 1mm auto 0.5mm; }
+  .aviso { border-left: 3px solid var(--alerta); background: var(--alerta-claro); padding: 2mm 3mm; margin: 2.5mm 0 0; border-radius: 0 1.5mm 1.5mm 0; font-size: 9.6pt; }
+  .dica { border-left: 3px solid var(--ok); background: var(--ok-claro); padding: 2mm 3mm; margin: 2.5mm 0 0; border-radius: 0 1.5mm 1.5mm 0; font-size: 9.6pt; }
+  .troca { background: #fff7df; border: 1.2px dashed var(--amarelo); border-radius: 2mm; padding: 2mm 3mm; margin: 0 0 3.5mm; font-size: 9.6pt; }
+
+  /* bloco R */
+  .escala { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 2mm 0 3mm; }
+  .nota { border: 1.2px solid var(--linha); border-radius: 2mm; padding: 2mm; text-align: center; }
+  .nota .n { font-size: 20pt; font-weight: 700; line-height: 1; }
+  .nota .t { font-size: 8.8pt; color: var(--suave); margin-top: 1mm; }
+  .codigo-box { font-family: Consolas, monospace; background: #1d232b; color: #e8edf3; border-radius: 2mm; padding: 2.5mm 3.5mm; font-size: 9.8pt; line-height: 1.5; white-space: pre; }
+  .dois { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .pasta { font-family: Consolas, monospace; font-size: 9.6pt; line-height: 1.55; background: var(--fundo); border-radius: 2mm; padding: 2.5mm 3.5mm; white-space: pre; }
+  .rodape { margin-top: 3mm; color: var(--suave); font-size: 8.5pt; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- camera seen from the side, lens pointing right -->
+    <symbol id="camera" viewBox="0 0 60 40">
+      <rect x="4" y="8" width="30" height="24" rx="3" fill="#2b323b"/>
+      <rect x="10" y="3" width="12" height="7" rx="1.5" fill="#2b323b"/>
+      <rect x="34" y="11" width="18" height="18" rx="2" fill="#3d4652"/>
+      <rect x="52" y="12" width="4" height="16" rx="1" fill="#55606d"/>
+      <circle cx="12" cy="14" r="2" fill="#c33"/>
+    </symbol>
+    <symbol id="tele" viewBox="0 0 90 40">
+      <rect x="4" y="8" width="30" height="24" rx="3" fill="#2b323b"/>
+      <rect x="10" y="3" width="12" height="7" rx="1.5" fill="#2b323b"/>
+      <rect x="34" y="10" width="44" height="20" rx="2" fill="#3d4652"/>
+      <rect x="44" y="9" width="12" height="22" rx="1" fill="#55606d"/>
+      <rect x="78" y="9" width="6" height="22" rx="1" fill="#55606d"/>
+      <circle cx="12" cy="14" r="2" fill="#c33"/>
+    </symbol>
+    <symbol id="tripe" viewBox="0 0 40 60">
+      <rect x="16" y="0" width="8" height="6" fill="#55606d"/>
+      <line x1="20" y1="6" x2="4" y2="58" stroke="#55606d" stroke-width="3"/>
+      <line x1="20" y1="6" x2="36" y2="58" stroke="#55606d" stroke-width="3"/>
+      <line x1="20" y1="6" x2="20" y2="58" stroke="#55606d" stroke-width="3"/>
+    </symbol>
+    <symbol id="pessoa" viewBox="0 0 40 90">
+      <circle cx="20" cy="10" r="8" fill="#7a8796"/>
+      <path d="M8 24 Q20 18 32 24 L30 60 L10 60 Z" fill="#7a8796"/>
+      <rect x="11" y="60" width="7" height="28" rx="2" fill="#7a8796"/>
+      <rect x="22" y="60" width="7" height="28" rx="2" fill="#7a8796"/>
+    </symbol>
+    <pattern id="tijolo" width="12" height="8" patternUnits="userSpaceOnUse">
+      <rect width="12" height="8" fill="#c98b6b"/>
+      <path d="M0 0H12M0 4H12M0 8H12M6 0V4M0 4V8M12 4V8" stroke="#f3e3d8" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+</svg>
+
+<!-- ============================================================ CAPA -->
+<h1>Rodada 2 · roteiro de fotos</h1>
+<div class="sub">EvolucaoFotografia · Canon EOS RP · RF 50 mm f/1.8 e RF 75-300 mm · ~51 fotos em 3 saídas + as suas fotos reais</div>
+
+<p>Esta rodada ensina o site a ver como <b>você</b> fotografa: até onde subir o ISO, a partir de que velocidade a sua
+mão treme, a abertura mais nítida da RF 50, como fica um foco errado e quando o céu estoura. E, com as suas
+fotos reais, onde o site diz “Boa” e você vê mole.</p>
+
+<div class="mapa">
+  <div class="saida-card">
+    <span class="num">1</span>
+    <h3>Tripé na janela</h3>
+    <div class="quando">RF 75-300 · fim de tarde ou nublado</div>
+    <svg viewBox="0 0 120 60" width="100%" style="margin-top:2mm">
+      <rect x="2" y="2" width="58" height="56" fill="#cfe2f5" stroke="#55606d" stroke-width="2"/>
+      <rect x="18" y="26" width="16" height="32" fill="#9aa7b5"/><line x1="26" y1="10" x2="26" y2="26" stroke="#9aa7b5" stroke-width="2"/>
+      <use href="#tripe" x="76" y="22" width="26" height="38"/>
+      <use href="#tele" x="66" y="8" width="44" height="20" transform="scale(-1,1) translate(-176,0)"/>
+    </svg>
+    <div class="qtd">12 <small>fotos · ~25 min</small></div>
+    <div class="small muted">Blocos I e T</div>
+  </div>
+  <div class="saida-card">
+    <span class="num">2</span>
+    <h3>À mão, de dia</h3>
+    <div class="quando">RF 50 e RF 75-300 · ao ar livre</div>
+    <svg viewBox="0 0 120 60" width="100%" style="margin-top:2mm">
+      <circle cx="102" cy="12" r="7" fill="#f2c94c"/>
+      <rect x="70" y="24" width="40" height="34" fill="url(#tijolo)"/>
+      <use href="#pessoa" x="14" y="4" width="26" height="56"/>
+      <use href="#camera" x="30" y="12" width="20" height="14"/>
+    </svg>
+    <div class="qtd">29 <small>fotos · ~45 min</small></div>
+    <div class="small muted">Blocos A, Z, D e E</div>
+  </div>
+  <div class="saida-card">
+    <span class="num">3</span>
+    <h3>À mão, em casa</h3>
+    <div class="quando">RF 50 · dentro de casa ou na sombra</div>
+    <svg viewBox="0 0 120 60" width="100%" style="margin-top:2mm">
+      <path d="M2 30 L60 4 L118 30" fill="none" stroke="#55606d" stroke-width="2"/>
+      <rect x="10" y="30" width="100" height="28" fill="none" stroke="#55606d" stroke-width="2"/>
+      <rect x="74" y="38" width="22" height="16" fill="#fff" stroke="#55606d"/>
+      <path d="M77 42h16M77 45h14M77 48h16M77 51h10" stroke="#2b323b" stroke-width="1"/>
+      <use href="#camera" x="30" y="36" width="26" height="18"/>
+    </svg>
+    <div class="qtd">10 <small>fotos · ~10 min</small></div>
+    <div class="small muted">Bloco M</div>
+  </div>
+  <div class="saida-card">
+    <span class="num">4</span>
+    <h3>Suas fotos reais</h3>
+    <div class="quando">sem câmera · escolher e dar nota</div>
+    <svg viewBox="0 0 120 60" width="100%" style="margin-top:2mm">
+      <rect x="6" y="8" width="34" height="24" rx="2" fill="#cfe2f5" stroke="#55606d"/>
+      <rect x="44" y="8" width="34" height="24" rx="2" fill="#d9e8d2" stroke="#55606d"/>
+      <rect x="82" y="8" width="34" height="24" rx="2" fill="#efe1cf" stroke="#55606d"/>
+      <text x="23" y="48" text-anchor="middle" font-size="11" font-weight="700" fill="#a3471b">2</text>
+      <text x="61" y="48" text-anchor="middle" font-size="11" font-weight="700" fill="#2e7d4f">5</text>
+      <text x="99" y="48" text-anchor="middle" font-size="11" font-weight="700" fill="#c99a06">3</text>
+    </svg>
+    <div class="qtd">10–20 <small>fotos</small></div>
+    <div class="small muted">Bloco R</div>
+  </div>
+</div>
+
+<h2>O que cada bloco ensina ao site</h2>
+<table class="ensina">
+  <tr><td><span class="bloco-tag">I</span></td><td><b>Ruído em cada ISO</b>: até onde subir o ISO compensa, em vez de arriscar tremido.</td></tr>
+  <tr><td><span class="bloco-tag">M</span> <span class="bloco-tag">Z</span></td><td><b>O seu limite de tremido à mão</b>, a 50, 100 e 300 mm. Hoje o site usa a regra geral “1/distância focal”.</td></tr>
+  <tr><td><span class="bloco-tag">A</span></td><td><b>A abertura mais nítida da RF 50</b> e onde a difração começa.</td></tr>
+  <tr><td><span class="bloco-tag">D</span></td><td><b>Foco errado</b>, para o site não confundir com tremido.</td></tr>
+  <tr><td><span class="bloco-tag">E</span></td><td><b>Quando o céu estoura</b> e quando as sombras ficam pretas.</td></tr>
+  <tr><td><span class="bloco-tag">T</span></td><td>Três fotos pendentes da 1ª rodada (dedo × temporizador, vidro).</td></tr>
+  <tr><td><span class="bloco-tag r">R</span></td><td><b>As suas fotos reais</b> com a sua nota: é aqui que o site aprende onde errou ao dizer “Boa”.</td></tr>
+</table>
+
+<h2>Antes de cada saída: a câmera <span style="font-weight:400;font-size:9.5pt;color:var(--suave)">(nomes do menu como aparecem na câmera)</span></h2>
+<div class="check">
+  <div><span class="caixa"></span><span>Qualidade <b>RAW + L</b> (Image quality)</span></div>
+  <div><span class="caixa"></span><span>Proporção <b>3:2</b> (Full-frame)</span></div>
+  <div><span class="caixa"></span><span>Balanço de branco <b>AWB</b></span></div>
+  <div><span class="caixa"></span><span>Foco <b>One Shot AF</b> e <b>1-point AF</b></span></div>
+  <div><span class="caixa"></span><span>Medição <b>Evaluative metering</b>, flash desligado</span></div>
+  <div><span class="caixa"></span><span>High ISO speed NR em <b>Standard</b></span></div>
+  <div><span class="caixa"></span><span>Picture Style no seu habitual (<b>Auto</b>)</span></div>
+  <div><span class="caixa"></span><span>Exposure comp. em <b>0</b> (salvo no bloco E)</span></div>
+  <div><span class="caixa"></span><span>Data e hora da câmera certas</span></div>
+  <div><span class="caixa"></span><span>Cartão com espaço e bateria carregada</span></div>
+</div>
+<div class="regras">
+  <div class="regra"><b>Os números valem</b>Os ajustes de cada foto são obrigatórios: é por eles que o site reconhece qual foto é qual. Sem renomear arquivos.</div>
+  <div class="regra"><b>O assunto é livre</b>Qualquer coisa do dia a dia serve. Não precisa ficar bonita. Dentro de um bloco, mantenha o mesmo assunto.</div>
+  <div class="regra"><b>Não deu?</b>Se um ajuste não for possível, use o mais próximo, siga em frente e me avise depois.</div>
+</div>
+
+<!-- ============================================================ SAÍDA 1 -->
+<section class="pagina">
+<div class="saida-topo">
+  <span class="num">1</span>
+  <h2>Tripé na janela</h2>
+  <div class="meta">RF 75-300 · 12 fotos · ~25 min<br>fim de tarde ou dia nublado</div>
+</div>
+
+<div class="cena">
+  <div class="cena-desenho">
+    <svg viewBox="0 0 300 170" width="100%">
+      <rect x="6" y="6" width="150" height="150" fill="#cfe2f5" stroke="#55606d" stroke-width="3"/>
+      <line x1="81" y1="6" x2="81" y2="156" stroke="#55606d" stroke-width="2" stroke-dasharray="4 3"/>
+      <rect x="40" y="70" width="44" height="86" fill="#9aa7b5"/>
+      <g fill="#cfe2f5"><rect x="46" y="78" width="8" height="8"/><rect x="60" y="78" width="8" height="8"/><rect x="72" y="78" width="8" height="8"/><rect x="46" y="94" width="8" height="8"/><rect x="60" y="94" width="8" height="8"/><rect x="72" y="94" width="8" height="8"/></g>
+      <line x1="62" y1="38" x2="62" y2="70" stroke="#55606d" stroke-width="2"/><line x1="54" y1="46" x2="70" y2="46" stroke="#55606d" stroke-width="2"/>
+      <rect x="96" y="96" width="50" height="60" fill="#e6ebf0"/>
+      <text x="121" y="128" text-anchor="middle" font-size="9" fill="#5b6673">área lisa</text>
+      <rect x="55" y="40" width="14" height="14" fill="none" stroke="#c99a06" stroke-width="2"/>
+      <text x="62" y="34" text-anchor="middle" font-size="9" fill="#a37a00" font-weight="700">AF</text>
+      <use href="#tripe" x="214" y="80" width="56" height="84"/>
+      <g transform="translate(286,48) scale(-1,1)"><use href="#tele" x="0" y="0" width="110" height="48"/></g>
+      <text x="230" y="40" text-anchor="middle" font-size="10" fill="#1d232b">200–300 mm</text>
+      <text x="81" y="168" text-anchor="middle" font-size="9" fill="#5b6673">janela aberta (exceto T06)</text>
+    </svg>
+  </div>
+  <ol class="passos">
+    <li>Monte o tripé <b>na janela aberta</b>, com a RF 75-300.</li>
+    <li>Escolha um alvo <b>distante com detalhe fino</b> (antena, placa, telhas) e deixe no quadro uma <b>área lisa</b>: parede, muro ou céu sem nuvem.</li>
+    <li>Ponto de AF sobre o detalhe do alvo. <b>Não mexa no enquadramento</b> durante o bloco.</li>
+    <li>Depois de apertar o botão, solte a câmera e não encoste no tripé até a foto sair.</li>
+  </ol>
+</div>
+
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">I</span><span class="titulo">Escada de ISO</span><span class="qtd">9 fotos</span></div>
+  <div class="resumo">
+    <span class="chip cam"><small>Modo</small><b>Av</b></span>
+    <span class="chip cam"><small>Abertura</small><b>f/11</b></span>
+    <span class="chip cam"><small>Focal</small><b>200 mm</b></span>
+    <span class="chip cam"><small>Drive mode</small><b>Self-timer: 2 sec</b></span>
+    <span class="chip muda"><small>Muda a cada foto</small><b>ISO</b></span>
+  </div>
+  <div class="tira" style="grid-template-columns: repeat(9, 1fr)">
+    <div class="foto"><div class="cod">I01</div><div class="val">100</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I02</div><div class="val">200</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".5"><circle cx="6" cy="5" r=".6"/><circle cx="22" cy="12" r=".6"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I03</div><div class="val">400</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".6"><circle cx="6" cy="5" r=".7"/><circle cx="22" cy="12" r=".7"/><circle cx="14" cy="8" r=".7"/><circle cx="26" cy="4" r=".7"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I04</div><div class="val">800</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".65"><circle cx="6" cy="5" r=".8"/><circle cx="22" cy="12" r=".8"/><circle cx="14" cy="8" r=".8"/><circle cx="26" cy="4" r=".8"/><circle cx="4" cy="14" r=".8"/><circle cx="18" cy="15" r=".8"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I05</div><div class="val">1600</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".7"><circle cx="6" cy="5" r=".9"/><circle cx="22" cy="12" r=".9"/><circle cx="14" cy="8" r=".9"/><circle cx="26" cy="4" r=".9"/><circle cx="4" cy="14" r=".9"/><circle cx="18" cy="15" r=".9"/><circle cx="10" cy="11" r=".9"/><circle cx="25" cy="16" r=".9"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I06</div><div class="val">3200</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".75"><circle cx="6" cy="5" r="1"/><circle cx="22" cy="12" r="1"/><circle cx="14" cy="8" r="1"/><circle cx="26" cy="4" r="1"/><circle cx="4" cy="14" r="1"/><circle cx="18" cy="15" r="1"/><circle cx="10" cy="11" r="1"/><circle cx="25" cy="16" r="1"/><circle cx="18" cy="3" r="1"/><circle cx="9" cy="2" r="1"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I07</div><div class="val">6400</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".8"><circle cx="6" cy="5" r="1.1"/><circle cx="22" cy="12" r="1.1"/><circle cx="14" cy="8" r="1.1"/><circle cx="26" cy="4" r="1.1"/><circle cx="4" cy="14" r="1.1"/><circle cx="18" cy="15" r="1.1"/><circle cx="10" cy="11" r="1.1"/><circle cx="25" cy="16" r="1.1"/><circle cx="18" cy="3" r="1.1"/><circle cx="9" cy="2" r="1.1"/><circle cx="1" cy="8" r="1.1"/><circle cx="29" cy="9" r="1.1"/></g><g fill="#c25" opacity=".5"><circle cx="12" cy="15" r="1"/><circle cx="20" cy="7" r="1"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I08</div><div class="val">12800</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".85"><circle cx="6" cy="5" r="1.2"/><circle cx="22" cy="12" r="1.2"/><circle cx="14" cy="8" r="1.2"/><circle cx="26" cy="4" r="1.2"/><circle cx="4" cy="14" r="1.2"/><circle cx="18" cy="15" r="1.2"/><circle cx="10" cy="11" r="1.2"/><circle cx="25" cy="16" r="1.2"/><circle cx="18" cy="3" r="1.2"/><circle cx="9" cy="2" r="1.2"/><circle cx="1" cy="8" r="1.2"/><circle cx="29" cy="9" r="1.2"/><circle cx="13" cy="1" r="1.2"/><circle cx="3" cy="17" r="1.2"/></g><g fill="#c25" opacity=".55"><circle cx="12" cy="15" r="1.1"/><circle cx="20" cy="7" r="1.1"/><circle cx="7" cy="9" r="1.1"/><circle cx="27" cy="13" r="1.1"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">I09</div><div class="val">25600</div><svg class="vis" viewBox="0 0 30 18" width="22"><rect width="30" height="18" fill="#9fb3c6"/><g fill="#fff" opacity=".9"><circle cx="6" cy="5" r="1.3"/><circle cx="22" cy="12" r="1.3"/><circle cx="14" cy="8" r="1.3"/><circle cx="26" cy="4" r="1.3"/><circle cx="4" cy="14" r="1.3"/><circle cx="18" cy="15" r="1.3"/><circle cx="10" cy="11" r="1.3"/><circle cx="25" cy="16" r="1.3"/><circle cx="18" cy="3" r="1.3"/><circle cx="9" cy="2" r="1.3"/><circle cx="1" cy="8" r="1.3"/><circle cx="29" cy="9" r="1.3"/><circle cx="13" cy="1" r="1.3"/><circle cx="3" cy="17" r="1.3"/><circle cx="16" cy="12" r="1.3"/></g><g fill="#c25" opacity=".6"><circle cx="12" cy="15" r="1.2"/><circle cx="20" cy="7" r="1.2"/><circle cx="7" cy="9" r="1.2"/><circle cx="27" cy="13" r="1.2"/><circle cx="23" cy="1" r="1.2"/></g></svg><div class="boxes"><span class="caixa"></span></div></div>
+  </div>
+  <dl class="linhas">
+    <dt>Como</dt><dd>Só o ISO muda (ISO speed): 100, 200, 400… até 25600. Em Av a câmera ajusta o tempo sozinha.</dd>
+    <dt>O que mostra</dt><dd>O grão de verdade de cada ISO, na área lisa, na mesma cena: o desenho acima é só ilustração.</dd>
+  </dl>
+  <div class="aviso"><b>Se o visor piscar 4000</b> (1/4000 s, o limite da câmera), a foto vai estourar: pare a escada nesse ISO e me avise. Por isso a luz forte do meio-dia não serve.</div>
+</div>
+
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">T</span><span class="titulo">Pendentes da 1ª rodada</span><span class="qtd">3 fotos, no mesmo tripé</span></div>
+  <div class="resumo">
+    <span class="chip cam"><small>Modo</small><b>Av</b></span>
+    <span class="chip cam"><small>Abertura</small><b>f/8</b></span>
+    <span class="chip cam"><small>Focal</small><b>300 mm</b> (zoom todo)</span>
+  </div>
+  <div class="tira" style="grid-template-columns: repeat(3, 1fr)">
+    <div class="foto" style="text-align:left"><div class="cod">T08 · ISO 400</div><div class="val">Disparo com o dedo</div>
+      <svg class="vis" viewBox="0 0 120 30" width="100%"><rect x="20" y="10" width="40" height="14" rx="2" fill="#2b323b"/><path d="M38 2 L38 10" stroke="#a3471b" stroke-width="3"/><path d="M33 4 L38 0 L43 4" fill="none" stroke="#a3471b" stroke-width="2"/></svg>
+      <div class="small"><b>Drive mode: Single shooting.</b> Sem temporizador: aperte como no dia a dia.</div><div class="boxes" style="justify-content:flex-start"><span class="caixa"></span></div></div>
+    <div class="foto" style="text-align:left"><div class="cod">T09 · ISO 800</div><div class="val">Temporizador 10 s</div>
+      <svg class="vis" viewBox="0 0 120 30" width="100%"><circle cx="20" cy="15" r="11" fill="none" stroke="#2e7d4f" stroke-width="2.5"/><path d="M20 15 L20 7 M20 15 L26 18" stroke="#2e7d4f" stroke-width="2"/></svg>
+      <div class="small"><b>Drive mode: Self-timer: 10 sec/remote.</b> Mãos fora: a vibração passa antes do disparo.</div><div class="boxes" style="justify-content:flex-start"><span class="caixa"></span></div></div>
+    <div class="foto" style="text-align:left"><div class="cod">T06 · ISO 200</div><div class="val">Através do vidro</div>
+      <svg class="vis" viewBox="0 0 120 30" width="100%"><rect x="40" y="2" width="6" height="26" fill="#cfe2f5" stroke="#55606d"/><use href="#tele" x="56" y="6" width="44" height="20" transform="scale(-1,1) translate(-156,0)"/><text x="4" y="19" font-size="9" fill="#5b6673">vidro</text></svg>
+      <div class="small"><b>Só se você fotografa através de vidro.</b> Janela fechada, lente perto do vidro sem encostar.</div><div class="boxes" style="justify-content:flex-start"><span class="caixa"></span></div></div>
+  </div>
+  <div class="dica">O ISO diferente em cada uma é só uma etiqueta: é como o site sabe qual é qual. Depois da T06, abra a janela de novo.</div>
+</div>
+</section>
+
+<!-- ============================================================ SAÍDA 2 -->
+<section class="pagina">
+<div class="saida-topo">
+  <span class="num">2</span>
+  <h2>À mão, de dia, ao ar livre</h2>
+  <div class="meta">RF 50 e RF 75-300 · 29 fotos · ~45 min<br>ordem: A → Z → D → E</div>
+</div>
+
+<div class="troca"><b>Velocidade mínima do ISO Auto</b> (menu <b>ISO speed settings → Min. shutter spd.</b>): coloque em <b>1/250</b> para os blocos <b>A</b> e <b>E</b>, em que você usa Av. Nos blocos Z e D, em Tv, ela não interfere. Se não achar o ajuste, confira no visor que a velocidade ficou em 1/250 ou mais rápida.</div>
+
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">A</span><span class="titulo">Abertura da RF 50</span><span class="qtd">7 fotos</span></div>
+  <div class="cena" style="grid-template-columns: 62mm 1fr; margin-bottom:1mm">
+    <div class="cena-desenho">
+      <svg viewBox="0 0 240 110" width="100%">
+        <rect x="150" y="8" width="84" height="94" fill="url(#tijolo)"/>
+        <rect x="186" y="49" width="12" height="12" fill="none" stroke="#c99a06" stroke-width="2.5"/>
+        <use href="#camera" x="8" y="38" width="60" height="40"/>
+        <line x1="72" y1="58" x2="146" y2="58" stroke="#5b6673" stroke-dasharray="3 3"/>
+        <text x="108" y="52" text-anchor="middle" font-size="10" fill="#1d232b">3 a 5 m, de frente</text>
+        <text x="192" y="106" text-anchor="middle" font-size="9" fill="#5b6673">AF no centro</text>
+      </svg>
+    </div>
+    <div>
+      <div class="resumo" style="margin-bottom:1mm">
+        <span class="chip cam"><small>Lente</small><b>RF 50</b></span>
+        <span class="chip cam"><small>Modo</small><b>Av</b></span>
+        <span class="chip cam"><small>ISO</small><b>Auto (mín. 1/250)</b></span>
+        <span class="chip muda"><small>Muda</small><b>Abertura</b></span>
+      </div>
+      <p class="small">Assunto <b>plano e com detalhe</b>: fachada, muro de tijolos, placa. De frente para ele, ponto de AF no <b>centro</b>.</p>
+    </div>
+  </div>
+  <div class="tira" style="grid-template-columns: repeat(7, 1fr)">
+    <div class="foto"><div class="cod">A01</div><div class="val">f/1.8</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="9.5" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">A02</div><div class="val">f/2.8</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="7.5" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">A03</div><div class="val">f/4</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="6" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">A04</div><div class="val">f/5.6</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="4.6" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">A05</div><div class="val">f/8</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="3.4" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">A06</div><div class="val">f/11</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="2.4" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">A07</div><div class="val">f/16</div><svg class="vis" viewBox="0 0 24 24" width="20"><circle cx="12" cy="12" r="11" fill="#2b323b"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+  </div>
+  <dl class="linhas"><dt>O que mostra</dt><dd>Em que abertura a sua RF 50 é mais nítida, e a partir de onde a difração tira detalhe.</dd></dl>
+</div>
+
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">Z</span><span class="titulo">Sua mão na RF 75-300</span><span class="qtd">13 fotos (pares a 300 mm)</span></div>
+  <div class="resumo">
+    <span class="chip cam"><small>Lente</small><b>RF 75-300</b></span>
+    <span class="chip cam"><small>Modo</small><b>Tv</b></span>
+    <span class="chip cam"><small>ISO</small><b>Auto</b></span>
+    <span class="chip cam"><small>Apoio</small><b>nenhum: mão livre</b></span>
+    <span class="chip muda"><small>Muda</small><b>Velocidade e focal</b></span>
+  </div>
+  <p class="small">Algo <b>distante com detalhe</b> (placa, telhado, antena). Segure do jeito de sempre, sem apoiar em nada. <b>Duas fotos em cada velocidade a 300 mm</b>: o tremido muda de uma para a outra.</p>
+  <div class="tira" style="grid-template-columns: repeat(8, 1fr)">
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">Z01 · Z02</div><div class="val">1/60</div><div class="small muted">300 mm</div><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">Z03 · Z04</div><div class="val">1/125</div><div class="small muted">300 mm</div><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">Z05 · Z06</div><div class="val">1/250</div><div class="small muted">300 mm</div><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e8cf8a"><div class="cod">Z07 · Z08</div><div class="val">1/500</div><div class="small muted">300 mm</div><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#a9d3b6"><div class="cod">Z09 · Z10</div><div class="val">1/1000</div><div class="small muted">300 mm</div><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">Z11</div><div class="val">1/30</div><div class="small muted"><b>100 mm</b></div><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">Z12</div><div class="val">1/60</div><div class="small muted"><b>100 mm</b></div><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e8cf8a"><div class="cod">Z13</div><div class="val">1/125</div><div class="small muted"><b>100 mm</b></div><div class="boxes"><span class="caixa"></span></div></div>
+  </div>
+  <p class="small muted" style="margin-top:1.5mm">Borda das caixas, pela regra geral (velocidade × 1/distância focal): <b style="color:var(--alerta)">vermelha</b> = mais lenta que a regra, <b style="color:var(--amarelo)">amarela</b> = folga menor que 2×, <b style="color:var(--ok)">verde</b> = folga de 2× ou mais. A regra é geral: o site vai medir onde a <b>sua</b> mão realmente fica.</p>
+</div>
+</section>
+
+<section class="pagina">
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">D</span><span class="titulo">Foco errado de propósito</span><span class="qtd">4 fotos, em 2 pares</span></div>
+  <div class="cena" style="grid-template-columns: 1fr 1fr; gap:3mm">
+    <div class="cena-desenho">
+      <svg viewBox="0 0 200 110" width="100%">
+        <defs><filter id="desf"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+        <rect x="0" y="0" width="200" height="110" fill="#cfe2f5"/>
+        <g filter="url(#desf)"><rect x="110" y="30" width="30" height="70" fill="#9aa7b5"/><rect x="146" y="46" width="40" height="54" fill="#b4bfca"/><circle cx="40" cy="30" r="12" fill="#f2c94c"/></g>
+        <path d="M58 100 L58 62 Q70 50 82 62 L82 100 Z" fill="#2e7d4f"/>
+        <rect x="62" y="70" width="16" height="16" fill="none" stroke="#c99a06" stroke-width="2.5"/>
+        <text x="100" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#1d232b">D01 · D03: AF no objeto</text>
+      </svg>
+    </div>
+    <div class="cena-desenho">
+      <svg viewBox="0 0 200 110" width="100%">
+        <rect x="0" y="0" width="200" height="110" fill="#cfe2f5"/>
+        <rect x="110" y="30" width="30" height="70" fill="#9aa7b5"/><rect x="146" y="46" width="40" height="54" fill="#b4bfca"/>
+        <g fill="#cfe2f5"><rect x="116" y="38" width="6" height="6"/><rect x="128" y="38" width="6" height="6"/><rect x="116" y="52" width="6" height="6"/><rect x="128" y="52" width="6" height="6"/></g>
+        <circle cx="40" cy="30" r="12" fill="#f2c94c"/>
+        <g filter="url(#desf)"><path d="M58 100 L58 62 Q70 50 82 62 L82 100 Z" fill="#2e7d4f"/></g>
+        <rect x="118" y="44" width="16" height="16" fill="none" stroke="#c99a06" stroke-width="2.5"/>
+        <text x="100" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#1d232b">D02 · D04: AF no fundo</text>
+      </svg>
+    </div>
+  </div>
+  <p class="small">Um objeto <b>perto</b> (vaso, poste, placa), com um fundo <b>bem longe</b> atrás. Em cada par, <b>o mesmo enquadramento</b>: só o ponto de AF muda de lugar.</p>
+  <div class="tira" style="grid-template-columns: repeat(4, 1fr)">
+    <div class="foto"><div class="cod">D01</div><div class="val">RF 50 · f/2</div><div class="small">Av · ISO Auto<br>AF <b>no objeto</b>, a ~1 m</div><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">D02</div><div class="val">RF 50 · f/2</div><div class="small">igual à D01<br>AF <b>no fundo</b></div><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">D03</div><div class="val">300 mm · 1/800</div><div class="small">Tv · ISO Auto<br>AF <b>no objeto</b>, a 3–5 m</div><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">D04</div><div class="val">300 mm · 1/800</div><div class="small">igual à D03<br>AF <b>no fundo</b></div><div class="boxes"><span class="caixa"></span></div></div>
+  </div>
+  <div class="aviso"><b>f/2 e 1/800, não f/1.8 e 1/1000.</b> Com os mesmos ajustes da A01 e da Z09, o site não saberia qual foto é qual.</div>
+</div>
+
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">E</span><span class="titulo">Céu e exposição</span><span class="qtd">5 fotos</span></div>
+  <div class="resumo">
+    <span class="chip cam"><small>Lente</small><b>RF 50</b></span>
+    <span class="chip cam"><small>Modo</small><b>Av</b></span>
+    <span class="chip cam"><small>Abertura</small><b>f/7.1</b></span>
+    <span class="chip cam"><small>ISO</small><b>Auto (mín. 1/250)</b></span>
+    <span class="chip muda"><small>Muda</small><b>Exposure comp.</b></span>
+  </div>
+  <p class="small">Uma cena com <b>céu claro</b> e <b>chão ou prédios mais escuros</b> no mesmo quadro. Mesmo enquadramento nas 5: só a compensação muda.</p>
+  <div class="tira" style="grid-template-columns: repeat(5, 1fr)">
+    <div class="foto"><div class="cod">E01</div><div class="val">−2 EV</div><svg class="vis" viewBox="0 0 60 36" width="54"><rect width="60" height="20" fill="#5f7d99"/><rect y="20" width="60" height="16" fill="#1e2228"/><rect x="8" y="12" width="12" height="24" fill="#2a2f36"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">E02</div><div class="val">−1 EV</div><svg class="vis" viewBox="0 0 60 36" width="54"><rect width="60" height="20" fill="#86a6c4"/><rect y="20" width="60" height="16" fill="#3a414b"/><rect x="8" y="12" width="12" height="24" fill="#4a525d"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">E03</div><div class="val">0</div><svg class="vis" viewBox="0 0 60 36" width="54"><rect width="60" height="20" fill="#aecbe6"/><rect y="20" width="60" height="16" fill="#636d79"/><rect x="8" y="12" width="12" height="24" fill="#737e8b"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">E04</div><div class="val">+1 EV</div><svg class="vis" viewBox="0 0 60 36" width="54"><rect width="60" height="20" fill="#e6f0f9"/><rect y="20" width="60" height="16" fill="#8f99a5"/><rect x="8" y="12" width="12" height="24" fill="#a0aab6"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+    <div class="foto"><div class="cod">E05</div><div class="val">+2 EV</div><svg class="vis" viewBox="0 0 60 36" width="54"><rect width="60" height="20" fill="#ffffff" stroke="#d5dbe2"/><rect y="20" width="60" height="16" fill="#bcc4cd"/><rect x="8" y="12" width="12" height="24" fill="#cbd2da"/></svg><div class="boxes"><span class="caixa"></span></div></div>
+  </div>
+  <dl class="linhas"><dt>O que mostra</dt><dd>Quando o céu vira branco sem detalhe (estoura) e quando as sombras ficam pretas.</dd></dl>
+  <div class="dica"><b>Ao terminar a saída:</b> volte a compensação para <b>0</b> e a velocidade mínima do ISO Auto para o seu normal.</div>
+</div>
+</section>
+
+<!-- ============================================================ SAÍDA 3 -->
+<section class="pagina">
+<div class="saida-topo">
+  <span class="num">3</span>
+  <h2>À mão, dentro de casa</h2>
+  <div class="meta">RF 50 · 10 fotos · ~10 min<br>dentro de casa ou na sombra</div>
+</div>
+
+<div class="cena">
+  <div class="cena-desenho">
+    <svg viewBox="0 0 300 150" width="100%">
+      <rect x="196" y="40" width="80" height="60" fill="#fff" stroke="#55606d" stroke-width="2"/>
+      <g stroke="#2b323b" stroke-width="2"><path d="M206 54h60M206 62h52M206 70h60M206 78h44M206 86h56"/></g>
+      <rect x="226" y="62" width="14" height="14" fill="none" stroke="#c99a06" stroke-width="2.5"/>
+      <use href="#pessoa" x="14" y="12" width="56" height="130"/>
+      <use href="#camera" x="54" y="34" width="44" height="30"/>
+      <path d="M44 62 Q40 80 52 84" fill="none" stroke="#2e7d4f" stroke-width="3"/>
+      <path d="M62 62 Q66 80 56 84" fill="none" stroke="#2e7d4f" stroke-width="3"/>
+      <text x="96" y="140" font-size="10" fill="#2e7d4f" font-weight="700">cotovelos junto ao corpo</text>
+      <path d="M94 136 L62 86" stroke="#2e7d4f" stroke-width="1"/>
+      <line x1="102" y1="50" x2="192" y2="66" stroke="#5b6673" stroke-dasharray="3 3"/>
+      <text x="150" y="48" text-anchor="middle" font-size="10" fill="#1d232b">1 a 3 m</text>
+      <text x="236" y="116" text-anchor="middle" font-size="9" fill="#5b6673">texto, tecido, folhas</text>
+    </svg>
+  </div>
+  <ol class="passos">
+    <li>Objeto <b>parado com detalhe fino</b> (texto de livro, tecido, folhas), a 1–3 m.</li>
+    <li>Modo <b>Tv</b>, ISO Auto <b>sem</b> velocidade mínima: aqui a velocidade é o que se testa.</li>
+    <li>Segure <b>do jeito de sempre</b>: o site precisa medir a sua mão como ela é, não no melhor dia.</li>
+    <li><b>Duas fotos em cada velocidade</b>, porque o tremido muda de uma para a outra.</li>
+  </ol>
+</div>
+
+<div class="bloco">
+  <div class="bloco-head"><span class="letra">M</span><span class="titulo">Sua mão na RF 50</span><span class="qtd">10 fotos, 5 pares</span></div>
+  <div class="resumo">
+    <span class="chip cam"><small>Lente</small><b>RF 50</b></span>
+    <span class="chip cam"><small>Modo</small><b>Tv</b></span>
+    <span class="chip cam"><small>ISO</small><b>Auto</b></span>
+    <span class="chip muda"><small>Muda</small><b>Velocidade</b></span>
+  </div>
+  <div class="tira" style="grid-template-columns: repeat(5, 1fr)">
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">M01 · M02</div><div class="val">1/15</div><svg class="vis" viewBox="0 0 60 20" width="54"><g fill="#2b323b" opacity=".25"><rect x="10" y="4" width="34" height="3"/><rect x="10" y="11" width="28" height="3"/></g><g fill="#2b323b" opacity=".35"><rect x="14" y="4" width="34" height="3"/><rect x="14" y="11" width="28" height="3"/></g></svg><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e3b4a0"><div class="cod">M03 · M04</div><div class="val">1/30</div><svg class="vis" viewBox="0 0 60 20" width="54"><g fill="#2b323b" opacity=".3"><rect x="11" y="4" width="34" height="3"/><rect x="11" y="11" width="28" height="3"/></g><g fill="#2b323b" opacity=".45"><rect x="13" y="4" width="34" height="3"/><rect x="13" y="11" width="28" height="3"/></g></svg><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#e8cf8a"><div class="cod">M05 · M06</div><div class="val">1/60</div><svg class="vis" viewBox="0 0 60 20" width="54"><g fill="#2b323b" opacity=".3"><rect x="12" y="4" width="34" height="3"/><rect x="12" y="11" width="28" height="3"/></g><g fill="#2b323b" opacity=".6"><rect x="13" y="4" width="34" height="3"/><rect x="13" y="11" width="28" height="3"/></g></svg><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#a9d3b6"><div class="cod">M07 · M08</div><div class="val">1/125</div><svg class="vis" viewBox="0 0 60 20" width="54"><g fill="#2b323b"><rect x="13" y="4" width="34" height="3"/><rect x="13" y="11" width="28" height="3"/></g></svg><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+    <div class="foto" style="border-color:#a9d3b6"><div class="cod">M09 · M10</div><div class="val">1/250</div><svg class="vis" viewBox="0 0 60 20" width="54"><g fill="#2b323b"><rect x="13" y="4" width="34" height="3"/><rect x="13" y="11" width="28" height="3"/></g></svg><div class="boxes"><span class="caixa"></span><span class="caixa"></span></div></div>
+  </div>
+  <dl class="linhas">
+    <dt>O que mostra</dt><dd>A velocidade a partir da qual a <b>sua</b> mão para de tremer a 50 mm. Hoje o site supõe 1/50 (regra geral) e pede 1/100 por garantia; com este bloco, ele passa a usar o seu número.</dd>
+  </dl>
+  <div class="dica">Fotos escuras ou com grão aqui não estragam o teste: o que se mede é o tremido. Não troque a velocidade para “salvar” a foto.</div>
+</div>
+</section>
+
+<!-- ============================================================ BLOCO R -->
+<section class="pagina">
+<div class="saida-topo">
+  <span class="num">4</span>
+  <h2>As suas fotos reais</h2>
+  <div class="meta">sem câmera · 10 a 20 fotos<br>a qualquer hora</div>
+</div>
+
+<p>São as fotos que ensinam o site a ver como <b>você</b> vê. Dos blocos anteriores ele aprende a física da câmera e
+da sua mão; daqui ele aprende <b>o que você chama de nítido</b>, e onde ele errou ao dizer “Boa”.</p>
+
+<div class="dois">
+  <div class="bloco" style="margin:0">
+    <div class="bloco-head"><span class="letra" style="background:var(--alerta)">R</span><span class="titulo">Escolha</span></div>
+    <div class="check" style="grid-template-columns:1fr">
+      <div><span class="caixa"></span><span><b>5 a 10 fotos que você acha moles</b>, de saídas normais.</span></div>
+      <div><span class="caixa"></span><span><b>A foto que o site chamou de “Boa”</b> e você vê mole.</span></div>
+      <div><span class="caixa"></span><span><b>5 a 10 fotos que você acha nítidas.</b></span></div>
+      <div><span class="caixa"></span><span>Do jeito que saíram da câmera: <b>CR3 + JPG do cartão</b>, sem editar.</span></div>
+    </div>
+    <p class="small muted">Varie: luz forte e fraca, dentro e fora, as duas lentes. Quanto mais variado, mais o site aprende.</p>
+  </div>
+  <div class="bloco" style="margin:0">
+    <div class="bloco-head"><span class="titulo">Como olhar cada foto</span></div>
+    <svg viewBox="0 0 260 96" width="100%">
+      <rect x="4" y="8" width="110" height="74" rx="3" fill="#cfe2f5" stroke="#55606d"/>
+      <rect x="40" y="30" width="26" height="22" fill="none" stroke="#c99a06" stroke-width="2.5"/>
+      <path d="M68 41 L150 26 M68 41 L150 82" stroke="#c99a06" stroke-dasharray="3 2"/>
+      <rect x="150" y="8" width="104" height="80" rx="3" fill="#fff" stroke="#c99a06" stroke-width="2"/>
+      <g stroke="#2b323b" stroke-width="3" opacity=".5"><path d="M164 30h70M164 44h60M164 58h70M164 72h44"/></g>
+      <g stroke="#2b323b" stroke-width="3" opacity=".5" transform="translate(2,1)"><path d="M164 30h70M164 44h60M164 58h70M164 72h44"/></g>
+      <text x="59" y="94" text-anchor="middle" font-size="9" fill="#5b6673">foto inteira</text>
+      <text x="200" y="96" text-anchor="middle" font-size="8.5" fill="#5b6673">ampliada no assunto</text>
+    </svg>
+    <p class="small">Dê a nota <b>ampliando no assunto principal</b>, como na tela Avaliar do site, e não pela foto inteira na tela pequena.</p>
+  </div>
+</div>
+
+<h3 style="margin-top:4mm">A nota de nitidez, de 1 a 5</h3>
+<div class="escala">
+  <div class="nota" style="border-color:#e3b4a0"><div class="n" style="color:var(--alerta)">1</div><div class="t">nada nítido; inaproveitável</div></div>
+  <div class="nota" style="border-color:#e3b4a0"><div class="n" style="color:var(--alerta)">2</div><div class="t">mole ao ampliar; só serve pequena</div></div>
+  <div class="nota" style="border-color:#e8cf8a"><div class="n" style="color:var(--amarelo)">3</div><div class="t">aceitável; esperava mais</div></div>
+  <div class="nota" style="border-color:#a9d3b6"><div class="n" style="color:var(--ok)">4</div><div class="t">nítida; aguenta ampliar</div></div>
+  <div class="nota" style="border-color:#a9d3b6"><div class="n" style="color:var(--ok)">5</div><div class="t">muito nítida; detalhe fino</div></div>
+</div>
+
+<div class="dois">
+  <div>
+    <h3>Jeito 1: um arquivo <span style="font-family:Consolas,monospace">notas.txt</span></h3>
+    <p class="small">Um bloco de notas na mesma pasta, uma linha por foto: o nome e a nota. Linhas com <b>#</b> são comentário.</p>
+    <div class="codigo-box"># fotos que acho moles
+IMG_4127 2
+IMG_4128 1
+IMG_4302 2   # a que o site disse "Boa"
+# fotos nítidas
+IMG_4410 5
+IMG_4415 4</div>
+  </div>
+  <div>
+    <h3>Jeito 2: a nota no nome do arquivo</h3>
+    <p class="small">Acrescente <b>_n</b> e a nota no fim do nome, no CR3 e no JPG do mesmo disparo:</p>
+    <div class="codigo-box">IMG_4127_n2.JPG
+IMG_4127_n2.CR3
+IMG_4410_n5.JPG
+IMG_4410_n5.CR3</div>
+    <p class="small muted" style="margin-top:2mm">Escolha um jeito só. Se os dois existirem, vale o notas.txt.</p>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================ ENTREGA -->
+<section class="pagina">
+<h2>Entrega</h2>
+<div class="dois">
+  <div>
+    <p>Do cartão, pelo leitor do PC, <b>sem renomear nem editar</b> (exceto a nota do bloco R, se escolher o jeito 2):</p>
+    <div class="pasta">EvolucaoFotografia\
+└─ amostras\
+   └─ rodada2\
+      ├─ cartao\      ← saídas 1, 2 e 3
+      │    IMG_….CR3
+      │    IMG_….JPG
+      └─ reais\       ← bloco R
+           IMG_….CR3 / .JPG
+           notas.txt</div>
+    <p class="small muted" style="margin-top:2mm">A versão do tablet não precisa: a 1ª rodada mostrou que o Camera Connect em <b>Tam. original</b> não altera a foto.</p>
+  </div>
+  <div>
+    <h3>Opcional: conferir o importador</h3>
+    <p class="small">Passe o mesmo cartão pelo <b>importar.bat</b> e importe o pacote no site (Enviar → Importar pacote do PC). É o último item da V1: o importador com um cartão real.</p>
+    <h3 style="margin-top:4mm">Depois, é comigo</h3>
+    <p class="small">Me diga “a Rodada 2 está em amostras”. Eu confiro cada foto, meço tudo e trago uma <b>proposta de limites</b> com o antes e o depois de cada número. <b>Nada muda no site sem o seu OK.</b></p>
+  </div>
+</div>
+
+<h2 style="margin-top:6mm">Ao terminar, volte a câmera ao normal</h2>
+<div class="check">
+  <div><span class="caixa"></span><span>Drive mode em <b>Single shooting</b></span></div>
+  <div><span class="caixa"></span><span>Exposure comp. em <b>0</b></span></div>
+  <div><span class="caixa"></span><span>Min. shutter spd. do ISO Auto no seu normal</span></div>
+  <div><span class="caixa"></span><span>High ISO speed NR e Picture Style como você usa</span></div>
+</div>
+
+<h2 style="margin-top:6mm">Lista geral</h2>
+<table class="ensina">
+  <tr><td><span class="bloco-tag">1</span></td><td><span class="caixa"></span> I01–I09 &nbsp; <span class="caixa"></span> T08 &nbsp; <span class="caixa"></span> T09 &nbsp; <span class="caixa"></span> T06 (se usa vidro)</td></tr>
+  <tr><td><span class="bloco-tag">2</span></td><td><span class="caixa"></span> A01–A07 &nbsp; <span class="caixa"></span> Z01–Z13 &nbsp; <span class="caixa"></span> D01–D04 &nbsp; <span class="caixa"></span> E01–E05</td></tr>
+  <tr><td><span class="bloco-tag">3</span></td><td><span class="caixa"></span> M01–M10</td></tr>
+  <tr><td><span class="bloco-tag r">R</span></td><td><span class="caixa"></span> fotos moles &nbsp; <span class="caixa"></span> a foto “Boa” &nbsp; <span class="caixa"></span> fotos nítidas &nbsp; <span class="caixa"></span> notas</td></tr>
+  <tr><td><span class="bloco-tag">✓</span></td><td><span class="caixa"></span> copiado para amostras\rodada2 &nbsp; <span class="caixa"></span> câmera de volta ao normal</td></tr>
+</table>
+<p class="rodape">Roteiro gerado de docs/guia-fotos/guia-rodada2.html · mesmo protocolo de docs/AMOSTRAS-CALIBRACAO.md (Rodada 2) · 19/10/2026</p>
+</section>
+
+</body>
+</html>
