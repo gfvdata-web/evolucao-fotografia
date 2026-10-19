@@ -1,6 +1,6 @@
 # 0006 — Envio ao Drive com o app aberto
 
-**Data:** 2026-10-10 · **Situação:** aceita para a v0.4 — **rever depois do uso real**
+**Data:** 2026-10-10 · **Situação:** aceita (revista no uso real em 2026-10-19, decisão 0016)
 
 ## Contexto
 O Android pausa páginas quando a tela apaga ou o navegador sai da frente.

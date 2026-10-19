@@ -151,7 +151,7 @@ Decisão 0015 (pacote em pasta; revelação inteira descartada depois de medida)
 - A testar pelo Guilherme no PC: instalar o ExifTool, passar um cartão real pelo importador,
   importar no site do computador e abrir a mesma foto no tablet depois da sincronização.
 
-### 🔨 v1.0 — Polimento + Painel (beta)
+### ✅ v1.0 — Polimento + Painel (beta)
 Preparada em 12/10/2026 (decisão 0016, aceita: axe-core nos testes e a tabela "o site disse ×
 você marcou" no Painel). Fecha a V1.
 
@@ -167,11 +167,15 @@ você marcou" no Painel). Fecha a V1.
 - ✅ **Painel (beta)** mínimo: fotos por nitidez, por problema principal e por veredito do
   diagnóstico; avaliadas × não avaliadas; filtro por sessão e período; cada número abre a grade
   filtrada. Tabela "o site disse × você marcou" (veredito × nitidez). Sem cruzamentos (V2).
-- Rever as decisões 0006 e 0010 com o uso real. A Rodada 2 não bloqueia a v1.0.
+- ✅ Decisões 0006 e 0010 revistas no uso real: o Guilherme usou a sincronização site/tablet e
+  ficou satisfeito (19/10/2026); ficam aceitas. A Rodada 2 não bloqueia a v1.0.
 - ✅ Roadmap da V2 detalhado em entregas, com quantas avaliações cada estatística precisa.
 - **Critério para fechar a V1** (tag `v1.0.0`): tudo do roadmap com teste, `npm test` verde,
   amostras conferidas, importador testado com um cartão real, GUIA completo e conferência no
   Chrome e no Samsung Internet do tablet relatada pelo Guilherme.
+- ✅ **Fechada em 19/10/2026** (tag `v1.0.0`): o Guilherme relatou o uso no tablet e a
+  sincronização sem problemas e preferiu não refazer conferências. O importador com cartão real
+  fica conferido na Rodada 2, que entra pelo `importar.bat`.
 
 ## V2 — padrões e experimentos (detalhada na v1.0; v2.0 feita)
 Os quatro itens da V2 em entregas, na ordem em que um depende do outro. Cada número da V2 mostra

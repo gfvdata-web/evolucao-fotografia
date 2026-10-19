@@ -151,11 +151,11 @@ soltar com o dedo, diagnóstico por cena e variação dos ajustes; `core/scenes.
 `core/scene-diagnosis.js`, `ui/scene-drag.js`; decisão 0014). **v0.6.0**: importador no PC
 (`importador/`, `importar.bat`) e pacote `.efsessao/` em pasta; no site, "Importar pacote do PC",
 versão `raw_neutral` transitória (medida e apagada) e a etapa sensor (`sensorStep`) na ficha;
-decisão 0015. Esquema de dados 7, métricas versão 2. **v1.0.0** (código pronto, decisão 0016): miniatura de
+decisão 0015. Esquema de dados 7, métricas versão 2. **v1.0.0** (decisão 0016): miniatura de
 ~400 px na grade com montagem aos poucos, "Desempenho deste aparelho" e "Conferir
 compatibilidade" no Sobre, acessibilidade (axe-core em todas as telas), aba **Painel (beta)**
-(`core/dashboard.js`, `core/photo-filter.js`). A tag `v1.0.0` só sai depois que o Guilherme
-testar o importador com um cartão real e conferir o tablet (Chrome e Samsung Internet).
+(`core/dashboard.js`, `core/photo-filter.js`). V1 fechada em 19/10/2026 com o relato do
+Guilherme (tablet e sincronização ok); o importador com cartão real é conferido na Rodada 2.
 **v2.0.0**: reprocessamento (`#/reprocessar[/<sessão>]`, aviso "N fotos com medidas antigas" na
 grade, Painel e sessão; original do Drive baixado, medido e apagado; `core/reprocess.js`,
 `pipeline/reprocess.js`; decisão 0017). Próximo: v2.1 Painel de padrões (`docs/ROADMAP.md`).

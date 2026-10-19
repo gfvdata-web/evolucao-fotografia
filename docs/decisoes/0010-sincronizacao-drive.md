@@ -1,6 +1,6 @@
 # 0010 — Sincronização com o Google Drive
 
-Data: 2026-10-12 · Situação: proposta (v0.4; rever no uso real com a conta do Guilherme)
+Data: 2026-10-12 · Situação: aceita (revista no uso real em 2026-10-19, decisão 0016)
 
 Completa as decisões 0005 (login com token de 1 h) e 0006 (envio com o app aberto).
 

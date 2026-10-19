@@ -16,8 +16,9 @@ Reprocessamento (decisão 0017), primeira entrega da V2.
 
 ## [1.0.0] — 2026-10-13
 
-Polimento e Painel (beta), decisão 0016. A tag `v1.0.0` sai depois da conferência no tablet e
-do importador com um cartão real.
+Polimento e Painel (beta), decisão 0016. V1 fechada em 19/10/2026 com o relato do Guilherme
+(tablet e sincronização sem problemas; decisões 0006 e 0010 aceitas no uso). O importador com um
+cartão real é conferido na Rodada 2 de amostras.
 
 ### Adicionado
 - Grade, sessões e cenas mostram uma **miniatura de ~400 px** (feita a partir da prévia, só no

@@ -83,3 +83,10 @@ como medir e quando a V1 está terminada. Pontos já conhecidos:
 - Uma aba a mais no menu (seis): conferir que cabe no tablet em retrato.
 - Teste ponta a ponta `tests/e2e/v10-*.spec.mjs` para o Painel, a grade aos poucos e a
   auditoria de acessibilidade em todas as telas.
+
+## Fechamento (2026-10-19)
+
+A V1 foi dada por fechada com o relato do Guilherme: usa o site no tablet e a sincronização
+site/tablet sem problemas, e preferiu não gastar tempo com novas conferências. As decisões 0006
+e 0010 ficam **aceitas no uso**. O importador com um cartão real passa a ser conferido na Rodada 2
+de amostras, que é entregue pelo `importar.bat`.
