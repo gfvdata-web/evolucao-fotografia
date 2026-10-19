@@ -1,7 +1,8 @@
 // "Painel (beta)": how many photos per sharpness, main problem and verdict of the diagnosis, and
 // the "o site disse x você marcou" table (decision 0016, item 4). Every number links to the
 // photo grid with the same filter (core/photo-filter.js), so the counts and the grid agree.
-// Crossings with ISO, shutter and lens come in V2.
+// v2.1: "Padrões" crosses the rating and the verdict with ISO, speed margin, lens, aperture,
+// light, place and subject (core/patterns.js; decision 0018).
 import { h, mount, serialized } from '../dom.js';
 import { listPhotos } from '../../storage/photos-repo.js';
 import { listSessions } from '../../storage/sessions-repo.js';
@@ -14,6 +15,8 @@ import { PROBLEMS, SHARPNESS } from '../../core/rating.js';
 import { sortSessions, formatDate } from '../../core/sessions.js';
 import { DASHBOARD_LABELS, RATING_LABELS } from '../../core/glossary.js';
 import { staleNotice } from './reprocess.js';
+import { MEASURES, MIN_N, buildPatterns } from '../../core/patterns.js';
+import { DIMENSIONS } from '../../core/pattern-bands.js';
 
 const plural = (n, one, many) => (n === 1 ? one : many);
 const photosText = (n) => `${n} ${plural(n, 'foto', 'fotos')}`;
@@ -63,9 +66,78 @@ function matrixTable(data, scope) {
     }))));
 }
 
+const pctText = (x) => `${Math.round(x * 100)}%`;
+const dec1 = (x) => x.toFixed(1).replace('.', ',');
+
+/** Buttons where one is chosen (aria-pressed), 48 px each. */
+function choiceGroup(label, testid, items, current, onPick) {
+  return h('div', { class: 'pat-choice', role: 'group', 'aria-label': label, 'data-testid': testid },
+    h('span', { class: 'form-label' }, label),
+    h('div', { class: 'pat-buttons' }, items.map(([key, text]) => h('button', {
+      type: 'button', class: 'btn btn-small', 'aria-pressed': String(key === current), 'data-key': key,
+      onclick: () => onPick(key),
+    }, text))));
+}
+
+/** Share with its 95% interval drawn as a band (and the share as a tick). */
+function shareCell(row, measure) {
+  const hits = row.k_filter
+    ? numberLink(row.k, row.k_filter, `${measure.label.toLowerCase()} em ${row.label}`)
+    : h('span', {}, String(row.k));
+  if (!row.n) return h('td', { 'data-testid': 'pat-share', 'data-enough': '0' }, h('span', { class: 'muted' }, 'sem fotos'));
+  if (!row.enough) {
+    return h('td', { 'data-testid': 'pat-share', 'data-enough': '0' },
+      h('span', { class: 'muted' }, `poucas fotos (${row.n})`), h('div', { class: 'small muted' }, hits, ` de ${row.n}`));
+  }
+  const { low, high } = row.interval;
+  return h('td', { 'data-testid': 'pat-share', 'data-enough': '1' },
+    h('div', { class: 'pat-share' },
+      h('strong', {}, pctText(row.share)),
+      h('span', { class: 'small muted' }, ` (${pctText(low)} a ${pctText(high)})`)),
+    h('span', { class: 'ci-bar', 'aria-hidden': 'true' },
+      h('span', { class: 'ci-range', style: { left: `${low * 100}%`, width: `${(high - low) * 100}%` } }),
+      h('span', { class: 'ci-mark', style: { left: `${row.share * 100}%` } })),
+    h('div', { class: 'small muted' }, hits, ` de ${row.n}`));
+}
+
+/** "Padrões": one dimension x one measure, with n, interval and links to the grid. */
+function patternsSection(photos, scope, state, onChange) {
+  const r = buildPatterns(photos, scope, state.dim, state.measure);
+  const { dimension: dim, measure } = r;
+  return h('section', { class: 'card', 'data-testid': 'dash-patterns' },
+    h('h3', {}, 'Padrões'),
+    h('p', { class: 'small', 'data-testid': 'pat-intro' },
+      `Com ~100 fotos avaliadas em luzes variadas, os primeiros padrões aparecem. Neste filtro: ${r.rated} de ${photosText(r.total)} avaliadas.`),
+    choiceGroup('Cruzar com', 'pat-dims', DIMENSIONS.map((d) => [d.key, d.label]), state.dim, (k) => onChange({ dim: k })),
+    choiceGroup('Medida', 'pat-measures', MEASURES.map((m) => [m.key, `${m.label} (${m.who})`]), state.measure, (k) => onChange({ measure: k })),
+    h('div', { class: 'table-scroll' }, h('table', { class: 'dash-table pat-table', 'data-testid': 'pat-table' },
+      h('caption', {}, `${measure.label} (${measure.who}) por ${dim.key === 'iso' ? 'ISO' : dim.label.toLowerCase()}`),
+      h('thead', {}, h('tr', {},
+        h('th', { scope: 'col' }, dim.label),
+        h('th', { scope: 'col' }, `% ${measure.label.toLowerCase()} (intervalo de 95%)`),
+        h('th', { scope: 'col', class: 'num-col' }, measure.rated ? 'Avaliadas' : 'Fotos'),
+        h('th', { scope: 'col', class: 'num-col' }, 'Nitidez média'))),
+      h('tbody', {}, r.rows.map((row) => h('tr', { 'data-band': row.band, 'data-testid': 'pat-row' },
+        h('th', { scope: 'row' }, row.label),
+        shareCell(row, measure),
+        h('td', { class: 'num-col', 'data-testid': 'pat-n' }, numberLink(row.n, row.n_filter, `${measure.rated ? 'avaliadas ' : ''}em ${row.label}`)),
+        h('td', { class: 'num-col', 'data-testid': 'pat-mean' },
+          row.mean_sharpness === null ? h('span', { class: 'muted' }, '—')
+            : h('span', {}, dec1(row.mean_sharpness), h('span', { class: 'small muted' }, ` (${row.sharpness_n})`)))))))),
+    h('p', { class: 'muted small' },
+      measure.rated
+        ? 'Conta só as fotos avaliadas (nitidez e problema principal marcados). '
+        : 'Conta todas as fotos da faixa, avaliadas ou não: é o veredito do site sem a sua nota. ',
+      `Com menos de ${MIN_N} fotos numa faixa, o site mostra só a contagem: a porcentagem enganaria. `,
+      'O intervalo diz entre quanto e quanto a porcentagem verdadeira provavelmente está (Wilson, 95%). ',
+      dim.note || '',
+      dim.rating ? ' Esta faixa vem do que você marcou na avaliação.' : ''));
+}
+
 export function dashboardView(root) {
   let alive = true;
   let scope = scopeOf(parseFilterHash(location.hash));
+  const patterns = { dim: DIMENSIONS[0].key, measure: MEASURES[0].key };
   const holder = h('div');
 
   const setScope = (patch) => {
@@ -135,13 +207,14 @@ export function dashboardView(root) {
         h('p', { class: 'small', 'data-testid': 'dash-disagree' }, d.disagreements
           ? `${d.disagreements} ${plural(d.disagreements, 'foto em que', 'fotos em que')} o site e você discordam (células marcadas com ≠): veredito “Boa” com nitidez 1 ou 2, ou “Com problema” com nitidez 4 ou 5.`
           : 'Nenhuma discordância forte: não há foto “Boa” com nitidez 1–2 nem “Com problema” com nitidez 4–5.'),
-        h('p', { class: 'muted small' }, 'Onde o site discorda do seu olho é onde os limites do diagnóstico precisam ser ajustados.')));
+        h('p', { class: 'muted small' }, 'Onde o site discorda do seu olho é onde os limites do diagnóstico precisam ser ajustados.')),
+      patternsSection(photos, scope, patterns, (patch) => { Object.assign(patterns, patch); render(); }));
   });
 
   mount(root,
     h('div', { class: 'section-head' }, h('h2', {}, 'Painel'), h('span', { class: 'chip st-info', 'data-testid': 'dash-beta' }, 'beta')),
     h('section', { class: 'card', 'data-testid': 'dash-note' }, h('p', { class: 'dash-note', 'data-testid': 'dash-note-text' }), h('p', { class: 'muted small' },
-      'Versão beta: conta as fotos e mostra onde o site e você discordam. Os cruzamentos com ISO, velocidade e lente chegam na V2.')),
+      'Versão beta: conta as fotos, mostra onde o site e você discordam e, em Padrões, cruza a sua avaliação com ISO, velocidade, lente, abertura e luz.')),
     holder);
 
   const noteText = root.querySelector('[data-testid=dash-note-text]');

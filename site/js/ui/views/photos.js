@@ -9,6 +9,7 @@ import { RATING_LABELS, variantBadge, variantKindLabel } from '../../core/glossa
 import { isRated, ratingSummary } from '../../core/rating.js';
 import { diagnosePhoto, diagnosisChip } from '../../core/diagnosis.js';
 import { applyFilter, hrefFor, isFilterEmpty, parseFilterHash, scopeOf } from '../../core/photo-filter.js';
+import { DIMENSIONS, bandLabel } from '../../core/pattern-bands.js';
 import { verdictOfPhoto } from '../../core/dashboard.js';
 import { listSessions } from '../../storage/sessions-repo.js';
 import { DASHBOARD_LABELS } from '../../core/glossary.js';
@@ -103,6 +104,11 @@ function filterText(f, sessions) {
   if (f.verdict) parts.push(`veredito do site (sem a sua avaliação): ${DASHBOARD_LABELS.verdict[f.verdict]}`);
   if (f.rated !== null) parts.push(f.rated ? 'avaliadas' : 'não avaliadas');
   if (f.from || f.to) parts.push(`tiradas ${f.from ? `de ${formatDate(f.from)} ` : ''}${f.to ? `até ${formatDate(f.to)}` : ''}`.trim());
+  for (const d of DIMENSIONS) {
+    if (!f[d.key]) continue;
+    const band = bandLabel(d, f[d.key]);
+    parts.push(band.startsWith(d.label) ? band : `${d.label.toLowerCase()}: ${band}`);
+  }
   return `Filtro: ${parts.join(' · ')}`;
 }
 

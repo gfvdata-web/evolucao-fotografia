@@ -2,6 +2,19 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [2.1.0] — 2026-10-19
+
+Painel de padrões (decisão 0018).
+
+### Adicionado
+- Seção **Padrões** no Painel: escolha com o que cruzar (ISO, margem de velocidade, lente,
+  abertura, luz medida, onde, luz percebida, assunto) e a medida ("Nitidez 4 ou 5", cada problema
+  principal ou "Com problema" segundo o site). Cada faixa mostra a porcentagem com o intervalo de
+  95% (Wilson), quantas fotos a sustentam e a nitidez média; com menos de 10 fotos, só
+  "poucas fotos (n)". Campo não lido fica numa faixa própria, nunca num valor suposto.
+- A aba Fotos aceita os filtros das faixas: todo número dos Padrões abre exatamente essas fotos,
+  e o aviso "Filtro: …" diz a faixa.
+
 ## [2.0.1] — 2026-10-19
 
 O diagnóstico mostra os números também quando a foto sai "Boa" (regra 4).

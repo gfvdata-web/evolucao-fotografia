@@ -97,8 +97,17 @@ restringir as contas. **Todo número é um link**: toque nele e a aba Fotos abre
 com o aviso "Filtro: …" e o link **limpar**. A tabela **O site disse × você marcou** cruza o
 veredito com a sua nitidez; as células com **≠** são as discordâncias fortes ("Boa" com nitidez
 1–2, ou "Com problema" com nitidez 4–5) — é onde o diagnóstico precisa de ajuste. "Sem
-diagnóstico" são fotos com dados insuficientes. Os cruzamentos com ISO, velocidade e lente
-ficam para a V2.
+diagnóstico" são fotos com dados insuficientes.
+
+### Padrões (v2.1)
+No fim do Painel, a seção **Padrões** cruza a sua avaliação com um ajuste por vez. Em
+**Cruzar com**, escolha ISO, margem de velocidade, lente, abertura, luz medida, onde, luz
+percebida ou assunto; em **Medida**, "Nitidez 4 ou 5", um problema principal (por exemplo
+"Granulada") ou "Com problema (o site disse)". Cada linha mostra a porcentagem, o **intervalo**
+em que a porcentagem verdadeira provavelmente está (a faixa clara na barra; quanto menos fotos,
+mais larga), quantas fotos avaliadas sustentam o número e a nitidez média. Com **menos de 10
+fotos** numa faixa aparece só "poucas fotos (n)". Todo número abre a aba Fotos com essas fotos.
+Os primeiros padrões aparecem com umas 100 fotos avaliadas em luzes variadas.
 
 ### Ver a ficha
 Aba **Fotos** → toque numa foto. Assim que a foto chega, o app calcula sozinho os recortes e

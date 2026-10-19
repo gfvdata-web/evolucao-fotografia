@@ -69,7 +69,7 @@ test('números do painel, filtro por sessão e período, e links para a grade fi
   await page.goto('#/painel');
   await expect(page.getByTestId('dash-total')).toHaveText('8 fotos');
   await expect(page.getByTestId('dash-note-text')).toHaveText('6 de 8 fotos avaliadas no total.');
-  await expect(page.getByTestId('dash-note')).toContainText('V2');
+  await expect(page.getByTestId('dash-note')).toContainText('Padrões');
 
   // Counts per sharpness, problem and verdict (all verdicts are "Sem diagnóstico" here).
   await expect(num(page, '3 fotos com nitidez 2')).toBeVisible();

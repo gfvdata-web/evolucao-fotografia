@@ -49,7 +49,8 @@ site/                       ← publicado no Pages (sem build; módulos ES)
   js/core/                  PURO (sem I/O): modelo, migrações, ids, glossário, formatação, geometria do AF
                             e campos de visão, perfis de câmera e de lente, indicadores, métricas de pixels,
                             qualidade JPEG, sessões e avaliação, física da exposição e diagnóstico (v0.5),
-                            Painel e filtro da grade, compatibilidade, contraste e desempenho (v1.0)
+                            Painel e filtro da grade, compatibilidade, contraste e desempenho (v1.0),
+                            faixas e padrões do Painel (v2.1)
   js/metadata/              exifr (rápido) + ExifTool-WASM em Web Worker (completo) → normalize.js
   js/media/                 worker de pixels (prévia, recortes a 100% e métricas)
   js/drive/                 login Google (auth.js, token GIS) e REST do Drive (api.js)
@@ -158,13 +159,17 @@ compatibilidade" no Sobre, acessibilidade (axe-core em todas as telas), aba **Pa
 Guilherme (tablet e sincronização ok); o importador com cartão real é conferido na Rodada 2.
 **v2.0.0**: reprocessamento (`#/reprocessar[/<sessão>]`, aviso "N fotos com medidas antigas" na
 grade, Painel e sessão; original do Drive baixado, medido e apagado; `core/reprocess.js`,
-`pipeline/reprocess.js`; decisão 0017). Próximo: v2.1 Painel de padrões (`docs/ROADMAP.md`).
+`pipeline/reprocess.js`; decisão 0017). **v2.0.1**: "Medidas desta foto" no cartão Diagnóstico (os
+números por trás do "Boa", `measuresOf`). **v2.1.0**: Painel de padrões (`core/pattern-bands.js`,
+`core/patterns.js`, chaves de faixa no filtro da grade; decisão 0018). Próximo: Rodada 2 de amostras
+e calibração (`tests/amostras/calibrar.mjs`), depois v2.2 Experimentos mensais (`docs/ROADMAP.md`).
 
 Amostras reais da EOS RP (protocolo em `docs/AMOSTRAS-CALIBRACAO.md`): a 1ª rodada (26 fotos)
 está em `docs/CALIBRACAO-RESULTADOS.md`. Para novas amostras em `amostras/`: rodar o
 `conferir.mjs` e depois o `metricas.mjs`, e comparar com o normalizador e os indicadores.
-Pendentes do Guilherme: a **Rodada 2** (mesmo documento), que já inclui T09, T08 em 300 mm e,
-se ele fotografa através de vidro, T06.
+Pendentes do Guilherme: a **Rodada 2** (mesmo documento, roteiro de bolso em três saídas + bloco R
+com fotos reais e nota de nitidez), em `amostras/rodada2/cartao/` e `amostras/rodada2/reais/`. O código
+está pronto: `conferir.mjs`, `metricas.mjs` e `calibrar.mjs` com o argumento `amostras/rodada2`.
 
 O monitoramento do site no `painel-status` é feito pelo Guilherme naquele repositório — não
 mexer lá a partir daqui.

@@ -177,7 +177,7 @@ você marcou" no Painel). Fecha a V1.
   sincronização sem problemas e preferiu não refazer conferências. O importador com cartão real
   fica conferido na Rodada 2, que entra pelo `importar.bat`.
 
-## V2 — padrões e experimentos (detalhada na v1.0; v2.0 feita)
+## V2 — padrões e experimentos (detalhada na v1.0; v2.0 e v2.1 feitas)
 Os quatro itens da V2 em entregas, na ordem em que um depende do outro. Cada número da V2 mostra
 quantas fotos o sustentam (regra 4); abaixo do mínimo, a tela diz "poucas fotos (n)" e não dá
 porcentagem. Os mínimos abaixo são o ponto de partida, a confirmar com o Guilherme ao começar
@@ -203,7 +203,11 @@ ficha. O cartão Diagnóstico ganha **Medidas desta foto** (sempre visível), a 
 pouco" e o link "Discorda? Marque a nitidez que você vê". O motor e os limites não mudaram: o caso
 da foto será estudado com a Rodada 2 (bloco R, fotos reais).
 
-### ⏳ v2.1 — Painel de padrões
+### ✅ v2.1 — Painel de padrões
+Feita em 19/10/2026 (decisão 0018): seção **Padrões** no Painel, uma dimensão × uma medida por vez
+(`core/pattern-bands.js`, `core/patterns.js`), faixa "não lido" para campo ausente, chaves de faixa
+no filtro da grade. Testes: `tests/unit/patterns.test.mjs` e `tests/e2e/v21-padroes.spec.mjs`.
+O pedido original:
 - Cruzamentos das avaliações (nitidez, problema principal) e do veredito com: faixa de ISO,
   margem de velocidade (velocidade × 1/distância focal: ≥ 2×, 1–2×, < 1×), lente, abertura,
   luz (onde / luz percebida / EV medido) e assunto parado × em movimento.

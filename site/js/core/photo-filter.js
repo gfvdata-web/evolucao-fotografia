@@ -5,17 +5,21 @@
 // Hash query keys (Portuguese, like the rest of the hash):
 //   sessao=<id>|sem-sessao   nitidez=1..5   problema=<key>   veredito=good|usable|problem|unknown
 //   avaliada=0|1             de=AAAA-MM-DD  ate=AAAA-MM-DD   (period: capture day, inclusive)
+//   iso= margem= lente= abertura= ev= onde= luz= assunto=  bands of the Painel de padrões
+//                            (v2.1; band keys in core/pattern-bands.js, "unread" included)
 // `nitidez` and `problema` only match rated photos (sharpness + main problem, decision 0012).
 import { PROBLEMS, SHARPNESS, isRated } from './rating.js';
 import { captureDate } from './sessions.js';
+import { DIMENSIONS, isBand } from './pattern-bands.js';
 
 export const NO_SESSION = 'sem-sessao';
 export const VERDICTS = ['good', 'usable', 'problem', 'unknown'];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Empty filter. */
+/** Empty filter. The band of each dimension of the Painel de padrões sits under its hash key. */
 export const emptyFilter = () => ({
   session_id: null, from: null, to: null, sharpness: null, problem: null, verdict: null, rated: null,
+  ...Object.fromEntries(DIMENSIONS.map((d) => [d.key, null])),
 });
 
 export const isFilterEmpty = (f) => Object.values(f).every((v) => v === null);
@@ -34,6 +38,7 @@ export function parseFilterQuery(query) {
   if (p.get('avaliada') === '0') f.rated = false;
   if (DATE_RE.test(p.get('de') || '')) f.from = p.get('de');
   if (DATE_RE.test(p.get('ate') || '')) f.to = p.get('ate');
+  for (const d of DIMENSIONS) if (isBand(d.key, p.get(d.key))) f[d.key] = p.get(d.key);
   return f;
 }
 
@@ -50,6 +55,7 @@ export function filterQuery(f) {
   if (f.rated !== null) p.set('avaliada', f.rated ? '1' : '0');
   if (f.from) p.set('de', f.from);
   if (f.to) p.set('ate', f.to);
+  for (const d of DIMENSIONS) if (f[d.key]) p.set(d.key, f[d.key]);
   return p.toString();
 }
 
@@ -79,6 +85,7 @@ export function matchesFilter(photo, verdict, f) {
   if (f.sharpness !== null && !(rated && photo.rating.sharpness === f.sharpness)) return false;
   if (f.problem && !(rated && photo.rating.problem === f.problem)) return false;
   if (f.verdict && verdict !== f.verdict) return false;
+  for (const d of DIMENSIONS) if (f[d.key] && d.bandOf(photo) !== f[d.key]) return false;
   return true;
 }
 
