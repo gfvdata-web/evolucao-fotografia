@@ -376,3 +376,40 @@ test('manchete: achado certo de atenção vem antes de alerta incerto', () => {
   assert.equal(get(d, 'missed_focus').certainty, 'low');
   assert.equal(d.findings[0].key, 'highlights');
 });
+
+// ------------------------------------------------------------------ v2.0.1: numbers behind "Boa"
+
+test('v2.0.1: foto "Boa" mostra o desfoque, a escala das amostras e o limite (regra 4)', () => {
+  const d = diagnosePhoto(photo({ an: analysis({ af: 0.31 }) }));
+  assert.equal(d.verdict, 'good');
+  assert.equal(d.headline, 'Nítida no ponto de foco (desfoque 0,31; o limite é 0,40).');
+  const blur = d.measures.find((m) => m.key === 'af_blur');
+  assert.match(blur.value, /^0,31 \(abaixo de 0,40: nítida\)$/);
+  assert.match(blur.note, /tripé 0,27/);
+  assert.deepEqual(blur.sources, ['pixels', 'calibration']);
+  const keysM = d.measures.map((m) => m.key);
+  for (const k of ['af_detail', 'af_source', 'tiles', 'shake', 'iso', 'histogram']) assert.ok(keysM.includes(k), k);
+  assert.match(d.measures.find((m) => m.key === 'tiles').value, /mais nítido 0,45 .* mais mole 0,45/);
+  assert.match(d.measures.find((m) => m.key === 'shake').value, /folga de 4,0×/);
+  assert.match(d.measures.find((m) => m.key === 'af_source').value, /ponto de AF gravado/);
+});
+
+test('v2.0.1: "nítida por pouco" entre 0,37 e 0,40, sem mudar o veredito', () => {
+  const near = diagnosePhoto(photo({ an: analysis({ af: 0.39 }), exposure: { shutter_s: 1 / 60 } }));
+  assert.equal(near.verdict, 'good');
+  const f = get(near, 'low_margin');
+  assert.equal(f.severity, 'info');
+  assert.match(f.text, /0,39/);
+  assert.match(f.advice, /1\/100|1\/125/);
+  // With a 4× margin already, the advice is support, not a faster speed.
+  assert.match(get(diagnosePhoto(photo({ an: analysis({ af: 0.39 }) })), 'low_margin').advice, /Apoiar/);
+  assert.equal(get(diagnosePhoto(photo({ an: analysis({ af: 0.36 }) })), 'low_margin'), undefined);
+  assert.equal(get(diagnosePhoto(photo({ an: analysis({ af: 0.44 }) })), 'low_margin'), undefined);
+});
+
+test('v2.0.1: sem análise, as medidas dizem "não medido" em vez de um número', () => {
+  const d = diagnosePhoto(photo({ an: null }));
+  const blur = d.measures.find((m) => m.key === 'af_blur');
+  assert.equal(blur.value, 'não medido');
+  assert.equal(d.measures.find((m) => m.key === 'histogram'), undefined);
+});

@@ -2,6 +2,23 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · versões semânticas.
 
+## [2.0.1] — 2026-10-19
+
+O diagnóstico mostra os números também quando a foto sai "Boa" (regra 4).
+
+### Adicionado
+- Bloco **Medidas desta foto** no cartão Diagnóstico, sempre visível: desfoque no ponto de foco
+  com a escala das amostras (tripé 0,27 · à mão 0,37 · limite 0,40 · tremidas 0,54), detalhe do
+  recorte, onde o recorte foi feito (ponto de AF gravado, área escolhida ou centro), o trecho mais
+  nítido e o mais mole do resto da foto, velocidade × referência de tremido, ISO e brilho. Cada
+  número diz de onde vem.
+- Nota **Nítida por pouco** quando o desfoque fica entre 0,37 e 0,40, com o que dá mais folga.
+- Link **"Discorda? Marque a nitidez que você vê"**, que abre a avaliação da foto.
+
+### Alterado
+- O "Boa" agora diz o número: "Nítida no ponto de foco (desfoque 0,31; o limite é 0,40)."
+  O veredito e os limites não mudaram; a calibração vem com a Rodada 2.
+
 ## [2.0.0] — 2026-10-13
 
 Reprocessamento (decisão 0017), primeira entrega da V2.

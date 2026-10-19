@@ -86,3 +86,17 @@ test('tela Avaliar mostra a mesma luz da ficha (fotômetro)', async ({ page }) =
   await expect(page.getByTestId('rate-scene-light')).toContainText('Luz da cena: EV 9,5');
   await expect(page.getByTestId('rate-scene-light')).toContainText('fotômetro');
 });
+
+test('v2.0.1: "Medidas desta foto" sempre aparece, com o número, a escala e o "Discorda?"', async ({ page }) => {
+  await uploadAndSettle(page, fx('IMG_0001.JPG'));
+  await openPhoto(page, 'IMG_0001');
+  const m = page.getByTestId('diag-measures');
+  await expect(m).toContainText('Medidas desta foto');
+  await expect(m.locator('tr[data-key="af_blur"]')).toContainText(/Desfoque no ponto de foco\s*\d,\d\d/);
+  await expect(m.locator('tr[data-key="af_blur"]')).toContainText('tripé 0,27');
+  await expect(m.locator('tr[data-key="af_source"]')).toContainText('ponto de AF gravado pela câmera');
+  await expect(m.locator('tr[data-key="shake"]')).toContainText('1/250 s para a referência 1/50 s: folga de 5,0×');
+  await expect(m.locator('tr[data-key="iso"]')).toContainText('ISO 400');
+  await m.getByTestId('diag-disagree').click();
+  await expect(page).toHaveURL(/#\/avaliar\/[^/]+\/[^/]+$/);
+});

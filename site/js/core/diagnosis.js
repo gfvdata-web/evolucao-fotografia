@@ -30,6 +30,9 @@ export const LIMITS = {
   // RF 75-300 wide open at 300 mm 0.52.
   blur_sharp: 0.40,
   blur_soft: 0.47,
+  // From here up to blur_sharp the crop is "sharp, but just": hand-held controls
+  // without shake read 0.37–0.38 in the 1st round. Only adds a note (v2.0.1).
+  blur_margin_from: 0.37,
   // Below this mean neighbour difference the crop is too flat to judge (the
   // indoor bursts F03, at 0.9–1.1, still gave sensible values).
   detail_min: 0.9,
@@ -173,7 +176,9 @@ export function focusAssessment(photo) {
   out.tiles_measured = tiles.length;
   if (tiles.length) {
     const best = tiles.reduce((m, t) => (t.blur.blur < m.blur.blur ? t : m));
+    const worst = tiles.reduce((m, t) => (t.blur.blur > m.blur.blur ? t : m));
     out.best_tile = { blur: best.blur.blur, place: placeOf(best, a.whole.tiles) };
+    out.worst_tile = { blur: worst.blur.blur, place: placeOf(worst, a.whole.tiles) };
     out.sharp_tile = best.blur.blur <= LIMITS.blur_sharp;
     out.sharper_elsewhere = out.sharp_tile && best.blur.blur <= blur.blur - LIMITS.tile_sharper_by;
     out.soft_everywhere = best.blur.blur > LIMITS.blur_sharp;
@@ -256,9 +261,66 @@ const SYMPTOM_HINTS = {
   blocky: 'Se a foto foi ampliada num aplicativo ou recortada antes de enviar, os pixels perdidos não aparecem aqui.',
 };
 
+// ------------------------------------------------------------------ measures
+
+const AF_SOURCE_TEXT = {
+  makernote: 'no ponto de AF gravado pela câmera',
+  manual: 'na área escolhida por você na ficha',
+  center: 'no centro da foto (o arquivo não gravou o ponto de AF)',
+};
+/** Where the focus crop's blur sits on the scale of the 1st round. */
+export const BLUR_SCALE_TEXT = 'Escala das amostras: tripé 0,27 · à mão sem tremido 0,37 · limite de "nítida" 0,40 · '
+  + '"mole" acima de 0,47 · tremidas 0,54–0,56 (quanto menor, mais nítida).';
+
+/**
+ * The numbers behind the verdict, shown even when the photo is "good" (rule 4):
+ * a verdict without numbers cannot be checked against what the eye sees.
+ * Nothing new is computed here: only what the diagnosis already used.
+ * @returns {{key, label, value, note, sources}[]}
+ */
+export function measuresOf(photo, focus, shake, hist) {
+  const e = photo.capture?.exposure || {};
+  const m = (key, label, value, note, sources) => ({ key, label, value, note: note || null, sources });
+  const out = [];
+  if (['sharp', 'slightly_soft', 'soft', 'low_detail'].includes(focus.state)) {
+    const where = focus.state === 'low_detail' ? 'não julgado: pouco detalhe no recorte'
+      : focus.blur <= LIMITS.blur_sharp ? `abaixo de ${dec(LIMITS.blur_sharp, 2)}: nítida`
+        : focus.blur <= LIMITS.blur_soft ? `entre ${dec(LIMITS.blur_sharp, 2)} e ${dec(LIMITS.blur_soft, 2)}: um pouco mole`
+          : `acima de ${dec(LIMITS.blur_soft, 2)}: mole`;
+    out.push(m('af_blur', 'Desfoque no ponto de foco', `${dec(focus.blur, 2)} (${where})`, BLUR_SCALE_TEXT, ['pixels', 'calibration']));
+    out.push(m('af_detail', 'Detalhe no recorte do foco', dec(focus.detail, 2),
+      `Abaixo de ${dec(LIMITS.detail_min, 1)} o recorte é liso demais para julgar a nitidez.`, ['pixels']));
+  } else {
+    out.push(m('af_blur', 'Desfoque no ponto de foco', 'não medido',
+      focus.reason === 'old_analysis' ? 'Análise de uma versão anterior.' : 'A foto ainda não foi analisada.', ['pixels']));
+  }
+  if (focus.source) out.push(m('af_source', 'Recorte do foco feito', AF_SOURCE_TEXT[focus.source] || focus.source, null, ['metadata']));
+  if (focus.tiles_measured) {
+    out.push(m('tiles', `Resto da foto (${focus.tiles_measured} trechos a 100%)`,
+      `mais nítido ${dec(focus.best_tile.blur, 2)} (${focus.best_tile.place}) · mais mole ${dec(focus.worst_tile.blur, 2)} (${focus.worst_tile.place})`,
+      'Fundo desfocado de propósito também mede mole: compare com o que devia estar nítido.', ['pixels']));
+  } else if (focus.tiles_measured === 0) {
+    out.push(m('tiles', 'Resto da foto', 'nenhum trecho com detalhe suficiente para medir', null, ['pixels']));
+  }
+  if (shake.status !== 'unknown') {
+    const v = shake.ratio <= 1
+      ? `${shutterText(shake.shutter_s)} para a referência ${shutterText(shake.reference_s)}: folga de ${dec(1 / shake.ratio, 1)}×`
+      : `${shutterText(shake.shutter_s)} para a referência ${shutterText(shake.reference_s)}: ${dec(shake.ratio, 1)}× mais lenta`;
+    out.push(m('shake', 'Velocidade × tremido', v,
+      `Referência sem estabilização: 1/distância focal (${Math.round(shake.equivalent_focal_mm)} mm). Regra geral; a Rodada 2 mede a sua mão.`, ['physics', 'rule']));
+  }
+  if (e.iso) {
+    out.push(m('iso', 'ISO', isoText(e.iso), `Grão visível ao ampliar a partir de ISO ${LIMITS.iso_ok} (regra geral).`, ['metadata', 'rule']));
+  }
+  if (hist) {
+    out.push(m('histogram', 'Brilho', `${pct(hist.clip_high)} estourado · ${pct(hist.clip_low)} quase preto · meio em ${hist.p50} de 255`, null, ['pixels']));
+  }
+  return out;
+}
+
 /**
  * Full diagnosis of a photo.
- * @returns {{version, verdict, verdict_label, headline, light, focus, possible, findings, missing, limits_note}}
+ * @returns {{version, verdict, verdict_label, headline, light, focus, possible, findings, measures, missing}}
  */
 export function diagnosePhoto(photo) {
   const c = photo.capture || {};
@@ -400,6 +462,16 @@ export function diagnosePhoto(photo) {
     missing.push(focus.reason === 'old_analysis'
       ? 'Desfoque e trechos da foto não medidos: a análise é de uma versão anterior e o original não está neste aparelho.'
       : 'Pixels ainda não analisados: nitidez no foco e histograma aguardam a análise.');
+  }
+  if (focus.state === 'sharp' && focus.blur > LIMITS.blur_margin_from) {
+    const f = finding('low_margin', 'info', 'medium', 'Nítida por pouco',
+      `O desfoque no ponto de foco (${dec(focus.blur, 2)}) está perto do limite de "nítida" (${dec(LIMITS.blur_sharp, 2)}): `
+      + 'é o valor das fotos à mão sem tremido das amostras, não o do tripé (0,27). Ao ampliar, pode parecer menos firme.',
+      ['pixels', 'calibration']);
+    f.advice = shake.ratio > 0.5
+      ? `Uma velocidade mais rápida dá folga: ${shutterText(shutterAtMost(shake.reference_s / LIMITS.shake_margin))} ou mais rápida (2× a referência).`
+      : 'Apoiar a câmera ou segurar com os cotovelos junto ao corpo dá mais folga.';
+    findings.push(f);
   }
   if (focus.noisy && ['sharp', 'slightly_soft', 'soft'].includes(focus.state)) {
     missing.push(`Em ISO ${e.iso}, o ruído conta como detalhe: o desfoque medido (${dec(focus.blur, 2)}) parece mais nítido do que a foto está.`);
@@ -545,7 +617,10 @@ export function diagnosePhoto(photo) {
   }
   const top = findings.find((x) => x.severity !== 'info') || null;
   let headline;
-  if (verdict === 'good') headline = rating ? `Você marcou nitidez ${rating.sharpness}/5 e nenhum problema.` : 'Nítida no ponto de foco.';
+  if (verdict === 'good') {
+    headline = rating ? `Você marcou nitidez ${rating.sharpness}/5 e nenhum problema.`
+      : `Nítida no ponto de foco (desfoque ${dec(focus.blur, 2)}; o limite é ${dec(LIMITS.blur_sharp, 2)}).`;
+  }
   else if (top) headline = top.title;
   else if (verdict === 'unknown') headline = 'Sem como julgar a nitidez ainda.';
   else headline = focus.state === 'slightly_soft' ? 'Um pouco mole no ponto de foco.' : 'Mole no ponto de foco.';
@@ -559,6 +634,7 @@ export function diagnosePhoto(photo) {
     focus,
     possible,
     findings,
+    measures: measuresOf(photo, focus, shake, hist),
     missing: [...new Set(missing)],
   };
 }

@@ -339,7 +339,7 @@ main { max-width: 1400px; margin: 0 auto; padding: var(--gutter); outline: none;
 .diag-table { width: 100%; border-collapse: collapse; }
 .diag-table th, .diag-table td { text-align: left; padding: 6px 8px 6px 0; vertical-align: top; border-top: 1px solid var(--border); }
 .diag-table th { font-weight: 400; color: var(--muted); width: 40%; }
-.diag-missing h4, .diag-possible h4 { margin: 12px 0 4px; }
+.diag-missing h4, .diag-possible h4, .diag-measures h4 { margin: 12px 0 4px; }
 
 /* v0.5.1 — Cenas */
 .scenes { display: grid; gap: 12px; }

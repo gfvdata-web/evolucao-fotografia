@@ -398,7 +398,9 @@ export function photoSheetView(root, { id }) {
       h('div', { class: 'sheet' },
         h('div', { class: 'sheet-media' }, fig, cropsBlock(photo, nextBag, state, labels, onPick, onReset)),
         h('div', { class: 'sheet-info' },
-          diagnosisCard(diagnosePhoto(photo)),
+          diagnosisCard(diagnosePhoto(photo), {
+            rateHref: `#/avaliar/${encodeURIComponent(photo.session_id || 'sem-sessao')}/${encodeURIComponent(photo.id)}`,
+          }),
           ratingBlock(photo, sessions),
           indicatorsBlock(photo, ind, labels),
           chainBlock(ind, labels),

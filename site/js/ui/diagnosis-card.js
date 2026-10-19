@@ -44,8 +44,26 @@ function possibleBlock(p) {
       'Física da exposição: cada ponto a mais de luz numa coisa é um ponto a menos em outra.'));
 }
 
-/** @param {object} d result of diagnosePhoto */
-export function diagnosisCard(d) {
+/** "Medidas desta foto": the numbers behind the verdict, always visible (rule 4). */
+function measuresBlock(measures, rateHref) {
+  if (!measures?.length) return null;
+  return h('div', { class: 'diag-measures', 'data-testid': 'diag-measures' },
+    h('h4', {}, 'Medidas desta foto'),
+    h('table', { class: 'diag-table' }, h('tbody', {}, measures.map((m) => h('tr', { 'data-key': m.key },
+      h('th', { scope: 'row' }, m.label),
+      h('td', {}, h('strong', {}, m.value),
+        m.note ? h('div', { class: 'small muted' }, m.note) : null,
+        h('div', { class: 'small muted' }, 'De onde vem: ', m.sources.map((s) => SOURCE_LABELS[s] || s).join(' · '), '.')))))),
+    rateHref ? h('p', { class: 'small' }, 'Discorda do que o site disse? ',
+      h('a', { href: rateHref, 'data-testid': 'diag-disagree' }, 'Marque a nitidez que você vê'),
+      ': a sua avaliação passa na frente do veredito e entra no Painel.') : null);
+}
+
+/**
+ * @param {object} d result of diagnosePhoto
+ * @param {{rateHref?: string}} [opts] link to rate this photo ("Discorda?")
+ */
+export function diagnosisCard(d, { rateHref = null } = {}) {
   const main = d.findings.filter((f) => f.severity !== 'info');
   const notes = d.findings.filter((f) => f.severity === 'info');
   return h('section', { class: 'card diag', 'data-testid': 'diagnosis', 'data-verdict': d.verdict },
@@ -57,6 +75,7 @@ export function diagnosisCard(d) {
     h('p', { class: 'small', 'data-testid': 'diag-light' }, d.light.text),
     main.length ? h('ul', { class: 'diag-findings' }, main.map((f, i) => findingItem(f, i === 0 && f.title === d.headline))) : null,
     notes.length ? h('ul', { class: 'diag-findings diag-notes' }, notes.map(findingItem)) : null,
+    measuresBlock(d.measures, rateHref),
     possibleBlock(d.possible),
     d.missing.length ? h('div', { class: 'diag-missing', 'data-testid': 'diag-missing' },
       h('h4', {}, 'O que faltou para diagnosticar'),

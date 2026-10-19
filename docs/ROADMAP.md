@@ -197,6 +197,12 @@ Feita em 13/10/2026 (decisão 0017).
 - Dados necessários: nenhum. Vem primeiro porque as estatísticas seguintes só valem com todas
   as fotos medidas pela mesma versão.
 
+### ✅ v2.0.1 — Os números por trás do "Boa"
+Pedido do Guilherme (19/10/2026): uma foto claramente mole saiu "Boa", sem nenhum número na
+ficha. O cartão Diagnóstico ganha **Medidas desta foto** (sempre visível), a nota "Nítida por
+pouco" e o link "Discorda? Marque a nitidez que você vê". O motor e os limites não mudaram: o caso
+da foto será estudado com a Rodada 2 (bloco R, fotos reais).
+
 ### ⏳ v2.1 — Painel de padrões
 - Cruzamentos das avaliações (nitidez, problema principal) e do veredito com: faixa de ISO,
   margem de velocidade (velocidade × 1/distância focal: ≥ 2×, 1–2×, < 1×), lente, abertura,
