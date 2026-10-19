@@ -4,7 +4,8 @@
 // JPEG, risco de tremido. Assim a calibração usa a mesma implementação das
 // métricas que roda no tablet (regra 6 do CLAUDE.md).
 //
-// Uso: node tests/amostras/metricas.mjs [pasta]   (padrão: amostras)
+// Uso: node tests/amostras/metricas.mjs [pasta]   (padrão: amostras; amostras/rodada2 se só ela existir)
+// Rodada 2 (amostras/rodada2/): lê cartao/ e reais/ (bloco R, com a nota em notas.txt ou no nome).
 // Antes: npm run vendor e node tests/amostras/conferir.mjs (dá o código F/T de
 // cada foto). Saída, só local: <pasta>/metricas.md, <pasta>/metricas.json e
 // <pasta>/recortes/<código>-<versão>-<af|uniforme>.png.
@@ -12,11 +13,15 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from '@playwright/test';
+import { roteiroDe, raizDe, parseNotas, notaDe } from './roteiro.mjs';
 
-const raiz = process.argv[2] ?? 'amostras';
-const PORTA = 8791;
-const cartao = join(raiz, 'cartao');
-if (!existsSync(cartao)) { console.error(`Falta a pasta ${cartao}.`); process.exit(1); }
+const raiz = raizDe(process.argv[2]);
+const rodada2 = roteiroDe(raiz).rodada === 2;
+const PORTA = Number(process.env.METRICAS_PORT ?? 8791);
+const pastasFotos = rodada2 ? ['cartao', 'reais'] : ['cartao'];
+const pastasExistentes = pastasFotos.filter((p) => existsSync(join(raiz, p)));
+if (!pastasExistentes.length) { console.error(`Falta a pasta ${join(raiz, pastasFotos[0])}.`); process.exit(1); }
+const notas = existsSync(join(raiz, 'reais', 'notas.txt')) ? parseNotas(readFileSync(join(raiz, 'reais', 'notas.txt'), 'utf8')) : new Map();
 if (!existsSync('site/vendor/zeroperl.wasm')) { console.error('Rode "npm run vendor" antes.'); process.exit(1); }
 
 // Código do roteiro de cada arquivo, a partir do relatório do conferidor.
@@ -28,18 +33,20 @@ if (existsSync(relatorio)) {
     const h = linha.match(/^## (\S+) — (.*) \(/);
     if (h) { atual = { codigo: h[1], titulo: h[2] }; continue; }
     if (atual && linha.startsWith('| Campo |')) {
-      for (const m of linha.matchAll(/<br>(IMG_\d+)\./g)) codigos.set(m[1], atual);
+      for (const m of linha.matchAll(/<br>(.+?)\.(?:cr3|jpe?g)(?=\s*\||\s*$)/gi)) codigos.set(m[1].toUpperCase(), atual);
       atual = null;
     }
   }
 } else console.warn('Sem relatorio.md: rode o conferidor antes para ter os códigos F/T.');
 
-const arquivos = readdirSync(cartao).filter((f) => /\.(cr3|jpe?g)$/i.test(f)).sort();
+const arquivos = pastasExistentes.flatMap((p) => readdirSync(join(raiz, p)).filter((f) => /\.(cr3|jpe?g)$/i.test(f)).sort().map((f) => ({ f, p })));
 // Em pares (JPG + CR3 do mesmo disparo) para não carregar tudo de uma vez.
 const grupos = new Map();
-for (const f of arquivos) {
+const pastaDe = new Map(); // base → pasta (cartao | reais)
+for (const { f, p } of arquivos) {
   const base = f.replace(/\.[^.]+$/, '').toUpperCase();
-  grupos.set(base, [...(grupos.get(base) || []), resolve(cartao, f)]);
+  pastaDe.set(base, p);
+  grupos.set(base, [...(grupos.get(base) || []), resolve(raiz, p, f)]);
 }
 
 const servidor = spawn(process.execPath, ['scripts/serve.mjs', String(PORTA)], { stdio: 'ignore' });
@@ -75,7 +82,13 @@ try {
       writeFileSync(join(pastaRecortes, `${ref.codigo}-${nome}-${variante}-${qual === 'af' ? 'af' : 'uniforme'}.png`),
         Buffer.from(dataUrl.split(',')[1], 'base64'));
     }
-    linhas.push(resumo(foto, ref, nome));
+    const linha = resumo(foto, ref, nome);
+    if (rodada2) {
+      linha.pasta = pastaDe.get(nome) ?? null;
+      linha.nota = linha.pasta === 'reais' ? notaDe(nome, notas) : null;
+      linha.ambigua = /\[ambígua/.test(ref.titulo);
+    }
+    linhas.push(linha);
   }
   linhas.sort((a, b) => a.quando.localeCompare(b.quando));
   writeFileSync(join(raiz, 'metricas.json'), JSON.stringify(linhas, null, 2));
@@ -148,6 +161,7 @@ function resumo(foto, ref, nome) {
   return {
     codigo: ref.codigo, titulo: ref.titulo, arquivo: nome, quando: c.datetime_original,
     modo: c.exposure.program, tempo_s: c.exposure.shutter_s, abertura: c.exposure.aperture, iso: c.exposure.iso,
+    ...(rodada2 ? { ev_comp: c.exposure.ev_comp ?? null } : {}),
     focal_mm: c.lens.focal_length_mm, lente: c.lens.model, af: c.focus.af_area_mode,
     areas_af: c.focus.af_point?.areas?.length ?? null, em_foco: c.focus.af_point?.in_focus?.length ?? null,
     recorte_foco: foto.crops?.af?.source, recorte_uniforme: foto.crops?.uniform?.source,

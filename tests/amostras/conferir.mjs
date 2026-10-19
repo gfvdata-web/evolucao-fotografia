@@ -1,5 +1,6 @@
 // Confere as fotos reais de calibração em amostras/ contra o roteiro.
-// Uso: node tests/amostras/conferir.mjs [pasta]   (padrão: amostras)
+// Uso: node tests/amostras/conferir.mjs [pasta]   (padrão: amostras; amostras/rodada2 se só ela existir)
+// Rodada 2: pasta amostras/rodada2/ com cartao/ (roteiro I, M, Z, A, D, E) e reais/ (bloco R).
 // Gera <pasta>/relatorio.md com: qual foto do roteiro cada arquivo é, o que o
 // ExifTool leu (texto e número), tamanho de cada versão e o que se perdeu no
 // caminho cartão → tablet. Lê com o mesmo ExifTool-WASM usado pelo site.
@@ -12,9 +13,11 @@ globalThis.document ??= {};
 import { readFileSync, readdirSync, existsSync, statSync, writeFileSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { parseMetadata } from '@uswriting/exiftool';
-import { FOTOS, PASTAS } from './roteiro.mjs';
+import { roteiroDe, raizDe, parseNotas, notaDe } from './roteiro.mjs';
 
-const raiz = process.argv[2] ?? 'amostras';
+const raiz = raizDe(process.argv[2]);
+const { rodada, fotos: FOTOS, pastas: PASTAS } = roteiroDe(raiz);
+const notas = existsSync(join(raiz, 'reais', 'notas.txt')) ? parseNotas(readFileSync(join(raiz, 'reais', 'notas.txt'), 'utf8')) : new Map();
 const wasmPath = 'site/vendor/zeroperl.wasm';
 if (!existsSync(wasmPath)) {
   console.error('Falta site/vendor/zeroperl.wasm: rode "npm run vendor" antes.');
@@ -87,7 +90,7 @@ function bate(id, m, temRaw) {
   if (id.tempo != null && !pertoStops(num(m, 'ExposureTime'), id.tempo)) return false;
   if (id.abertura != null && !perto(num(m, 'FNumber'), id.abertura, 0.15)) return false;
   if (id.iso != null && num(m, 'ISO') !== id.iso) return false;
-  if (id.focal != null && !perto(num(m, 'FocalLength'), id.focal, id.focal * 0.03)) return false;
+  if (id.focal != null && !perto(num(m, 'FocalLength'), id.focal, id.focal * (id.focalTol ?? 0.03))) return false;
   if (id.ev != null && !perto(num(m, 'ExposureCompensation'), id.ev, 0.1)) return false;
   if (id.gps && num(m, 'GPSLatitude') == null) return false;
   if (id.lente && !String(num(m, 'LensModel') ?? '').includes(id.lente)) return false;
@@ -143,25 +146,36 @@ if (!capturas.size) {
 }
 
 // Identifica cada captura pelo melhor arquivo de referência (cartão primeiro).
-const ordemRef = ['cartao/JPG', 'cartao/CR3', 'tablet/JPG', 'tablet-raw/CR3'];
+const ordemRef = ['cartao/JPG', 'cartao/CR3', 'reais/JPG', 'reais/CR3', 'tablet/JPG', 'tablet-raw/CR3'];
 const lista = [...capturas.values()].map((c) => {
   c.ref = ordemRef.map((k) => c.versoes[k]).find(Boolean) ?? Object.values(c.versoes)[0];
   c.temRaw = Boolean(c.versoes['cartao/CR3'] || c.versoes['tablet-raw/CR3']);
   c.quando = `${num(c.ref, 'DateTimeOriginal') ?? ''}.${cru(c.ref, 'SubSecTimeOriginal') ?? ''}`;
-  c.candidatas = FOTOS.filter((f) => bate(f.id, c.ref, c.temRaw)).map((f) => f.codigo);
+  c.real = Object.keys(c.versoes).some((k) => k.startsWith('reais/'));
+  c.candidatas = c.real ? [] : FOTOS.filter((f) => bate(f.id, c.ref, c.temRaw)).map((f) => f.codigo);
   return c;
 }).sort((a, b) => a.quando.localeCompare(b.quando));
 
-// Desempate (F08/F09): candidatos idênticos recebem os códigos na ordem de captura.
+// Desempate de EXIF idêntico (F08/F09; na rodada 2, A01 × D01/D02, A05 × E03, Z09/Z10 × D03/D04):
+// cada foto, na ordem de captura, recebe o primeiro candidato do roteiro que ainda tem vaga.
+// Sobrando foto (mais fotos que vagas), fica no último candidato.
 const usados = new Map();
+let reais = 0;
 for (const c of lista) {
-  const grupo = c.candidatas.join('+');
+  if (c.real) {
+    c.codigo = `R${String(++reais).padStart(2, '0')}`;
+    c.nota = notaDe(c.ref.nome, notas);
+    continue;
+  }
   if (c.candidatas.length > 1) {
-    const i = usados.get(grupo) ?? 0;
-    c.codigo = c.candidatas[Math.min(i, c.candidatas.length - 1)];
-    usados.set(grupo, i + 1);
+    c.ambigua = rodada === 2;
+    c.codigo = c.candidatas.find((k) => (usados.get(k) ?? 0) < (FOTOS.find((f) => f.codigo === k).quantidade ?? 1))
+      ?? c.candidatas[c.candidatas.length - 1];
   } else c.codigo = c.candidatas[0] ?? '??';
+  usados.set(c.codigo, (usados.get(c.codigo) ?? 0) + 1);
 }
+// Quem dividiu o EXIF com outro bloco é marcado: a ordem de captura é só um palpite.
+const ambiguaDe = (c) => (c.ambigua ? ` [ambígua: ${c.candidatas.join('/')}]` : '');
 
 // ----- Relatório ------------------------------------------------------------
 const L = [];
@@ -177,6 +191,12 @@ for (const f of FOTOS) {
   const versoes = [...new Set(achadas.flatMap((c) => Object.keys(c.versoes)))].join(', ');
   L.push(`| ${f.codigo} | ${f.titulo} | ${status} | ${versoes || '—'} |`);
 }
+if (rodada === 2) {
+  const r = lista.filter((c) => c.real);
+  L.push('', `**Bloco R (fotos reais):** ${r.length} fotos; com nota: ${r.filter((c) => c.nota != null).length}.`);
+  const semNota = r.filter((c) => c.nota == null).map((c) => c.ref.nome);
+  if (semNota.length) L.push('', `Sem nota (use reais/notas.txt ou o sufixo _n1.._n5): ${semNota.join(', ')}`);
+}
 const soltas = lista.filter((c) => c.codigo === '??');
 if (soltas.length) {
   L.push('', `**Não reconhecidas (${soltas.length}):** ${soltas.map((c) => Object.values(c.versoes).map((m) => `${m.pasta}/${m.nome}`).join(' + ')).join('; ')}`);
@@ -184,7 +204,8 @@ if (soltas.length) {
 
 for (const c of lista) {
   const f = FOTOS.find((x) => x.codigo === c.codigo);
-  L.push('', `## ${c.codigo} — ${f?.titulo ?? 'não reconhecida'} (${c.quando})`, '');
+  const titulo = c.real ? `Foto real${c.nota != null ? `, nota ${c.nota}` : ', sem nota'}` : `${f?.titulo ?? 'não reconhecida'}${ambiguaDe(c)}`;
+  L.push('', `## ${c.codigo} — ${titulo} (${c.quando})`, '');
   if (f) L.push(`Gabarito: ${Object.entries(f.confere).map(([k, v]) => `${k} = ${Array.isArray(v) ? v.join('×') : v}`).join('; ')}`, '');
   const chaves = Object.keys(c.versoes).sort((a, b) => ordemRef.indexOf(a) - ordemRef.indexOf(b));
   L.push(`| Campo | ${chaves.map((k) => `${k}<br>${c.versoes[k].nome}`).join(' | ')} |`, `|---|${chaves.map(() => '---').join('|')}|`);

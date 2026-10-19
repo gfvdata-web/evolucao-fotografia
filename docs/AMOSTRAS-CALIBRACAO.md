@@ -99,76 +99,65 @@ Os números dos campos Canon (método AF, estilo, NR, ponto de AF) vêm das pró
 
 # Rodada 2: o equipamento e a sua mão
 
-Pedido de 2026-10-12 (decisão 0011). A 1ª rodada calibrou a **leitura** dos metadados. Esta mede
-o que o motor de diagnóstico da v0.5 precisa saber para orientar a partir de uma foto só:
+Roteiro de bolso, para ler no tablet ao lado da câmera. Revisto em 19/10/2026. São **~50
+disparos em três saídas**, mais as suas fotos reais. A ordem das saídas não importa. Dentro de um
+bloco, fotografe tudo em poucos minutos e com o mesmo assunto, para a luz não mudar.
 
-- até onde subir o ISO compensa, em vez de arriscar tremido;
-- o **seu** limite de tremido à mão, na 50 mm e na 75-300;
-- a abertura mais nítida da RF 50;
-- como fica uma foto com foco errado, para não confundir com tremido;
-- quando o céu estoura.
+O que cada bloco ensina ao site:
 
-São **~50 disparos**, em umas duas saídas: uma com tripé, na janela, e outra à mão livre. A
-ordem dos blocos não importa. Dentro de cada bloco, fotografe tudo em poucos minutos, com o
-mesmo assunto, para a luz não mudar.
-
-**Como você usa cada lente, e por isso o roteiro é assim:** a **RF 50 só à mão livre**; a
-**RF 75-300 no tripé** (assunto longe, da janela) **e à mão**.
-
-## Configuração base da Rodada 2
-
-A mesma da 1ª rodada (RAW + JPEG L, 3:2, AWB, One-Shot, AF de 1 ponto, avaliativa, sem flash,
-redução de ruído Padrão), com uma diferença: **estilo de imagem no seu habitual (Auto)**. Aqui
-se mede a foto como você realmente tira.
-
-**ISO Auto com velocidade mínima** (blocos A e E): no menu *ISO speed settings* →
-*Min. shutter spd.*, escolha **1/250**. Assim, na 50 mm à mão, a câmera sobe o ISO em vez de
-baixar a velocidade, e o tremido não atrapalha a medida. Se não achar o ajuste, fotografe ao
-ar livre, de dia, e confira no visor que a velocidade ficou em 1/250 ou mais rápida.
-Volte o ajuste ao seu normal no fim.
-
-## Bloco I: escada de ISO (tripé, RF 75-300)
-
-Mede o ruído de verdade em cada ISO, na mesma cena. **Tripé, temporizador 2 s, 200 mm, modo
-Av, f/11**, AF de 1 ponto sobre um alvo com detalhe fino. Deixe no quadro uma área lisa
-(parede, céu sem nuvem, muro). **Melhor no fim da tarde ou em dia nublado:** no sol forte, os
-ISOs altos passam do limite de 1/4000 e a foto estoura. Se a câmera piscar 4000 no visor, pare
-a escada ali e avise.
-
-| Código | Ajustes |
+| Bloco | O que mede |
 |---|---|
-| I01 | ISO 100 |
-| I02 | ISO 200 |
-| I03 | ISO 400 |
-| I04 | ISO 800 |
-| I05 | ISO 1600 |
-| I06 | ISO 3200 |
-| I07 | ISO 6400 |
-| I08 | ISO 12800 |
-| I09 | ISO 25600 |
+| I | ruído em cada ISO: até onde subir o ISO compensa |
+| M e Z | o **seu** limite de tremido à mão, a 50, 100 e 300 mm |
+| A | a abertura mais nítida da RF 50 |
+| D | foco errado, para não confundir com tremido |
+| E | quando o céu estoura |
+| **R** | **as suas fotos reais**: onde o site diz "Boa" e você vê mole |
 
-## Bloco M: a sua mão na RF 50
+## Antes de começar (checklist da câmera)
 
-Mede a velocidade a partir da qual a sua mão para de tremer a 50 mm. **À mão livre, modo Tv,
-ISO Auto** (sem a velocidade mínima: aqui a velocidade é o que se testa). Objeto parado com
-detalhe fino (texto, tecido, folhas), a 1–3 m, **dentro de casa ou na sombra**. Segure do jeito
-de sempre. **Duas fotos em cada velocidade**, porque o tremido varia de uma para outra.
+- [ ] **RAW + JPEG L**, proporção **3:2**, AWB, **One-Shot**, **AF de 1 ponto**, medição avaliativa, sem flash.
+- [ ] Redução de ruído em **Padrão**, estilo de imagem no seu **habitual (Auto)**.
+- [ ] Compensação de exposição em **0**, salvo no bloco E.
+- [ ] Data e hora da câmera certas.
+- [ ] Nas saídas 2 e 3, **ISO Auto**. Nos blocos A e E, ponha em *ISO speed settings → Min. shutter spd.* o valor **1/250**. Se não achar, fotografe de dia, ao ar livre, com a velocidade no visor em 1/250 ou mais rápida.
 
-| Código | Ajustes |
-|---|---|
-| M01, M02 | 1/15 |
-| M03, M04 | 1/30 |
-| M05, M06 | 1/60 |
-| M07, M08 | 1/125 |
-| M09, M10 | 1/250 |
+Os números da coluna "Ajustes" são **obrigatórios**: é por eles que o site reconhece cada foto.
+O assunto é livre. Se um ajuste não for possível, use o mais próximo e me avise.
 
-## Bloco Z: a sua mão na RF 75-300
+## Saída 1: tripé na janela (RF 75-300), ~12 fotos
 
-O mesmo, na tele. **À mão livre, modo Tv, ISO Auto**, algo distante com detalhe (placa,
-telhado, antena), **de dia**. A 1ª rodada já tem 1/100 (F06), 1/640 (T07) e 1/1000 (F07) em
-300 mm; aqui fecha a curva e confere se o limite muda na proporção da distância focal.
+Fim de tarde ou dia nublado (no sol forte, os ISOs altos passam de 1/4000).
 
-| Código | Focal | Ajustes |
+**Bloco I, escada de ISO.** Modo **Av**, **f/11**, **200 mm**, temporizador **2 s**, AF sobre um
+alvo com detalhe fino. Deixe no quadro uma área lisa (parede, céu sem nuvem). Se o visor piscar
+4000, pare a escada ali e avise.
+
+| I01 | I02 | I03 | I04 | I05 | I06 | I07 | I08 | I09 |
+|---|---|---|---|---|---|---|---|---|
+| ISO 100 | 200 | 400 | 800 | 1600 | 3200 | 6400 | 12800 | 25600 |
+
+**Pendentes da 1ª rodada**, no mesmo tripé, **300 mm**, modo **Av**, **f/8**:
+
+| Código | Ajustes | Como |
+|---|---|---|
+| T08 | ISO **400** | sem temporizador (*Single shooting*), disparando com o dedo |
+| T09 | ISO **800** | temporizador de **10 s**, mãos fora |
+| T06 | ISO **200** | **janela fechada**, através do vidro (só se você fotografa através de vidro) |
+
+## Saída 2: à mão, de dia, ao ar livre, 29 fotos
+
+**Bloco A, abertura da RF 50.** Modo **Av**, ISO Auto com mínimo 1/250. Assunto plano e com
+detalhe (fachada, muro de tijolos, placa), a 3–5 m, de frente, ponto de AF no centro.
+
+| A01 | A02 | A03 | A04 | A05 | A06 | A07 |
+|---|---|---|---|---|---|---|
+| f/1.8 | f/2.8 | f/4 | f/5.6 | f/8 | f/11 | f/16 |
+
+**Bloco Z, a sua mão na RF 75-300.** Modo **Tv**, ISO Auto, algo distante com detalhe. **Duas
+fotos em cada velocidade a 300 mm**, porque o tremido varia de uma para outra.
+
+| Código | Focal | Velocidade |
 |---|---|---|
 | Z01, Z02 | 300 mm | 1/60 |
 | Z03, Z04 | 300 mm | 1/125 |
@@ -179,70 +168,75 @@ telhado, antena), **de dia**. A 1ª rodada já tem 1/100 (F06), 1/640 (T07) e 1/
 | Z12 | **100 mm** | 1/60 |
 | Z13 | **100 mm** | 1/125 |
 
-## Bloco A: abertura da RF 50 (à mão)
-
-Mede a abertura mais nítida da 50 mm e onde a difração começa (a 75-300 já foi medida na
-T01–T04). **À mão livre, modo Av, ISO Auto com velocidade mínima 1/250**, de dia, ao ar livre.
-Assunto **plano e com detalhe**, a 3–5 m, de frente: fachada, muro de tijolos, placa. Ponto de
-AF no **centro**.
-
-| Código | Ajustes |
-|---|---|
-| A01 | f/1.8 |
-| A02 | f/2.8 |
-| A03 | f/4 |
-| A04 | f/5.6 |
-| A05 | f/8 |
-| A06 | f/11 |
-| A07 | f/16 |
-
-## Bloco D: foco errado de propósito
-
-Ensina o site a separar "focou no lugar errado" de "tremeu". Escolha um objeto **perto**, com
-um fundo **bem longe** atrás dele. As fotos vão em pares: uma com o ponto de AF no objeto e
-outra com o ponto de AF no fundo, **sem mudar o enquadramento**.
+**Bloco D, foco errado de propósito.** Um objeto **perto**, com um fundo **bem longe**. As fotos
+vão em pares, **sem mudar o enquadramento**: uma com o ponto de AF no objeto e outra no fundo.
 
 | Código | Lente | Ajustes | Ponto de AF |
 |---|---|---|---|
-| D01 | RF 50 | Av f/1.8 · ISO Auto | no objeto, a ~1 m |
+| D01 | RF 50 | Av **f/2** · ISO Auto | no objeto, a ~1 m |
 | D02 | RF 50 | igual à D01 | **no fundo** |
-| D03 | RF 75-300 em 300 mm, à mão | Tv 1/1000 · ISO Auto | no objeto, a 3–5 m |
-| D04 | RF 75-300 em 300 mm, à mão | igual à D03 | **no fundo** |
+| D03 | RF 75-300 em 300 mm | Tv **1/800** · ISO Auto | no objeto, a 3–5 m |
+| D04 | RF 75-300 em 300 mm | igual à D03 | **no fundo** |
 
-## Bloco E: céu e exposição (RF 50, à mão)
+(f/2 e 1/800 são de propósito: com f/1.8 e 1/1000, o site confundiria D com A01 e Z09.)
 
-Mede quando o céu estoura e quando as sombras ficam pretas. Uma cena com **céu claro e chão ou
-prédios mais escuros** no mesmo quadro, de dia. **Modo Av, f/8, ISO Auto com velocidade mínima
-1/250**, mesmo enquadramento em todas. Muda só a compensação de exposição.
+**Bloco E, céu e exposição.** RF 50, modo **Av**, **f/7.1**, ISO Auto com mínimo 1/250. Uma cena
+com **céu claro e chão ou prédios mais escuros**, sempre o mesmo enquadramento. Muda só a
+compensação.
 
-| Código | Compensação |
+| E01 | E02 | E03 | E04 | E05 |
+|---|---|---|---|---|
+| −2 EV | −1 EV | 0 | +1 EV | +2 EV |
+
+## Saída 3: à mão, dentro de casa ou na sombra (RF 50), 10 fotos
+
+**Bloco M, a sua mão na RF 50.** Modo **Tv**, ISO Auto **sem** a velocidade mínima (aqui a
+velocidade é o que se testa). Objeto parado com detalhe fino (texto, tecido, folhas), a 1–3 m.
+Segure do jeito de sempre. **Duas fotos em cada velocidade.**
+
+| M01, M02 | M03, M04 | M05, M06 | M07, M08 | M09, M10 |
+|---|---|---|---|---|
+| 1/15 | 1/30 | 1/60 | 1/125 | 1/250 |
+
+## Bloco R: as suas fotos reais (a qualquer hora)
+
+São as fotos que ensinam o site a ver como você vê. Escolha, das suas saídas normais:
+
+- **5 a 10 fotos que você acha moles**, inclusive a que o site chamou de "Boa";
+- **5 a 10 fotos que você acha nítidas**.
+
+Do jeito que saíram da câmera (de preferência CR3 + JPG do cartão), sem editar. Para cada uma,
+dê uma nota de nitidez de **1 a 5**, como na tela Avaliar: escreva num arquivo `notas.txt`, uma
+linha por foto (`IMG_1234 2`), ou ponha a nota no fim do nome (`IMG_1234_n2.JPG`).
+
+## Entrega
+
+| O quê | Onde |
 |---|---|
-| E01 | −2 EV |
-| E02 | −1 EV |
-| E03 | 0 |
-| E04 | +1 EV |
-| E05 | +2 EV |
+| Saídas 1 a 3 (CR3 + JPG, sem renomear) | `EvolucaoFotografia\amostras\rodada2\cartao\` |
+| Bloco R (fotos + `notas.txt`) | `EvolucaoFotografia\amostras\rodada2\reais\` |
 
-## Pendentes da 1ª rodada (série T, no tripé)
-
-Faça junto com o bloco I, que já está no tripé: **T08 em 300 mm** (a da 1ª rodada saiu em 205 mm),
-**T09** e, se você fotografa através de vidro, **T06**. Ajustes na tabela da série T acima.
-
-## Entrega da Rodada 2
-
-Só **do cartão, pelo leitor**: o CR3 e o JPG de todas as fotos, em
-`EvolucaoFotografia\amostras\rodada2\cartao\`, sem renomear nem editar. Não precisa da versão do
-tablet: a 1ª rodada mostrou que o Camera Connect com **Tam. original** não altera a foto.
+A versão do tablet não é necessária: a 1ª rodada mostrou que o Camera Connect em **Tam.
+original** não altera a foto. Se quiser, passe também o cartão pelo `importar.bat` e importe o
+pacote no site: isso confere o importador com um cartão real, o último item da V1.
 
 **Ao terminar, volte a câmera à sua configuração normal** (velocidade mínima do ISO Auto,
 compensação em 0).
 
 ## Para o Claude, ao receber a Rodada 2
 
-1. Acrescentar os blocos I, M, Z, A, D e E em `tests/amostras/roteiro.mjs` (reconhecimento pelo
-   EXIF; nos pares de mesma configuração, `quantidade: 2`) e fazer o `conferir.mjs` e o
-   `metricas.mjs` aceitarem `amostras/rodada2/`.
-2. Rodar os dois e registrar em `docs/CALIBRACAO-RESULTADOS.md`: curva de ruído por ISO, limite
-   de tremido da mão a 50, 100 e 300 mm, nitidez por abertura da RF 50, nitidez no AF × no fundo
-   (D01–D04) e histograma por compensação (E01–E05).
-3. Esses números viram os limites do motor de diagnóstico da v0.5 (decisão 0011).
+O código já está pronto (19/10/2026):
+
+1. `node tests/amostras/conferir.mjs amostras/rodada2`: reconhece cada foto pelo EXIF (gabarito
+   em `tests/amostras/roteiro.mjs`, `FOTOS_R2`) e gera `amostras/rodada2/relatorio.md`. Conferir
+   fotos faltando, sobrando ou marcadas `ambigua`.
+2. `node tests/amostras/metricas.mjs amostras/rodada2`: as métricas do site em cada foto
+   (`amostras/rodada2/metricas.json`).
+3. `node tests/amostras/calibrar.mjs amostras/rodada2`: escreve `proposta-limites.md` com a
+   curva de ruído por ISO, o limite de tremido a 50, 100 e 300 mm, a abertura mais nítida da RF
+   50, o AF × o fundo (D) e o estouro por compensação. Para o bloco R, o limiar de desfoque que
+   separa as notas 4–5 das 1–2, comparado com cada valor atual de `LIMITS`.
+4. Estudar as fotos R que o site chamou de "Boa" e você marcou mole (caso de 19/10/2026).
+5. Mostrar a proposta ao Guilherme. Só com o OK dele os números vão para `LIMITS`
+   (`core/diagnosis.js`) e `lens-profiles.js`, com resultado em `docs/CALIBRACAO-RESULTADOS.md`.
+   Se a métrica de desfoque mudar, subir a versão das métricas e reprocessar (v2.0).
